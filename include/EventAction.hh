@@ -46,8 +46,15 @@ public:
   virtual void BeginOfEventAction(const G4Event*);
   virtual void EndOfEventAction(const G4Event*);
 
-private:
+  void addDeabsorptionIN() {deabsorptionIN++;}
+  void addDeabsorptionOUT() {deabsorptionOUT++;}
+  G4int getDeabsorptionIN() {return deabsorptionIN;}
+  G4int getDeabsorptionOUT() {return deabsorptionOUT;}
 
+  G4bool checkRn220Pos{0};
+private:
+  G4int deabsorptionIN{0};
+  G4int deabsorptionOUT{0};
 
 };
 

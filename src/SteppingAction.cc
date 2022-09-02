@@ -65,10 +65,28 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
   G4cout << step->GetTrack()->GetParticleDefinition()->GetParticleName() << " " << step->GetPreStepPoint()->GetPosition()<< " " << step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() << G4endl;
     }
 
+  if ((particleName == "Po216") && (fpEventAction->checkRn220Pos ==0))
+  // Rn220 is diffused when decay occurs by placing the porducts at the diffusion point, Rn220 position is not changed. Therefore use the first position of Po216 instead to workout where Rn220 decayed.
+  {
+    // G4cout << 
+    if ( step->GetPreStepPoint()->GetPhysicalVolume()->GetName()=="seed")
+    {
+      fpEventAction->addDeabsorptionIN();
+    }
+    else
+    {
+      fpEventAction->addDeabsorptionOUT();
+
+    }
+    fpEventAction->checkRn220Pos = 1;
+
+  }
+
   G4double particleEnergy = step->GetPreStepPoint()->GetKineticEnergy();
   if ((particleName == "Pb208") && (particleEnergy == 0))
   {
     step->GetTrack()->SetTrackStatus(fKillTrackAndSecondaries);
   }
+
 
 }

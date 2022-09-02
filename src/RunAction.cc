@@ -43,6 +43,7 @@ using namespace G4DNAPARSER;
 RunAction::RunAction()
     : G4UserRunAction()
 {
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -62,6 +63,11 @@ void RunAction::BeginOfRunAction(const G4Run*)
 void RunAction::EndOfRunAction(const G4Run* run)
 {
     WriteNtuple(run);
+      auto fpEventAction = (EventAction *)G4EventManager::GetEventManager()->GetUserEventAction();
+
+      G4double deabsorptionOUT = fpEventAction->getDeabsorptionOUT();
+      G4double deabsorptionIN = fpEventAction->getDeabsorptionIN();
+      G4cout << "Deabsoption of Radon from is " << deabsorptionOUT/(deabsorptionOUT+deabsorptionIN)*100 << "%, expect 40%." << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
