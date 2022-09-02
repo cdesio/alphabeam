@@ -51,11 +51,17 @@ public:
   G4int getDeabsorptionIN() {return deabsorptionIN;}
   G4int getDeabsorptionOUT() {return deabsorptionOUT;}
 
+  void addPbLeakage() {PbLeakage++;}
+  void addPbNoLeakage() {PbNoLeakage++;}
+  G4int getPbLeakage() {return PbLeakage;}
+  G4int getPbNoLeakage() {return PbNoLeakage;}
+
   G4bool checkRn220Pos{0};
 private:
   G4int deabsorptionIN{0};
   G4int deabsorptionOUT{0};
-
+  G4int PbLeakage{0};
+  G4int PbNoLeakage{0};
 };
 
 #endif
