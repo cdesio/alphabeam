@@ -62,7 +62,7 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
     G4String particleName = step->GetTrack()->GetParticleDefinition()->GetParticleName();
     if ((particleName!="e-")&&(particleName!="alpha"))
     {
-  G4cout << step->GetTrack()->GetParticleDefinition()->GetParticleName() << " " << step->GetPreStepPoint()->GetPhysicalVolume()->GetName() << " " << step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() << G4endl;
+  G4cout << step->GetTrack()->GetParticleDefinition()->GetParticleName() << " " << step->GetPreStepPoint()->GetPosition()<< " " << step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() << G4endl;
     }
 
   G4double particleEnergy = step->GetPreStepPoint()->GetKineticEnergy();
