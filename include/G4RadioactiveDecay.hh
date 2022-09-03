@@ -75,7 +75,7 @@ public: // with description
   G4RadioactiveDecay(const G4String &processName = "RadioactiveDecay");
   ~G4RadioactiveDecay();
 
-  G4ThreeVector calculateDiffusion(const G4double t, const G4double D) ;
+  G4ThreeVector calculateDiffusion(const G4double t, const G4double Dwater, const G4double Dsteel, const G4Track& theTrack) ;
   
   virtual void ProcessDescription(std::ostream &outFile) const;
 

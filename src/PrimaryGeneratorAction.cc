@@ -70,7 +70,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   G4double wireRadius = 0.15*mm;
   G4double zPos = (G4UniformRand() - 0.5) * wireLength;
   G4double DummyAngle = G4UniformRand() * 2 * 3.1415926535;
-  G4double depth = 2*nm; //depth variable to give optimal desorbtion percentages ?? deabsorption should include diffusion from next step??
+  G4double depth = 10*nm; //depth variable to be tuned to give optimal desorbtion percentages 
   G4double xPos = (wireRadius-depth)*cos(DummyAngle);
   G4double yPos = (wireRadius-depth)*sin(DummyAngle);
 

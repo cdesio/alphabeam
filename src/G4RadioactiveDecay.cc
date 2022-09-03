@@ -519,7 +519,7 @@ void G4RadioactiveDecay::StreamInfo(std::ostream &os, const G4String &endline)
        << endline;
     os << "======================================================================"
        << endline;
-    os << "Max life time                                     "
+    os << "std::max life time                                     "
        << deex->GetMaxLifeTime() / CLHEP::ps << " ps" << endline;
     os << "Internal e- conversion flag                       "
        << deex->GetInternalConversionFlag() << endline;
@@ -1274,19 +1274,25 @@ void G4RadioactiveDecay::DecayAnalog(const G4Track &theTrack)
     const G4int modelID_forAtomicRelaxation =
         G4PhysicsModelCatalog::GetModelID("model_RDM_AtomicRelaxation");
 
-    G4ThreeVector newPos{0};
+    G4ThreeVector changePosition{0};
     if ((numberOfSecondaries > 0) && (theTrack.GetParticleDefinition()->GetParticleName() == "Rn220"))
     {
-        newPos = calculateDiffusion(finalLocalTime, 1.9e-3); // mm2 s-1
+        changePosition = calculateDiffusion(finalLocalTime, 1.9e-3, 1e-6, theTrack); // mm2 s-1
+
+            // G4cout << "position before diffusion" << theTrack.GetPosition() << G4endl;
+    // G4cout << "position after diffusion" << theTrack.GetPosition() + changePosition << G4endl;
     }
     if ((numberOfSecondaries > 0) && (theTrack.GetParticleDefinition()->GetParticleName() == "Pb212"))
     {
-        newPos = calculateDiffusion(finalLocalTime, 0.651e-5); // mm2 s-1
+        changePosition = calculateDiffusion(finalLocalTime, 0.651e-5, 1e-6, theTrack); // mm2 s-1
+            // G4cout << "position before diffusion" << theTrack.GetPosition() << G4endl;
+    // G4cout << "position after diffusion" << theTrack.GetPosition() + changePosition << G4endl;
     }
+
     for (G4int index = 0; index < numberOfSecondaries; ++index)
     {
         G4Track *secondary = new G4Track(products->PopProducts(), finalGlobalTime,
-                                    theTrack.GetPosition()+newPos);
+                                         theTrack.GetPosition() + changePosition);
         secondary->SetWeight(theTrack.GetWeight());
         secondary->SetCreatorModelID(modelID);
         // Change for atomics relaxation
@@ -1448,12 +1454,140 @@ G4ThreeVector G4RadioactiveDecay::ChooseCollimationDirection() const
     return dir;
 }
 
-G4ThreeVector G4RadioactiveDecay::calculateDiffusion(const G4double t, const G4double D)
+G4ThreeVector G4RadioactiveDecay::calculateDiffusion(const G4double diffusionTime, const G4double Dwater, const G4double Dsteel, const G4Track &theTrack)
 {
+    G4ThreeVector changePosition = G4ThreeVector();
 
-    G4double x = G4RandGauss::shoot(0, sqrt(2 * D * t / s));
-    G4double y = G4RandGauss::shoot(0, sqrt(2 * D * t / s));
-    G4double z = G4RandGauss::shoot(0, sqrt(2 * D * t / s));
+    // generate random direction vector for the total diffusion
+    G4ThreeVector direction = G4ThreeVector(G4UniformRand() - 0.5, G4UniformRand() - 0.5, G4UniformRand() - 0.5);
+    direction = direction * 1 / direction.mag();
 
-    return G4ThreeVector(x, y, z);
+    G4ThreeVector startPos = theTrack.GetPosition();
+    G4String startVolume = theTrack.GetVolume()->GetName();
+
+    // Check if the direction vector ever intersects with the seed
+    G4double r = 0.15 * mm;
+    G4double zMinMax = 3 * mm;
+
+    G4double A = direction.x() * direction.x() + direction.y() * direction.y();
+    G4double B = 2 * (startPos.x() * direction.x() + startPos.y() * direction.y());
+    G4double C = startPos.x() * startPos.x() + startPos.y() * startPos.y() - r * r;
+
+    if (startVolume == "seed")
+    {
+        // if the diffusion starts in the seed then there is only a positive solution to the intersection of the cylinder and direction
+        G4double tRadial = (-B + sqrt(B * B - 4 * A * C)) / (2 * A); // arb time to reach seed cyclinder side boundary
+
+        G4double tZmin = (-1 * zMinMax - startPos.z()) / direction.z();
+        G4double tZmax = (zMinMax - startPos.z()) / direction.z();
+
+        G4double tZ = std::max(tZmin, tZmax); // get positive solution
+
+        G4double t = std::min(tZ, tRadial);
+
+        G4double distToOutSeed = (t * direction).mag();
+
+        G4double distSteelDiff = abs(G4RandGauss::shoot(0, sqrt(6 * Dsteel * diffusionTime / s)));
+
+        if (distSteelDiff < distToOutSeed)
+        {
+            // does not leave seed due to diffusion
+            changePosition = distSteelDiff * direction;
+            // G4cout << "Never leave seed " << startVolume << G4endl;
+        }
+        else
+        {
+            // diffusion starts in seed then enters the world
+
+            // calculate expected time to diffuse to the boundary of seed
+            G4double time = (distToOutSeed * distToOutSeed) / (6 * Dsteel);
+            G4double tRemain = diffusionTime - time;
+            G4double distanceWater = G4RandGauss::shoot(0, sqrt(6 * Dwater * tRemain / s));
+            changePosition = distSteelDiff * direction + distanceWater * direction;
+            // G4cout << "Diffuses out of seed into world " << G4endl;
+        }
+    }
+    else
+    {
+        if ((B * B - 4 * A * C) < 0)
+        {
+            // The ray never intersects the cylinder therefore all of the diffusion occurs in the world volue
+            G4double distWaterDiff = abs(G4RandGauss::shoot(0, sqrt(6 * Dwater * diffusionTime / s)));
+            changePosition = distWaterDiff * direction;
+
+            // G4cout << "Never crosses seed " << startVolume << G4endl;
+        }
+        else
+        {
+            // The diffusion starts in the world and possibly crosses the seed
+            // G4cout << "starts in world and might cross seed" << startVolume << G4endl;
+
+            G4double distanceWater = abs(G4RandGauss::shoot(0, sqrt(6 * Dwater * diffusionTime / s)));
+
+            // option 1 it starts outside and stops inside
+            G4double tRadial1 = (-B + sqrt(B * B - 4 * A * C)) / (2 * A); // arb time to reach seed cyclinder side boundary
+            G4double tRadial2 = (-B - sqrt(B * B - 4 * A * C)) / (2 * A); // arb time to reach seed cyclinder side boundary
+            G4double tZmin = (-1 * zMinMax - startPos.z()) / direction.z();
+            G4double tZmax = (zMinMax - startPos.z()) / direction.z();
+
+            G4double firstCrossRadialTime = std::min(tRadial1, tRadial2);
+
+            G4double firstCrossPointDistance;
+            // check if this crossing is within height if the cylinder
+            if (abs(firstCrossRadialTime * direction.z()) < zMinMax)
+            {
+                // the firstCrossRadialTime does cross, check if top or bottom surfaces happen first
+                firstCrossPointDistance = (firstCrossRadialTime * direction).mag();
+            }
+            else
+            {
+                // it crosses top or bottom first
+                firstCrossPointDistance = (std::min(tZmin, tZmax) * direction).mag(); // get positive solution
+            }
+
+            if (distanceWater < firstCrossPointDistance)
+            {
+                // never reaches the seed
+                changePosition = distanceWater * direction;
+                // G4cout << "Never crosses seed stays in water" << startVolume << G4endl;
+            }
+            else
+            {
+                // does enter the seed
+                // calculate the time remaining for diffusion after reaching the seed
+                G4double timeAfterEntry = (firstCrossPointDistance * firstCrossPointDistance) / (6 * Dwater);
+                G4double tRemain = diffusionTime - timeAfterEntry;
+
+                // calculate exit time
+                G4double exitTime = std::min(std::max(tRadial1, tRadial2), std::max(tZmin, tZmax));
+
+                // calculate the distance to cross the seed and the expected time
+                auto distanceCrossSeed = ((firstCrossPointDistance * direction) - (exitTime * direction)).mag();
+
+                // does it diffuse further than the distance to cross the seed
+                G4double distSteelDiff = abs(G4RandGauss::shoot(0, sqrt(6 * Dsteel * tRemain / s)));
+
+                if (distSteelDiff < distanceCrossSeed)
+                {
+                    changePosition = distSteelDiff * direction + distanceWater * direction;
+                    // G4cout << "finished in seed" << startVolume << G4endl;
+                }
+                else
+                {
+                    // crosses the seed and re-enters the world
+                    // calculate the time remaining for diffusion after crossing the seed
+                    G4double timeToCross = (distanceCrossSeed * distanceCrossSeed) / (6 * Dsteel);
+                    G4double tRemainAfterExit = tRemain - timeToCross;
+
+                    G4double distanceWater2 = abs(G4RandGauss::shoot(0, sqrt(6 * Dwater * tRemainAfterExit / s)));
+
+                    changePosition = distSteelDiff * direction + distanceWater * direction + distanceWater2 * direction;
+
+                    // G4cout << "starts in world and crosses the seed" << startVolume << G4endl;
+                }
+            }
+        }
+    }
+
+    return changePosition;
 }
