@@ -34,6 +34,7 @@
 #include "G4Event.hh"
 #include "DetectorConstruction.hh"
 #include "git_version.hh"
+#include "G4SystemOfUnits.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 using namespace G4DNAPARSER;
@@ -53,30 +54,7 @@ RunAction::~RunAction()
 
 void RunAction::BeginOfRunAction(const G4Run *)
 {
-    CreateNtuple();
-}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
-
-void RunAction::EndOfRunAction(const G4Run *run)
-{
-    WriteNtuple(run);
-    auto fpEventAction = (EventAction *)G4EventManager::GetEventManager()->GetUserEventAction();
-
-    G4double deabsorptionOUT = fpEventAction->getDeabsorptionOUT();
-    G4double deabsorptionIN = fpEventAction->getDeabsorptionIN();
-    G4cout << "Deabsoption of Radon from is " << deabsorptionOUT / (deabsorptionOUT + deabsorptionIN) * 100 << "%, expect 40%." << G4endl;
-
-    G4double PbLeakage = fpEventAction->getPbLeakage();
-    G4double PbNoLeakage = fpEventAction->getPbNoLeakage();
-    G4cout << "Leakage of Pb212 from is " << PbLeakage / (PbLeakage + PbNoLeakage) * 100 << "%, value depends on tumour size" << G4endl;
-}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
-
-void RunAction::CreateNtuple()
-{
-    CommandLineParser *parser = CommandLineParser::GetParser();
+ CommandLineParser *parser = CommandLineParser::GetParser();
     Command *command(0);
     if ((command = parser->GetCommandIfActive("-out")) == 0)
         return;
@@ -91,7 +69,6 @@ void RunAction::CreateNtuple()
     G4AnalysisManager *analysisManager = G4AnalysisManager::Instance();
     analysisManager->SetDefaultFileType("root");
     analysisManager->SetVerboseLevel(0);
-    analysisManager->SetNtupleDirectoryName("ntuple");
 
     // open output file
     //
@@ -103,10 +80,34 @@ void RunAction::CreateNtuple()
     }
 
     G4cout << "\n----> Histogram file is opened in " << fileName << G4endl;
+
+    analysisManager->CreateH3("Energy3D", "Energy3D", 151, -7.5, 7.5, 151, -7.5, 7.5, 151, -7.5, 7.5);
+    analysisManager->CreateH3("NumAlpha", "NumAlpha", 151, -7.5, 7.5, 151, -7.5, 7.5, 151, -7.5, 7.5);
+    analysisManager->CreateH3("Dose", "Dose", 151, -7.5, 7.5, 151, -7.5, 7.5, 151, -7.5, 7.5);
+    analysisManager->CreateH2("Energy2D", "Energy2D", 150, 0, 7.5, 100, 0, 10);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
-void RunAction::WriteNtuple(const G4Run *)
+
+void RunAction::EndOfRunAction(const G4Run *run)
+{
+    Write(run);
+    auto fpEventAction = (EventAction *)G4EventManager::GetEventManager()->GetUserEventAction();
+
+    G4double deabsorptionOUT = fpEventAction->getDeabsorptionOUT();
+    G4double deabsorptionIN = fpEventAction->getDeabsorptionIN();
+    G4cout << "Deabsoption of Radon from is " << deabsorptionOUT / (deabsorptionOUT + deabsorptionIN) * 100 << "%, expect 40%." << G4endl;
+
+    G4double PbLeakage = fpEventAction->getPbLeakage();
+    G4double PbNoLeakage = fpEventAction->getPbNoLeakage();
+    G4cout << "Leakage of Pb212 from is " << PbLeakage / (PbLeakage + PbNoLeakage) * 100 << "%, value depends on tumour size" << G4endl;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
+
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
+void RunAction::Write(const G4Run *)
 {
     CommandLineParser *parser = CommandLineParser::GetParser();
     Command *command(0);
@@ -118,4 +119,31 @@ void RunAction::WriteNtuple(const G4Run *)
     analysisManager->CloseFile();
     analysisManager->Clear();
     G4cout << "\n----> Histograms are saved" << G4endl;
+}
+
+void RunAction::saveDose(G4double inDose, G4double x, G4double y, G4double z)
+{
+    G4AnalysisManager *analysisManager = G4AnalysisManager::Instance();
+
+    G4double mass;
+    G4double dose;
+    mass = 997 * (0.1e-3) * (0.1e-3) * (0.1e-3); // per cube of water, side length = 0.1mm, desnity water 997 kg/m3
+
+    dose = ((inDose) / joule) / (mass / kg);
+    analysisManager->FillH3(2, x, y, z, dose);
+}
+
+void RunAction::saveKE(G4double inEnergy, G4double x, G4double y, G4double z)
+{
+
+    G4AnalysisManager *analysisManager = G4AnalysisManager::Instance();
+
+    analysisManager->FillH3(0, x, y, z, inEnergy);
+    analysisManager->FillH3(1, x, y, z, 1);
+
+    // save energy distribution around source, assume radial symmetry and save radial distance from centre of source
+    if ((-3 <= z) && (z <= 3)) // source is 6mm
+    {
+        analysisManager->FillH2(0, sqrt(x * x + y * y), inEnergy, 1);
+    }
 }

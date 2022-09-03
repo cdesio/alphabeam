@@ -43,9 +43,11 @@ public:
 
     void BeginOfRunAction(const G4Run*) override;
     void EndOfRunAction(const G4Run*) override;
+    
+    void saveDose(G4double inDose, G4double x, G4double y, G4double z);
+    void saveKE(G4double inDose, G4double x, G4double y, G4double z);
 
 
 private:
-    void CreateNtuple();
-    void WriteNtuple(const G4Run*);
+    void Write(const G4Run*);
 };

@@ -29,7 +29,10 @@
 #include "G4String.hh"
 #include <fstream>
 #include <iostream>
+#include "RunAction.hh"
+
 class EventAction;
+class RunAction;
 
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -44,6 +47,6 @@ public:
     // void Initialize();
 private:
   EventAction* fpEventAction;
-
+  RunAction *fRunAction;
 
 };

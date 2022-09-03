@@ -45,9 +45,7 @@ SteppingAction::SteppingAction(/*DetectorConstruction* fpDet*/)
 // , fpDetector(fpDet)
 {
   fpEventAction = (EventAction *)G4EventManager::GetEventManager()->GetUserEventAction();
-
-  CommandLineParser *parser = CommandLineParser::GetParser();
-  Command *command(0);
+  fRunAction = (RunAction *)(G4RunManager::GetRunManager()->GetUserRunAction());
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -60,10 +58,6 @@ SteppingAction::~SteppingAction()
 void SteppingAction::UserSteppingAction(const G4Step *step)
 {
   G4String particleName = step->GetTrack()->GetParticleDefinition()->GetParticleName();
-  if ((particleName != "e-") && (particleName != "alpha"))
-  {
-    G4cout << step->GetTrack()->GetParticleDefinition()->GetParticleName() << " " << step->GetPreStepPoint()->GetPosition() << " " << step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() << G4endl;
-  }
 
   if ((particleName == "Po216") && (fpEventAction->checkRn220Pos == 0))
   // Rn220 is diffused when decay occurs by placing the porducts at the diffusion point, Rn220 position is not changed. Therefore use the first position of Po216 instead to workout where Rn220 decayed.
@@ -93,12 +87,36 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
       else
       {
         fpEventAction->addPbNoLeakage();
-
       }
     }
   }
   if ((particleName == "Pb208") && (particleEnergy == 0))
   {
     step->GetTrack()->SetTrackStatus(fKillTrackAndSecondaries);
+  }
+
+  CommandLineParser *parser = CommandLineParser::GetParser();
+  Command *command(0);
+
+  if ((command = parser->GetCommandIfActive("-out")) == 0)
+    return;
+
+  G4double edep = step->GetTotalEnergyDeposit();
+
+  // Save Edep from all particles to calculate dose
+  if ((edep > 0) && (step->GetPreStepPoint()->GetPhysicalVolume()->GetName() == "world"))
+  {
+    G4double positionX = (step->GetPreStepPoint()->GetPosition().x() + step->GetPostStepPoint()->GetPosition().x()) / 2 / mm;
+    G4double positionY = (step->GetPreStepPoint()->GetPosition().y() + step->GetPostStepPoint()->GetPosition().y()) / 2 / mm;
+    G4double positionZ = (step->GetPreStepPoint()->GetPosition().z() + step->GetPostStepPoint()->GetPosition().z()) / 2 / mm;
+
+    fRunAction->saveDose(edep, positionX, positionY, positionZ);
+    // Save KE of all alpha particles
+
+    if (particleName == "alpha")
+    {
+      G4double particleMeanEnergy = (step->GetPreStepPoint()->GetKineticEnergy() + step->GetPostStepPoint()->GetKineticEnergy()) / 2;
+      fRunAction->saveKE(particleMeanEnergy, positionX, positionY, positionZ);
+    }
   }
 }
