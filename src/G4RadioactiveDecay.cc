@@ -1598,8 +1598,8 @@ G4double G4RadioactiveDecay::estimateTime(const G4double distance, const G4doubl
 
     G4double approxT = distance * distance / (6 * D);
 
-    G4cout << "approx T " << approxT << G4endl;
-    G4cout << "distance to travel " << distance << G4endl;
+    // G4cout << "approx T " << approxT << G4endl;
+    // G4cout << "distance to travel " << distance << G4endl;
 
     G4double timeStep = approxT / 1000;
 
@@ -1612,9 +1612,8 @@ G4double G4RadioactiveDecay::estimateTime(const G4double distance, const G4doubl
         // G4cout << "time total " << timeCount << G4endl;
         // G4cout << "current abs distance " << abs(totalDistance) << G4endl;
     }
-
-    G4cout << "T estimate: " << timeCount << G4endl;
-    G4cout << "Simple formula " << distance*distance/D << G4endl;
+    // G4cout << "T estimate: " << timeCount << G4endl;
+    // G4cout << "Simple formula " << distance*distance/D << G4endl;
 
     // return timeStep;
     return distance*distance/D;
