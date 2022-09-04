@@ -1279,14 +1279,14 @@ void G4RadioactiveDecay::DecayAnalog(const G4Track &theTrack)
     {
         changePosition = calculateDiffusion(finalLocalTime, 1.9e-3, 1e-6, theTrack); // mm2 s-1
 
-            // G4cout << "position before diffusion" << theTrack.GetPosition() << G4endl;
-    // G4cout << "position after diffusion" << theTrack.GetPosition() + changePosition << G4endl;
+        // G4cout << "position before diffusion" << theTrack.GetPosition() << G4endl;
+        // G4cout << "position after diffusion" << theTrack.GetPosition() + changePosition << G4endl;
     }
     if ((numberOfSecondaries > 0) && (theTrack.GetParticleDefinition()->GetParticleName() == "Pb212"))
     {
         changePosition = calculateDiffusion(finalLocalTime, 0.651e-5, 1e-6, theTrack); // mm2 s-1
-            // G4cout << "position before diffusion" << theTrack.GetPosition() << G4endl;
-    // G4cout << "position after diffusion" << theTrack.GetPosition() + changePosition << G4endl;
+                                                                                       // G4cout << "position before diffusion" << theTrack.GetPosition() << G4endl;
+        // G4cout << "position after diffusion" << theTrack.GetPosition() + changePosition << G4endl;
     }
 
     for (G4int index = 0; index < numberOfSecondaries; ++index)
@@ -1476,7 +1476,7 @@ G4ThreeVector G4RadioactiveDecay::calculateDiffusion(const G4double diffusionTim
     if (startVolume == "seed")
     {
         // if the diffusion starts in the seed then there is only a positive solution to the intersection of the cylinder and direction
-        G4double tRadial = (-B + sqrt(B * B - 4 * A * C)) / (2 * A); // arb time to reach seed cyclinder side boundary
+        G4double tRadial = (-B + sqrt(B * B - 4 * A * C)) / (2 * A); // time to reach seed cyclinder side boundary
 
         G4double tZmin = (-1 * zMinMax - startPos.z()) / direction.z();
         G4double tZmax = (zMinMax - startPos.z()) / direction.z();
@@ -1500,7 +1500,7 @@ G4ThreeVector G4RadioactiveDecay::calculateDiffusion(const G4double diffusionTim
             // diffusion starts in seed then enters the world
 
             // calculate expected time to diffuse to the boundary of seed
-            G4double time = (distToOutSeed * distToOutSeed) / (6 * Dsteel);
+            G4double time = estimateTime(distToOutSeed, Dsteel);
             G4double tRemain = diffusionTime - time;
             G4double distanceWater = G4RandGauss::shoot(0, sqrt(6 * Dwater * tRemain / s));
             changePosition = distSteelDiff * direction + distanceWater * direction;
@@ -1555,7 +1555,7 @@ G4ThreeVector G4RadioactiveDecay::calculateDiffusion(const G4double diffusionTim
             {
                 // does enter the seed
                 // calculate the time remaining for diffusion after reaching the seed
-                G4double timeAfterEntry = (firstCrossPointDistance * firstCrossPointDistance) / (6 * Dwater);
+                G4double timeAfterEntry = estimateTime(firstCrossPointDistance, Dwater);
                 G4double tRemain = diffusionTime - timeAfterEntry;
 
                 // calculate exit time
@@ -1576,7 +1576,7 @@ G4ThreeVector G4RadioactiveDecay::calculateDiffusion(const G4double diffusionTim
                 {
                     // crosses the seed and re-enters the world
                     // calculate the time remaining for diffusion after crossing the seed
-                    G4double timeToCross = (distanceCrossSeed * distanceCrossSeed) / (6 * Dsteel);
+                    G4double timeToCross = estimateTime(distanceCrossSeed, Dsteel);
                     G4double tRemainAfterExit = tRemain - timeToCross;
 
                     G4double distanceWater2 = abs(G4RandGauss::shoot(0, sqrt(6 * Dwater * tRemainAfterExit / s)));
@@ -1590,4 +1590,32 @@ G4ThreeVector G4RadioactiveDecay::calculateDiffusion(const G4double diffusionTim
     }
 
     return changePosition;
+}
+
+G4double G4RadioactiveDecay::estimateTime(const G4double distance, const G4double D)
+{
+    // estimate the time to perform a random walk to travel a given distance in any direction
+
+    G4double approxT = distance * distance / (6 * D);
+
+    G4cout << "approx T " << approxT << G4endl;
+    G4cout << "distance to travel " << distance << G4endl;
+
+    G4double timeStep = approxT / 1000;
+
+    G4double totalDistance{0};
+    G4double timeCount = 0;
+    while (abs(totalDistance) <= distance)
+    {
+        totalDistance += G4RandGauss::shoot(0, sqrt(6 * D * timeStep));
+        timeCount += timeStep;
+        // G4cout << "time total " << timeCount << G4endl;
+        // G4cout << "current abs distance " << abs(totalDistance) << G4endl;
+    }
+
+    G4cout << "T estimate: " << timeCount << G4endl;
+    G4cout << "Simple formula " << distance*distance/D << G4endl;
+
+    // return timeStep;
+    return distance*distance/D;
 }
