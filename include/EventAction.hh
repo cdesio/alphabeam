@@ -34,8 +34,7 @@
 #include "G4UserEventAction.hh"
 #include "globals.hh"
 #include "G4ThreeVector.hh"
-
-
+#include <map>
 class EventAction : public G4UserEventAction
 {
 public:
@@ -43,25 +42,31 @@ public:
   ~EventAction();
 
 public:
-  virtual void BeginOfEventAction(const G4Event*);
-  virtual void EndOfEventAction(const G4Event*);
+  virtual void BeginOfEventAction(const G4Event *);
+  virtual void EndOfEventAction(const G4Event *);
 
-  void addDeabsorptionIN() {deabsorptionIN++;}
-  void addDeabsorptionOUT() {deabsorptionOUT++;}
-  G4int getDeabsorptionIN() {return deabsorptionIN;}
-  G4int getDeabsorptionOUT() {return deabsorptionOUT;}
+  void addDeabsorptionIN() { deabsorptionIN++; }
+  void addDeabsorptionOUT() { deabsorptionOUT++; }
+  G4int getDeabsorptionIN() { return deabsorptionIN; }
+  G4int getDeabsorptionOUT() { return deabsorptionOUT; }
 
-  void addPbLeakage() {PbLeakage++;}
-  void addPbNoLeakage() {PbNoLeakage++;}
-  G4int getPbLeakage() {return PbLeakage;}
-  G4int getPbNoLeakage() {return PbNoLeakage;}
+  void addPbLeakage() { PbLeakage++; }
+  void addPbNoLeakage() { PbNoLeakage++; }
+  G4int getPbLeakage() { return PbLeakage; }
+  G4int getPbNoLeakage() { return PbNoLeakage; }
+
+  void addToMap(G4int value, G4String type) {parentMap[value] = type;}
+  G4String getFromMap(G4int value) {return parentMap[value];}
 
   G4bool checkRn220Pos{0};
+
 private:
   G4int deabsorptionIN{0};
   G4int deabsorptionOUT{0};
   G4int PbLeakage{0};
   G4int PbNoLeakage{0};
+  std::map<G4int, G4String> parentMap;
+
 };
 
 #endif

@@ -64,6 +64,7 @@ EventAction::~EventAction()
 void EventAction::BeginOfEventAction(const G4Event *)
 {
     checkRn220Pos = {0};
+    parentMap.clear();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

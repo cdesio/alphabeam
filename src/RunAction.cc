@@ -54,7 +54,7 @@ RunAction::~RunAction()
 
 void RunAction::BeginOfRunAction(const G4Run *)
 {
- CommandLineParser *parser = CommandLineParser::GetParser();
+    CommandLineParser *parser = CommandLineParser::GetParser();
     Command *command(0);
     if ((command = parser->GetCommandIfActive("-out")) == 0)
         return;
@@ -85,6 +85,23 @@ void RunAction::BeginOfRunAction(const G4Run *)
     analysisManager->CreateH3("NumAlpha", "NumAlpha", 151, -7.5, 7.5, 151, -7.5, 7.5, 151, -7.5, 7.5);
     analysisManager->CreateH3("Dose", "Dose", 151, -7.5, 7.5, 151, -7.5, 7.5, 151, -7.5, 7.5);
     analysisManager->CreateH2("Energy2D", "Energy2D", 150, 0, 7.5, 100, 0, 10);
+    analysisManager->CreateH2("Energy2D_Ra224", "Energy2D_Ra224", 150, 0, 7.5, 100, 0, 10);
+    analysisManager->CreateH2("Energy2D_Rn220", "Energy2D_Rn220", 150, 0, 7.5, 100, 0, 10);
+    analysisManager->CreateH2("Energy2D_Po216", "Energy2D_Po216", 150, 0, 7.5, 100, 0, 10);
+    analysisManager->CreateH2("Energy2D_Pb212", "Energy2D_Pb212", 150, 0, 7.5, 100, 0, 10);
+    analysisManager->CreateH2("Energy2D_Bi212", "Energy2D_Bi212", 150, 0, 7.5, 100, 0, 10);
+    analysisManager->CreateH2("Energy2D_Po212", "Energy2D_Po212", 150, 0, 7.5, 100, 0, 10);
+    analysisManager->CreateH2("Energy2D_Tl208", "Energy2D_Tl208", 150, 0, 7.5, 100, 0, 10);
+    analysisManager->CreateH2("Energy2D_Pb208", "Energy2D_Pb208", 150, 0, 7.5, 100, 0, 10);
+    analysisManager->CreateH1("Dose1D", "Dose1D", 150, 0, 7.5);
+    analysisManager->CreateH1("Dose1D_Ra224", "Dose1D_Ra224", 150, 0, 7.5);
+    analysisManager->CreateH1("Dose1D_Rn220", "Dose1D_Rn220", 150, 0, 7.5);
+    analysisManager->CreateH1("Dose1D_Po216", "Dose1D_Po216", 150, 0, 7.5);
+    analysisManager->CreateH1("Dose1D_Pb212", "Dose1D_Pb212", 150, 0, 7.5);
+    analysisManager->CreateH1("Dose1D_Bi212", "Dose1D_Bi212", 150, 0, 7.5);
+    analysisManager->CreateH1("Dose1D_Po212", "Dose1D_Po212", 150, 0, 7.5);
+    analysisManager->CreateH1("Dose1D_Tl208", "Dose1D_Tl208", 150, 0, 7.5);
+    analysisManager->CreateH1("Dose1D_Pb208", "Dose1D_Pb208", 150, 0, 7.5);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -105,7 +122,6 @@ void RunAction::EndOfRunAction(const G4Run *run)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 void RunAction::Write(const G4Run *)
 {
@@ -121,7 +137,7 @@ void RunAction::Write(const G4Run *)
     G4cout << "\n----> Histograms are saved" << G4endl;
 }
 
-void RunAction::saveDose(G4double inDose, G4double x, G4double y, G4double z)
+void RunAction::saveDose(G4double inDose, G4double x, G4double y, G4double z, G4String parent)
 {
     G4AnalysisManager *analysisManager = G4AnalysisManager::Instance();
 
@@ -131,9 +147,47 @@ void RunAction::saveDose(G4double inDose, G4double x, G4double y, G4double z)
 
     dose = ((inDose) / joule) / (mass / kg);
     analysisManager->FillH3(2, x, y, z, dose);
+
+    // save dose distribution around source, assume radial symmetry and save radial distance from centre of source
+    if ((-3 <= z) && (z <= 3)) // source is 6mm
+    {
+        analysisManager->FillH1(0, sqrt(x * x + y * y), dose);
+        if (parent == "Ra224")
+        {
+            analysisManager->FillH1(1, sqrt(x * x + y * y), dose);
+        }
+        else if (parent == "Rn220")
+        {
+            analysisManager->FillH1(2, sqrt(x * x + y * y), dose);
+        }
+        else if (parent == "Po216")
+        {
+            analysisManager->FillH1(3, sqrt(x * x + y * y), dose);
+        }
+        else if (parent == "Pb212")
+        {
+            analysisManager->FillH1(4, sqrt(x * x + y * y), dose);
+        }
+        else if (parent == "Bi212")
+        {
+            analysisManager->FillH1(5, sqrt(x * x + y * y), dose);
+        }
+        else if (parent == "Po212")
+        {
+            analysisManager->FillH1(6, sqrt(x * x + y * y), dose);
+        }
+        else if (parent == "Tl208")
+        {
+            analysisManager->FillH1(7, sqrt(x * x + y * y), dose);
+        }
+        else if (parent == "Pb208")
+        {
+            analysisManager->FillH1(8, sqrt(x * x + y * y), dose);
+        }
+    }
 }
 
-void RunAction::saveKE(G4double inEnergy, G4double x, G4double y, G4double z)
+void RunAction::saveKE(G4double inEnergy, G4double x, G4double y, G4double z, G4String parent)
 {
 
     G4AnalysisManager *analysisManager = G4AnalysisManager::Instance();
@@ -145,5 +199,37 @@ void RunAction::saveKE(G4double inEnergy, G4double x, G4double y, G4double z)
     if ((-3 <= z) && (z <= 3)) // source is 6mm
     {
         analysisManager->FillH2(0, sqrt(x * x + y * y), inEnergy, 1);
+        if (parent == "Ra224")
+        {
+            analysisManager->FillH2(1, sqrt(x * x + y * y), inEnergy, 1);
+        }
+        else if (parent == "Rn220")
+        {
+            analysisManager->FillH2(2, sqrt(x * x + y * y), inEnergy, 1);
+        }
+        else if (parent == "Po216")
+        {
+            analysisManager->FillH2(3, sqrt(x * x + y * y), inEnergy, 1);
+        }
+        else if (parent == "Pb212")
+        {
+            analysisManager->FillH2(4, sqrt(x * x + y * y), inEnergy, 1);
+        }
+        else if (parent == "Bi212")
+        {
+            analysisManager->FillH2(5, sqrt(x * x + y * y), inEnergy, 1);
+        }
+        else if (parent == "Po212")
+        {
+            analysisManager->FillH2(6, sqrt(x * x + y * y), inEnergy, 1);
+        }
+        else if (parent == "Tl208")
+        {
+            analysisManager->FillH2(7, sqrt(x * x + y * y), inEnergy, 1);
+        }
+        else if (parent == "Pb208")
+        {
+            analysisManager->FillH2(8, sqrt(x * x + y * y), inEnergy, 1);
+        }
     }
 }
