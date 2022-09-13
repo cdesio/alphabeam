@@ -38,8 +38,6 @@
 #include "EventAction.hh"
 
 using namespace G4DNAPARSER;
-
-// add which primary the alpha and dose comes from
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 SteppingAction::SteppingAction()
@@ -60,18 +58,35 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
 {
   G4String particleName = step->GetTrack()->GetParticleDefinition()->GetParticleName();
 
-  if ((particleName == "Po216") && (fpEventAction->checkRn220Pos == 0))
+  if ((particleName == "Po216")&& (fpEventAction->checkRn220Pos == 0)) 
   // Rn220 is diffused when decay occurs by placing the products at the diffusion point, Rn220 position is not changed. Therefore use the first position of Po216 instead to workout where Rn220 decayed.
   {
     if (step->GetPreStepPoint()->GetPhysicalVolume()->GetName() == "seed")
     {
-      fpEventAction->addDeabsorptionIN();
+      fpEventAction->addRnDeabsorptionIN();
     }
     else
     {
-      fpEventAction->addDeabsorptionOUT();
+      fpEventAction->addRnDeabsorptionOUT();
+
     }
     fpEventAction->checkRn220Pos = 1;
+  }
+    if ((particleName.contains("Bi212"))&& (fpEventAction->checkPb212Pos == 0)) 
+  // Pb212 is diffused when decay occurs by placing the products at the diffusion point, Pb212 position is not changed. Therefore use the first position of Bi212 instead to workout where Pb212 decayed.
+  {
+    if (step->GetPreStepPoint()->GetPhysicalVolume()->GetName() == "seed")
+    {
+      fpEventAction->addPbDeabsorptionIN();
+      // G4cout << "Pb diffused and stayed in seed" << G4endl;
+    }
+    else
+    {
+      fpEventAction->addPbDeabsorptionOUT();
+      // G4cout << "Pb diffused and entered world" << G4endl;
+
+    }
+    fpEventAction->checkPb212Pos = 1;
   }
 
   G4double particleEnergy = step->GetPreStepPoint()->GetKineticEnergy();
@@ -105,43 +120,43 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
   {
     fpEventAction->addToMap(step->GetTrack()->GetTrackID(), "Ra224");
   }
-  else if(particleName.contains("Rn220"))
+  else if (particleName.contains("Rn220"))
   {
     fpEventAction->addToMap(step->GetTrack()->GetTrackID(), "Rn220");
   }
-  else if(particleName.contains("Po216"))
+  else if (particleName.contains("Po216"))
   {
     fpEventAction->addToMap(step->GetTrack()->GetTrackID(), "Po216");
   }
-  else if(particleName.contains("Pb212"))
+  else if (particleName.contains("Pb212"))
   {
     fpEventAction->addToMap(step->GetTrack()->GetTrackID(), "Pb212");
   }
-  else if(particleName.contains("Bi212"))
+  else if (particleName.contains("Bi212"))
   {
     fpEventAction->addToMap(step->GetTrack()->GetTrackID(), "Bi212");
   }
-  else if(particleName.contains("Po212"))
+  else if (particleName.contains("Po212"))
   {
     fpEventAction->addToMap(step->GetTrack()->GetTrackID(), "Po212");
   }
-  else if(particleName.contains("Tl208"))
+  else if (particleName.contains("Tl208"))
   {
-    fpEventAction->addToMap(step->GetTrack()->GetTrackID(),"Tl208");
+    fpEventAction->addToMap(step->GetTrack()->GetTrackID(), "Tl208");
   }
-  else if(particleName.contains("Pb208"))
+  else if (particleName.contains("Pb208"))
   {
     fpEventAction->addToMap(step->GetTrack()->GetTrackID(), "Pb208");
   }
-  else if(particleName.contains("Bi213"))
+  else if (particleName.contains("Bi213"))
   {
     fpEventAction->addToMap(step->GetTrack()->GetTrackID(), "Bi213");
   }
-  else if(particleName.contains("At217"))
+  else if (particleName.contains("At217"))
   {
     fpEventAction->addToMap(step->GetTrack()->GetTrackID(), "At217");
   }
-else 
+  else
   {
     G4int parentID = step->GetTrack()->GetParentID();
 
@@ -149,36 +164,36 @@ else
     {
       fpEventAction->addToMap(step->GetTrack()->GetTrackID(), "Ra224");
     }
-    else if(fpEventAction->getFromMap(parentID).contains("Rn220"))
+    else if (fpEventAction->getFromMap(parentID).contains("Rn220"))
     {
       fpEventAction->addToMap(step->GetTrack()->GetTrackID(), "Rn220");
     }
-    else if(fpEventAction->getFromMap(parentID).contains("Po216"))
+    else if (fpEventAction->getFromMap(parentID).contains("Po216"))
     {
       fpEventAction->addToMap(step->GetTrack()->GetTrackID(), "Po216");
     }
-    else if(fpEventAction->getFromMap(parentID).contains("Pb212"))
+    else if (fpEventAction->getFromMap(parentID).contains("Pb212"))
     {
       fpEventAction->addToMap(step->GetTrack()->GetTrackID(), "Pb212");
     }
-    else if(fpEventAction->getFromMap(parentID).contains( "Bi212"))
+    else if (fpEventAction->getFromMap(parentID).contains("Bi212"))
     {
       fpEventAction->addToMap(step->GetTrack()->GetTrackID(), "Bi212");
     }
-    else if(fpEventAction->getFromMap(parentID).contains("Po212"))
+    else if (fpEventAction->getFromMap(parentID).contains("Po212"))
     {
       fpEventAction->addToMap(step->GetTrack()->GetTrackID(), "Po212");
     }
-    else if(fpEventAction->getFromMap(parentID).contains("Tl208"))
+    else if (fpEventAction->getFromMap(parentID).contains("Tl208"))
     {
       fpEventAction->addToMap(step->GetTrack()->GetTrackID(), "Tl208");
     }
-    else if(fpEventAction->getFromMap(parentID).contains("Pb208"))
+    else if (fpEventAction->getFromMap(parentID).contains("Pb208"))
     {
       fpEventAction->addToMap(step->GetTrack()->GetTrackID(), "Pb208");
     }
   }
-  
+
   G4double edep = step->GetTotalEnergyDeposit();
 
   // Save Edep from all particles to calculate dose
@@ -188,13 +203,19 @@ else
     G4double positionY = (step->GetPreStepPoint()->GetPosition().y() + step->GetPostStepPoint()->GetPosition().y()) / 2 / mm;
     G4double positionZ = (step->GetPreStepPoint()->GetPosition().z() + step->GetPostStepPoint()->GetPosition().z()) / 2 / mm;
 
-    fRunAction->saveDose(edep, positionX, positionY, positionZ, fpEventAction->getFromMap(step->GetTrack()->GetTrackID()));
-    // Save KE of all alpha particles
+    fRunAction->saveEdep(edep, positionX, positionY, positionZ, fpEventAction->getFromMap(step->GetTrack()->GetTrackID()));
+  }
+  // Save KE of all alpha particles
+  if ((particleName == "alpha") && (step->GetPreStepPoint()->GetPhysicalVolume()->GetName() == "world"))
+  {
+    G4double positionX = (step->GetPreStepPoint()->GetPosition().x() + step->GetPostStepPoint()->GetPosition().x()) / 2 / mm;
+    G4double positionY = (step->GetPreStepPoint()->GetPosition().y() + step->GetPostStepPoint()->GetPosition().y()) / 2 / mm;
+    G4double positionZ = (step->GetPreStepPoint()->GetPosition().z() + step->GetPostStepPoint()->GetPosition().z()) / 2 / mm;
 
-    if (particleName == "alpha")
-    {
-      G4double particleMeanEnergy = (step->GetPreStepPoint()->GetKineticEnergy() + step->GetPostStepPoint()->GetKineticEnergy()) / 2;
-      fRunAction->saveKE(particleMeanEnergy, positionX, positionY, positionZ, fpEventAction->getFromMap(step->GetTrack()->GetTrackID()));
-    }
+    G4double time = (step->GetPreStepPoint()->GetGlobalTime() + step->GetPostStepPoint()->GetGlobalTime()) / 2 / s;
+
+    G4double particleMeanEnergy = (step->GetPreStepPoint()->GetKineticEnergy() + step->GetPostStepPoint()->GetKineticEnergy()) / 2;
+    fRunAction->saveKE(particleMeanEnergy, positionX, positionY, positionZ, fpEventAction->getFromMap(step->GetTrack()->GetTrackID()));
+
   }
 }

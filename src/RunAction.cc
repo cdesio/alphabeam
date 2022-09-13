@@ -81,10 +81,12 @@ void RunAction::BeginOfRunAction(const G4Run *)
 
     G4cout << "\n----> Histogram file is opened in " << fileName << G4endl;
 
-    analysisManager->CreateH3("Energy3D", "Energy3D", 151, -7.5, 7.5, 151, -7.5, 7.5, 151, -7.5, 7.5);
-    analysisManager->CreateH3("NumAlpha", "NumAlpha", 151, -7.5, 7.5, 151, -7.5, 7.5, 151, -7.5, 7.5);
-    analysisManager->CreateH3("Dose", "Dose", 151, -7.5, 7.5, 151, -7.5, 7.5, 151, -7.5, 7.5);
-    analysisManager->CreateH2("Energy2D", "Energy2D", 150, 0, 7.5, 100, 0, 10);
+    analysisManager->CreateH3("Energy3D", "Energy3D", 300, -7.5, 7.5, 300, -7.5, 7.5, 300, -7.5, 7.5);
+    analysisManager->CreateH3("DSB", "DSB", 300, -7.5, 7.5, 300, -7.5, 7.5, 300, -7.5, 7.5);
+    analysisManager->CreateH3("NumAlpha", "NumAlpha", 300, -7.5, 7.5, 300, -7.5, 7.5, 300, -7.5, 7.5);
+    analysisManager->CreateH3("Edep", "Edep", 300, -7.5, 7.5, 300, -7.5, 7.5, 300, -7.5, 7.5);
+    analysisManager->CreateH2("Energy2D", "Energy2D", 150, 0, 7.5, 100, 0, 10)
+
     analysisManager->CreateH2("Energy2D_Ra224", "Energy2D_Ra224", 150, 0, 7.5, 100, 0, 10);
     analysisManager->CreateH2("Energy2D_Rn220", "Energy2D_Rn220", 150, 0, 7.5, 100, 0, 10);
     analysisManager->CreateH2("Energy2D_Po216", "Energy2D_Po216", 150, 0, 7.5, 100, 0, 10);
@@ -93,15 +95,15 @@ void RunAction::BeginOfRunAction(const G4Run *)
     analysisManager->CreateH2("Energy2D_Po212", "Energy2D_Po212", 150, 0, 7.5, 100, 0, 10);
     analysisManager->CreateH2("Energy2D_Tl208", "Energy2D_Tl208", 150, 0, 7.5, 100, 0, 10);
     analysisManager->CreateH2("Energy2D_Pb208", "Energy2D_Pb208", 150, 0, 7.5, 100, 0, 10);
-    analysisManager->CreateH1("Dose1D", "Dose1D", 150, 0, 7.5);
-    analysisManager->CreateH1("Dose1D_Ra224", "Dose1D_Ra224", 150, 0, 7.5);
-    analysisManager->CreateH1("Dose1D_Rn220", "Dose1D_Rn220", 150, 0, 7.5);
-    analysisManager->CreateH1("Dose1D_Po216", "Dose1D_Po216", 150, 0, 7.5);
-    analysisManager->CreateH1("Dose1D_Pb212", "Dose1D_Pb212", 150, 0, 7.5);
-    analysisManager->CreateH1("Dose1D_Bi212", "Dose1D_Bi212", 150, 0, 7.5);
-    analysisManager->CreateH1("Dose1D_Po212", "Dose1D_Po212", 150, 0, 7.5);
-    analysisManager->CreateH1("Dose1D_Tl208", "Dose1D_Tl208", 150, 0, 7.5);
-    analysisManager->CreateH1("Dose1D_Pb208", "Dose1D_Pb208", 150, 0, 7.5);
+    analysisManager->CreateH1("Edep1D", "Edep1D", 150, 0, 7.5);
+    analysisManager->CreateH1("Edep1D_Ra224", "Edep1D_Ra224", 150, 0, 7.5);
+    analysisManager->CreateH1("Edep1D_Rn220", "Edep1D_Rn220", 150, 0, 7.5);
+    analysisManager->CreateH1("Edep1D_Po216", "Edep1D_Po216", 150, 0, 7.5);
+    analysisManager->CreateH1("Edep1D_Pb212", "Edep1D_Pb212", 150, 0, 7.5);
+    analysisManager->CreateH1("Edep1D_Bi212", "Edep1D_Bi212", 150, 0, 7.5);
+    analysisManager->CreateH1("Edep1D_Po212", "Edep1D_Po212", 150, 0, 7.5);
+    analysisManager->CreateH1("Edep1D_Tl208", "Edep1D_Tl208", 150, 0, 7.5);
+    analysisManager->CreateH1("Edep1D_Pb208", "Edep1D_Pb208", 150, 0, 7.5);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -111,13 +113,19 @@ void RunAction::EndOfRunAction(const G4Run *run)
     Write(run);
     auto fpEventAction = (EventAction *)G4EventManager::GetEventManager()->GetUserEventAction();
 
-    G4double deabsorptionOUT = fpEventAction->getDeabsorptionOUT();
-    G4double deabsorptionIN = fpEventAction->getDeabsorptionIN();
-    G4cout << "Deabsoption of Radon from is " << deabsorptionOUT / (deabsorptionOUT + deabsorptionIN) * 100 << "%, expect 40%." << G4endl;
+    G4double RnDeabsorptionOUT = fpEventAction->getRnDeabsorptionOUT();
+    G4double RnDeabsorptionIN = fpEventAction->getRnDeabsorptionIN();
+    G4cout << "Deabsoption of Rn220 from is " << RnDeabsorptionOUT / (RnDeabsorptionOUT + RnDeabsorptionIN) * 100 << "%, expect 40%." << G4endl;
+
+    G4double PbDeabsorptionOUT = fpEventAction->getPbDeabsorptionOUT();
+    G4double PbDeabsorptionIN = fpEventAction->getPbDeabsorptionIN();
+    G4cout << "Deabsoption of Pb212 from is " << PbDeabsorptionOUT / (PbDeabsorptionOUT + PbDeabsorptionIN) * 100 << "%, expect 55%." << G4endl;
 
     G4double PbLeakage = fpEventAction->getPbLeakage();
     G4double PbNoLeakage = fpEventAction->getPbNoLeakage();
     G4cout << "Leakage of Pb212 from is " << PbLeakage / (PbLeakage + PbNoLeakage) * 100 << "%, value depends on tumour size" << G4endl;
+
+    G4cout << "Activity of Radon 224 = " << run->GetNumberOfEvent()/fpEventAction->getTotalRaDecayTime()/s << "s-1" << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -137,52 +145,52 @@ void RunAction::Write(const G4Run *)
     G4cout << "\n----> Histograms are saved" << G4endl;
 }
 
-void RunAction::saveDose(G4double inDose, G4double x, G4double y, G4double z, G4String parent)
+void RunAction::saveEdep(G4double inEdep, G4double x, G4double y, G4double z, G4String parent)
 {
     G4AnalysisManager *analysisManager = G4AnalysisManager::Instance();
 
     G4double mass;
-    G4double dose;
+    G4double Edep;
     mass = 997 * (0.1e-3) * (0.1e-3) * (0.1e-3); // per cube of water, side length = 0.1mm, desnity water 997 kg/m3
 
-    dose = ((inDose) / joule) / (mass / kg);
-    analysisManager->FillH3(2, x, y, z, dose);
+    Edep = ((inEdep) / joule);
+    analysisManager->FillH3(3, x, y, z, Edep / mass);
 
-    // save dose distribution around source, assume radial symmetry and save radial distance from centre of source
+    save Edep distribution around source, assume radial symmetry and save radial distance from centre of source
     if ((-3 <= z) && (z <= 3)) // source is 6mm
     {
-        analysisManager->FillH1(0, sqrt(x * x + y * y), dose);
+        analysisManager->FillH1(0, sqrt(x * x + y * y), Edep);
         if (parent == "Ra224")
         {
-            analysisManager->FillH1(1, sqrt(x * x + y * y), dose);
+            analysisManager->FillH1(1, sqrt(x * x + y * y), Edep);
         }
         else if (parent == "Rn220")
         {
-            analysisManager->FillH1(2, sqrt(x * x + y * y), dose);
+            analysisManager->FillH1(2, sqrt(x * x + y * y), Edep);
         }
         else if (parent == "Po216")
         {
-            analysisManager->FillH1(3, sqrt(x * x + y * y), dose);
+            analysisManager->FillH1(3, sqrt(x * x + y * y), Edep);
         }
         else if (parent == "Pb212")
         {
-            analysisManager->FillH1(4, sqrt(x * x + y * y), dose);
+            analysisManager->FillH1(4, sqrt(x * x + y * y), Edep);
         }
         else if (parent == "Bi212")
         {
-            analysisManager->FillH1(5, sqrt(x * x + y * y), dose);
+            analysisManager->FillH1(5, sqrt(x * x + y * y), Edep);
         }
         else if (parent == "Po212")
         {
-            analysisManager->FillH1(6, sqrt(x * x + y * y), dose);
+            analysisManager->FillH1(6, sqrt(x * x + y * y), Edep);
         }
         else if (parent == "Tl208")
         {
-            analysisManager->FillH1(7, sqrt(x * x + y * y), dose);
+            analysisManager->FillH1(7, sqrt(x * x + y * y), Edep);
         }
         else if (parent == "Pb208")
         {
-            analysisManager->FillH1(8, sqrt(x * x + y * y), dose);
+            analysisManager->FillH1(8, sqrt(x * x + y * y), Edep);
         }
     }
 }
