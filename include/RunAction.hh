@@ -44,8 +44,8 @@ public:
     void BeginOfRunAction(const G4Run*) override;
     void EndOfRunAction(const G4Run*) override;
     
-    void saveDose(G4double inDose, G4double x, G4double y, G4double z, G4String parent);
-    void saveKE(G4double inDose, G4double x, G4double y, G4double z, G4String parent);
+    void saveDose(G4double inEdep, G4double time, G4int cp);
+
 
 
 private:

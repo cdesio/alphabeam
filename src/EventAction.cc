@@ -63,7 +63,6 @@ EventAction::~EventAction()
 
 void EventAction::BeginOfEventAction(const G4Event *)
 {
-    parentMap.clear();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

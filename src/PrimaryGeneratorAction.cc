@@ -66,9 +66,9 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
   numParticles++;
 
-  G4double wireLength = 6*mm;
+  G4double wirePosition = 1*mm; //only place Ra within central +/- 1mm because only calculating in central +/- 0.1 mm
   G4double wireRadius = 0.15*mm;
-  G4double zPos = (G4UniformRand() - 0.5) * wireLength;
+  G4double zPos = (G4UniformRand() - 0.5) * wirePosition;
   G4double DummyAngle = G4UniformRand() * 2 * 3.1415926535;
   G4double depth = 0*nm; //depth reported to be 5-20 nm deep, but recoil in Geant4 is only 1nm (geometric distance) so the Radon would never leave the source. Reported deabsoption percentages are around 40%. Placing the source is the largest possible deabsorption. However using post steop point get physical volume some will start outside the source.
   G4double xPos = (wireRadius-depth)*cos(DummyAngle);

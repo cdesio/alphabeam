@@ -45,29 +45,25 @@ public:
   virtual void BeginOfEventAction(const G4Event *);
   virtual void EndOfEventAction(const G4Event *);
 
-  void addRnDeabsorptionOUT() { RnDeabsorptionOUT++; }
-  G4int getRnDeabsorptionOUT() { return RnDeabsorptionOUT; }
+  void addRnDeabsorptionIN() { RnDeabsorptionIN++; }
+  G4int getRnDeabsorptionIN() { return RnDeabsorptionIN; }
 
-  void addPbDeabsorptionOUT() { PbDeabsorptionOUT++; }
-  G4int getPbDeabsorptionOUT() { return PbDeabsorptionOUT; }
+  void addPbDeabsorptionIN() { PbDeabsorptionIN++; }
+  G4int getPbDeabsorptionIN() { return PbDeabsorptionIN; }
 
   void addPbLeakage() { PbLeakage++; }
   void addPbNoLeakage() { PbNoLeakage++; }
   G4int getPbLeakage() { return PbLeakage; }
   G4int getPbNoLeakage() { return PbNoLeakage; }
 
-  void addToMap(G4int value, G4String type) { parentMap[value] = type; }
-  G4String getFromMap(G4int value) { return parentMap[value]; }
-
   void addDecayTimeRa(G4double val) { totalRaDecayTime += val; }
   G4double getTotalRaDecayTime() { return totalRaDecayTime; }
 
 private:
-  G4int RnDeabsorptionOUT{0};
-  G4int PbDeabsorptionOUT{0};
+  G4int RnDeabsorptionIN{0};
+  G4int PbDeabsorptionIN{0};
   G4int PbLeakage{0};
   G4int PbNoLeakage{0};
-  std::map<G4int, G4String> parentMap;
   G4double totalRaDecayTime{0};
 };
 
