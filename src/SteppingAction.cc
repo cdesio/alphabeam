@@ -58,35 +58,25 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
 {
   G4String particleName = step->GetTrack()->GetParticleDefinition()->GetParticleName();
 
-  if ((particleName == "Po216")&& (fpEventAction->checkRn220Pos == 0)) 
-  // Rn220 is diffused when decay occurs by placing the products at the diffusion point, Rn220 position is not changed. Therefore use the first position of Po216 instead to workout where Rn220 decayed.
+  if ((particleName == "Ra224") && (step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName()=="RadioactiveDecay"))
   {
-    if (step->GetPreStepPoint()->GetPhysicalVolume()->GetName() == "seed")
-    {
-      fpEventAction->addRnDeabsorptionIN();
-    }
-    else
+  fpEventAction -> addDecayTimeRa(step->GetPostStepPoint()->GetGlobalTime()) ;
+  }
+
+  if ((particleName == "Rn220") && (step->GetPreStepPoint()->GetKineticEnergy()==0))
+  {
+    // deabsorption from the source through recoil only
+    if (step->GetPreStepPoint()->GetPhysicalVolume()->GetName() == "world")
     {
       fpEventAction->addRnDeabsorptionOUT();
-
     }
-    fpEventAction->checkRn220Pos = 1;
   }
-    if ((particleName.contains("Bi212"))&& (fpEventAction->checkPb212Pos == 0)) 
-  // Pb212 is diffused when decay occurs by placing the products at the diffusion point, Pb212 position is not changed. Therefore use the first position of Bi212 instead to workout where Pb212 decayed.
+    if ((particleName.contains("Pb212"))&& (step->GetPreStepPoint()->GetKineticEnergy()==0))
   {
-    if (step->GetPreStepPoint()->GetPhysicalVolume()->GetName() == "seed")
-    {
-      fpEventAction->addPbDeabsorptionIN();
-      // G4cout << "Pb diffused and stayed in seed" << G4endl;
-    }
-    else
+    if (step->GetPreStepPoint()->GetPhysicalVolume()->GetName() == "world")
     {
       fpEventAction->addPbDeabsorptionOUT();
-      // G4cout << "Pb diffused and entered world" << G4endl;
-
     }
-    fpEventAction->checkPb212Pos = 1;
   }
 
   G4double particleEnergy = step->GetPreStepPoint()->GetKineticEnergy();
@@ -215,7 +205,7 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
     G4double time = (step->GetPreStepPoint()->GetGlobalTime() + step->GetPostStepPoint()->GetGlobalTime()) / 2 / s;
 
     G4double particleMeanEnergy = (step->GetPreStepPoint()->GetKineticEnergy() + step->GetPostStepPoint()->GetKineticEnergy()) / 2;
-    fRunAction->saveKE(particleMeanEnergy, positionX, positionY, positionZ, fpEventAction->getFromMap(step->GetTrack()->GetTrackID()));
-
+    fRunAction->saveKE(particleMeanEnergy, positionX, positionY, positionZ, fpEventAction->getFromMap(step->GetTrack()->GetTrackID()), time);
+    // fRunAction->calculateDSB(particleMeanEnergy, step->GetStepLength(), positionX, positionY, positionZ, time);
   }
 }

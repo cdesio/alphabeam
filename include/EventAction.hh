@@ -45,14 +45,10 @@ public:
   virtual void BeginOfEventAction(const G4Event *);
   virtual void EndOfEventAction(const G4Event *);
 
-  void addRnDeabsorptionIN() { RnDeabsorptionIN++; }
   void addRnDeabsorptionOUT() { RnDeabsorptionOUT++; }
-  G4int getRnDeabsorptionIN() { return RnDeabsorptionIN; }
   G4int getRnDeabsorptionOUT() { return RnDeabsorptionOUT; }
 
-  void addPbDeabsorptionIN() { PbDeabsorptionIN++; }
   void addPbDeabsorptionOUT() { PbDeabsorptionOUT++; }
-  G4int getPbDeabsorptionIN() { return PbDeabsorptionIN; }
   G4int getPbDeabsorptionOUT() { return PbDeabsorptionOUT; }
 
   void addPbLeakage() { PbLeakage++; }
@@ -63,16 +59,11 @@ public:
   void addToMap(G4int value, G4String type) { parentMap[value] = type; }
   G4String getFromMap(G4int value) { return parentMap[value]; }
 
-  G4bool checkRn220Pos{0};
-  G4bool checkPb212Pos{0};
-
   void addDecayTimeRa(G4double val) { totalRaDecayTime += val; }
   G4double getTotalRaDecayTime() { return totalRaDecayTime; }
 
 private:
-  G4int RnDeabsorptionIN{0};
   G4int RnDeabsorptionOUT{0};
-  G4int PbDeabsorptionIN{0};
   G4int PbDeabsorptionOUT{0};
   G4int PbLeakage{0};
   G4int PbNoLeakage{0};

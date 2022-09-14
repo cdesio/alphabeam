@@ -85,7 +85,7 @@ void RunAction::BeginOfRunAction(const G4Run *)
     analysisManager->CreateH3("DSB", "DSB", 300, -7.5, 7.5, 300, -7.5, 7.5, 300, -7.5, 7.5);
     analysisManager->CreateH3("NumAlpha", "NumAlpha", 300, -7.5, 7.5, 300, -7.5, 7.5, 300, -7.5, 7.5);
     analysisManager->CreateH3("Edep", "Edep", 300, -7.5, 7.5, 300, -7.5, 7.5, 300, -7.5, 7.5);
-    analysisManager->CreateH2("Energy2D", "Energy2D", 150, 0, 7.5, 100, 0, 10)
+    analysisManager->CreateH2("Energy2D", "Energy2D", 150, 0, 7.5, 100, 0, 10);
 
     analysisManager->CreateH2("Energy2D_Ra224", "Energy2D_Ra224", 150, 0, 7.5, 100, 0, 10);
     analysisManager->CreateH2("Energy2D_Rn220", "Energy2D_Rn220", 150, 0, 7.5, 100, 0, 10);
@@ -113,19 +113,22 @@ void RunAction::EndOfRunAction(const G4Run *run)
     Write(run);
     auto fpEventAction = (EventAction *)G4EventManager::GetEventManager()->GetUserEventAction();
 
+    G4int numPrimaries = run->GetNumberOfEvent();
     G4double RnDeabsorptionOUT = fpEventAction->getRnDeabsorptionOUT();
-    G4double RnDeabsorptionIN = fpEventAction->getRnDeabsorptionIN();
-    G4cout << "Deabsoption of Rn220 from is " << RnDeabsorptionOUT / (RnDeabsorptionOUT + RnDeabsorptionIN) * 100 << "%, expect 40%." << G4endl;
+    G4cout << "Deabsoption of Rn220 from is " << RnDeabsorptionOUT / numPrimaries * 100 << "%, expect 40%." << G4endl;
 
     G4double PbDeabsorptionOUT = fpEventAction->getPbDeabsorptionOUT();
-    G4double PbDeabsorptionIN = fpEventAction->getPbDeabsorptionIN();
-    G4cout << "Deabsoption of Pb212 from is " << PbDeabsorptionOUT / (PbDeabsorptionOUT + PbDeabsorptionIN) * 100 << "%, expect 55%." << G4endl;
+    G4cout << "Deabsoption of Pb212 from is " << PbDeabsorptionOUT / numPrimaries * 100 << "%, expect 55%." << G4endl;
 
     G4double PbLeakage = fpEventAction->getPbLeakage();
     G4double PbNoLeakage = fpEventAction->getPbNoLeakage();
     G4cout << "Leakage of Pb212 from is " << PbLeakage / (PbLeakage + PbNoLeakage) * 100 << "%, value depends on tumour size" << G4endl;
 
-    G4cout << "Activity of Radon 224 = " << run->GetNumberOfEvent()/fpEventAction->getTotalRaDecayTime()/s << "s-1" << G4endl;
+    G4cout << "Activity of Radon 224 = " << numPrimaries/fpEventAction->getTotalRaDecayTime()/s << " s-1" << G4endl;
+
+   
+
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....

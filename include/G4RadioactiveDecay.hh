@@ -75,7 +75,7 @@ public: // with description
   G4RadioactiveDecay(const G4String &processName = "RadioactiveDecay");
   ~G4RadioactiveDecay();
 
-  G4ThreeVector calculateDiffusion(const G4double t, const G4double Dwater, const G4double Dsteel, const G4Track& theTrack) ;
+  G4ThreeVector calculateDiffusion(const G4double t, const G4double Dwater, const G4Track& theTrack) ;
   G4double estimateTime(const G4double distance, const G4double D);
 
   
