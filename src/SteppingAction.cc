@@ -120,7 +120,6 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
 
     G4double particleMeanEnergy = (step->GetPreStepPoint()->GetKineticEnergy() + step->GetPostStepPoint()->GetKineticEnergy()) / 2;
     G4int cp = step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo();
-    G4cout << "here" << G4endl;
 
     calculateDSB(particleMeanEnergy, step->GetStepLength(), time, cp);
   }
