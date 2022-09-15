@@ -128,26 +128,45 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
 void SteppingAction::calculateDSB(G4double KE, G4double stepLength, G4double time, G4int cp)
 {
   // function to calculate the number of DSB per step
-  G4double KEtoDSB[17][2] = {{0, 0},
-                             {0.02666666666666667, 0.0011688818838326493},
-                             {0.03, 0.0013335344030287663},
-                             {0.10666666666666667, 0.002861315961221019},
-                             {0.3, 0.004822935752598016},
-                             {0.5300000000000001, 0.005741146233020532},
-                             {0.7800000000000001, 0.006176385740656605},
-                             {1.04, 0.006058728319567002},
-                             {1.3083333333333333, 0.005461756820525401},
-                             {1.84, 0.0045488435091638356},
-                             {2.8799999999999994, 0.003275130975507074},
-                             {3.9, 0.0025388106759176884},
-                             {4.91, 0.002096712792670623},
-                             {5.920000000000001, 0.0017191600802838665},
-                             {6.93, 0.0014353052334767301},
-                             {7.94, 0.0012337176891147356},
-                             {8.94, 0.0011739286803916908}};
+  G4double KEtoSimpleDSB[17][2] = { {0, 0},
+                                    {0.02666666666666667, 0.0010616628338083911},
+                                    {0.03, 0.0011516155416274603},
+                                    {0.10666666666666669, 0.0021639360306445173},
+                                    {0.3, 0.0030253018618037614},
+                                    {0.53, 0.003320716114160411},
+                                    {0.7799999999999999, 0.0035208842090507153},
+                                    {1.04, 0.0036304412586854224},
+                                    {1.3083333333333333, 0.0034707972087794693},
+                                    {1.84, 0.0031396687384708964},
+                                    {2.8800000000000003, 0.0025469724755125107},
+                                    {3.9, 0.002111859459586764},
+                                    {4.91, 0.0017862752786142674},
+                                    {5.919999999999999, 0.0015061988021849615},
+                                    {6.93, 0.001287185641075164},
+                                    {7.94, 0.001143362492762962},
+                                    {8.94, 0.0010834915009852147} };
 
+  G4double KEtoComplexDSB[17][2] = { {0, 0},
+                                     {0.02666666666666667, 0.00010645727843204637},
+                                     {0.03, 0.00018429546939030563},
+                                     {0.10666666666666669, 0.000697391351508226},
+                                     {0.3, 0.0017973074568268493},
+                                     {0.53, 0.0024203714698786106},
+                                     {0.7799999999999999, 0.002655930185781365},
+                                     {1.04, 0.0024284360357074816},
+                                     {1.3083333333333333, 0.0019913150796892188},
+                                     {1.84, 0.0014109909236008616},
+                                     {2.8800000000000003, 0.0007296379316051993},
+                                     {3.9, 0.0004264609871747214},
+                                     {4.91, 0.0003112096010395113},
+                                     {5.919999999999999 ,0.00021332358389700178},
+                                     {6.93, 0.00014876555806773325},
+                                     {7.94, 9.058893448935311e-05},
+                                     {8.94, 9.041053469685657e-05} };
+
+  // KE values are the same for complex and simple, so can use the same index
   G4int i = 0;
-  while (KE > KEtoDSB[i][0])
+  while (KE > KEtoSimpleDSB[i][0])
   {
     ++i;
   }
@@ -157,10 +176,13 @@ void SteppingAction::calculateDSB(G4double KE, G4double stepLength, G4double tim
   G4int maxBound{i};
 
   // linearly interpolate DSB to get value for KE
-  G4double DSB = stepLength / nm * KEtoDSB[minBound][1] + ((KE - KEtoDSB[minBound][0]) / (KEtoDSB[maxBound][0] - KEtoDSB[minBound][0])) * abs(KEtoDSB[maxBound][1] - KEtoDSB[minBound][1]);
+  G4double simpleDSB = stepLength / nm * KEtoSimpleDSB[minBound][1] + ((KE - KEtoSimpleDSB[minBound][0]) / (KEtoSimpleDSB[maxBound][0] - KEtoSimpleDSB[minBound][0])) * abs(KEtoSimpleDSB[maxBound][1] - KEtoSimpleDSB[minBound][1]);
+
+  G4double complexDSB = stepLength / nm * KEtoComplexDSB[minBound][1] + ((KE - KEtoComplexDSB[minBound][0]) / (KEtoComplexDSB[maxBound][0] - KEtoComplexDSB[minBound][0])) * abs(KEtoComplexDSB[maxBound][1] - KEtoComplexDSB[minBound][1]);
 
   G4AnalysisManager *analysisManager = G4AnalysisManager::Instance();
 
-  analysisManager->FillH1(cp, time / 60 / 60, DSB);
+  analysisManager->FillH1(cp, time / 60 / 60, simpleDSB);
+  analysisManager->FillH1(cp+10, time / 60 / 60, complexDSB);
   return;
 }

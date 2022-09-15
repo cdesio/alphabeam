@@ -83,16 +83,26 @@ void RunAction::BeginOfRunAction(const G4Run *)
 
     // dose and strand breaks are calculated at 10 radial distances from the seed, in the nucleus volume
 
-    analysisManager->CreateH1("DSB_0", "DSB_0", 336, 0, 336); // time (1hr)
-    analysisManager->CreateH1("DSB_1", "DSB_1", 336, 0, 336); 
-    analysisManager->CreateH1("DSB_2", "DSB_2", 336, 0, 336); 
-    analysisManager->CreateH1("DSB_3", "DSB_3", 336, 0, 336); 
-    analysisManager->CreateH1("DSB_4", "DSB_4", 336, 0, 336); 
-    analysisManager->CreateH1("DSB_5", "DSB_5", 336, 0, 336); 
-    analysisManager->CreateH1("DSB_6", "DSB_6", 336, 0, 336); 
-    analysisManager->CreateH1("DSB_7", "DSB_7", 336, 0, 336); 
-    analysisManager->CreateH1("DSB_8", "DSB_8", 336, 0, 336); 
-    analysisManager->CreateH1("DSB_9", "DSB_9", 336, 0, 336);
+    analysisManager->CreateH1("simpleDSB_0", "simpleDSB_0", 336, 0, 336); // time (1hr)
+    analysisManager->CreateH1("simpleDSB_1", "simpleDSB_1", 336, 0, 336); 
+    analysisManager->CreateH1("simpleDSB_2", "simpleDSB_2", 336, 0, 336); 
+    analysisManager->CreateH1("simpleDSB_3", "simpleDSB_3", 336, 0, 336); 
+    analysisManager->CreateH1("simpleDSB_4", "simpleDSB_4", 336, 0, 336); 
+    analysisManager->CreateH1("simpleDSB_5", "simpleDSB_5", 336, 0, 336); 
+    analysisManager->CreateH1("simpleDSB_6", "simpleDSB_6", 336, 0, 336); 
+    analysisManager->CreateH1("simpleDSB_7", "simpleDSB_7", 336, 0, 336); 
+    analysisManager->CreateH1("simpleDSB_8", "simpleDSB_8", 336, 0, 336); 
+    analysisManager->CreateH1("simpleDSB_9", "simpleDSB_9", 336, 0, 336);
+    analysisManager->CreateH1("complexDSB_0", "complexDSB_0", 336, 0, 336); 
+    analysisManager->CreateH1("complexDSB_1", "complexDSB_1", 336, 0, 336); 
+    analysisManager->CreateH1("complexDSB_2", "complexDSB_2", 336, 0, 336); 
+    analysisManager->CreateH1("complexDSB_3", "complexDSB_3", 336, 0, 336); 
+    analysisManager->CreateH1("complexDSB_4", "complexDSB_4", 336, 0, 336); 
+    analysisManager->CreateH1("complexDSB_5", "complexDSB_5", 336, 0, 336); 
+    analysisManager->CreateH1("complexDSB_6", "complexDSB_6", 336, 0, 336); 
+    analysisManager->CreateH1("complexDSB_7", "complexDSB_7", 336, 0, 336); 
+    analysisManager->CreateH1("complexDSB_8", "complexDSB_8", 336, 0, 336); 
+    analysisManager->CreateH1("complexDSB_9", "complexDSB_9", 336, 0, 336);
     analysisManager->CreateH1("Dose_0", "Dose_0", 336, 0, 336);
     analysisManager->CreateH1("Dose_1", "Dose_1", 336, 0, 336);
     analysisManager->CreateH1("Dose_2", "Dose_2", 336, 0, 336);
@@ -153,5 +163,5 @@ void RunAction::saveDose(G4double inEdep, G4double time, G4int cp)
     mass = 997 * (4/3)*3.141593*5e-6*5e-6*5e-6; // sphere of water desnity water 997 kg/m3
 
     G4double Edep = ((inEdep) / joule);
-    analysisManager->FillH1(8+cp, time/60/60, Edep / mass);
+    analysisManager->FillH1(20+cp, time/60/60, Edep / mass);
 }
