@@ -134,28 +134,28 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
     {
       for (float theta = 0; theta <= 2 * 3.14159 - 10.5 * micrometer / R[r]; theta += 10.5 * micrometer / R[r])
       {
-        G4LogicalVolume *logicCell = new G4LogicalVolume(solidCell,
-                                                         waterMaterial,
-                                                         "cell");
+        // G4LogicalVolume *logicCell = new G4LogicalVolume(solidCell,
+        //                                                  waterMaterial,
+        //                                                  "cell");
 
-        G4PVPlacement *physiCell = new G4PVPlacement(0,
-                                                     G4ThreeVector(R[r] * cos(theta), R[r] * sin(theta), z * micrometer),
-                                                     logicCell,
-                                                     "cell",
-                                                     logicWorld,
-                                                     0,
-                                                     r,
-                                                     0);
+        // G4PVPlacement *physiCell = new G4PVPlacement(0,
+        //                                              G4ThreeVector(R[r] * cos(theta), R[r] * sin(theta), z * micrometer),
+        //                                              logicCell,
+        //                                              "cell",
+        //                                              logicWorld,
+        //                                              0,
+        //                                              r,
+        //                                              0);
 
         G4LogicalVolume *logicNucleus = new G4LogicalVolume(solidNucleus,
                                                             waterMaterial,
                                                             "nucleus");
 
         G4PVPlacement *physiNucleus = new G4PVPlacement(0,
-                                                        G4ThreeVector(),
+                                                        G4ThreeVector(R[r] * cos(theta), R[r] * sin(theta), z * micrometer),
                                                         logicNucleus,
                                                         "nucleus",
-                                                        logicCell,
+                                                        logicWorld,
                                                         0,
                                                         r,
                                                         0);
