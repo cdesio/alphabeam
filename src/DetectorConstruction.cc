@@ -49,6 +49,9 @@
 
 #include "G4ProductionCuts.hh"
 #include "G4RunManager.hh"
+#include "DetectorMessenger.hh"
+
+#include "RunAction.hh"
 
 using namespace G4DNAPARSER;
 
@@ -68,6 +71,9 @@ static G4VisAttributes invisGrey(false, G4Colour(0.839216, 0.839216, 0.839216));
 
 DetectorConstruction::DetectorConstruction() : G4VUserDetectorConstruction()
 {
+  R = {155 * micrometer, 175 * micrometer, 195 * micrometer, 215 * micrometer, 235 * micrometer, 255 * micrometer, 275 * micrometer, 295 * micrometer, 315 * micrometer, 335 * micrometer};
+
+  fDetectorMessenger = new DetectorMessenger(this);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -120,7 +126,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
                                                false,
                                                0);
 
-  std::vector<G4double> R = {155 * micrometer, 175 * micrometer, 195 * micrometer, 215 * micrometer, 235 * micrometer, 255 * micrometer, 275 * micrometer, 295 * micrometer, 315 * micrometer, 335 * micrometer};
+  SetCells(Rmin, Rmax);
 
   for (G4int r = 0; r < R.size(); ++r)
   {
@@ -162,4 +168,24 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   logicWorld->SetUserLimits(new G4UserLimits(0.25 * um));
 
   return physiWorld;
+}
+void DetectorConstruction::SetMin(G4double min)
+{
+  Rmin = min;
+  RunAction *myRunAction = (RunAction *)(G4RunManager::GetRunManager()->GetUserRunAction());
+  myRunAction->setRmin(min);
+}
+void DetectorConstruction::SetMax(G4double max)
+{
+  Rmax = max;
+  RunAction *myRunAction = (RunAction *)(G4RunManager::GetRunManager()->GetUserRunAction());
+  myRunAction->setRmax(max);
+}
+void DetectorConstruction::SetCells(G4double min, G4double max)
+{
+  for (G4int i = 0; i < R.size(); ++i)
+  {
+    R[i] = min + i * (max - min) / 9;
+    G4cout << "R[" << i << "] = " << R[i] / um << G4endl;
+  }
 }

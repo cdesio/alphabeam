@@ -23,33 +23,45 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// 
-#pragma once
-#include "G4UserRunAction.hh"
-#include "G4String.hh"
+/// \file DetectorMessenger.hh
+/// \brief Definition of the DetectorMessenger class
+//
+//
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+#ifndef DetectorMessenger_h
+#define DetectorMessenger_h 1
+
+#include "G4UImessenger.hh"
+#include "globals.hh"
 
 class DetectorConstruction;
+class G4UIdirectory;
+class G4UIcommand;
+class G4UIcmdWithAString;
+class G4UIcmdWithADoubleAndUnit;
+class G4UIcmdWithoutParameter;
 
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-class G4Run;
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
-
-class RunAction : public G4UserRunAction
+class DetectorMessenger: public G4UImessenger
 {
-public:
-    RunAction();
-    ~RunAction() override;
-
-    void BeginOfRunAction(const G4Run*) override;
-    void EndOfRunAction(const G4Run*) override;
+  public:
+  
+    DetectorMessenger(DetectorConstruction* );
+   ~DetectorMessenger();
     
-    void saveDose(G4double inEdep, G4double time, G4int cp);
-    void setRmin(G4double min) {Rmin = min;}
-    void setRmax(G4double max) {Rmax = max;}
+    virtual void SetNewValue(G4UIcommand*, G4String);
+    
+  private:
+  
+    DetectorConstruction*      fDetector;
+    G4UIcmdWithADoubleAndUnit* fPosMin;
+    G4UIcmdWithADoubleAndUnit* fPosMax;
 
-private:
-    void Write(const G4Run*);
-    G4double Rmin{0};
-    G4double Rmax{0};
 };
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+#endif

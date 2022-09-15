@@ -82,26 +82,25 @@ void RunAction::BeginOfRunAction(const G4Run *)
     G4cout << "\n----> Histogram file is opened in " << fileName << G4endl;
 
     // dose and strand breaks are calculated at 10 radial distances from the seed, in the nucleus volume
-
     analysisManager->CreateH1("simpleDSB_0", "simpleDSB_0", 336, 0, 336); // time (1hr)
-    analysisManager->CreateH1("simpleDSB_1", "simpleDSB_1", 336, 0, 336); 
-    analysisManager->CreateH1("simpleDSB_2", "simpleDSB_2", 336, 0, 336); 
-    analysisManager->CreateH1("simpleDSB_3", "simpleDSB_3", 336, 0, 336); 
-    analysisManager->CreateH1("simpleDSB_4", "simpleDSB_4", 336, 0, 336); 
-    analysisManager->CreateH1("simpleDSB_5", "simpleDSB_5", 336, 0, 336); 
-    analysisManager->CreateH1("simpleDSB_6", "simpleDSB_6", 336, 0, 336); 
-    analysisManager->CreateH1("simpleDSB_7", "simpleDSB_7", 336, 0, 336); 
-    analysisManager->CreateH1("simpleDSB_8", "simpleDSB_8", 336, 0, 336); 
+    analysisManager->CreateH1("simpleDSB_1", "simpleDSB_1", 336, 0, 336);
+    analysisManager->CreateH1("simpleDSB_2", "simpleDSB_2", 336, 0, 336);
+    analysisManager->CreateH1("simpleDSB_3", "simpleDSB_3", 336, 0, 336);
+    analysisManager->CreateH1("simpleDSB_4", "simpleDSB_4", 336, 0, 336);
+    analysisManager->CreateH1("simpleDSB_5", "simpleDSB_5", 336, 0, 336);
+    analysisManager->CreateH1("simpleDSB_6", "simpleDSB_6", 336, 0, 336);
+    analysisManager->CreateH1("simpleDSB_7", "simpleDSB_7", 336, 0, 336);
+    analysisManager->CreateH1("simpleDSB_8", "simpleDSB_8", 336, 0, 336);
     analysisManager->CreateH1("simpleDSB_9", "simpleDSB_9", 336, 0, 336);
-    analysisManager->CreateH1("complexDSB_0", "complexDSB_0", 336, 0, 336); 
-    analysisManager->CreateH1("complexDSB_1", "complexDSB_1", 336, 0, 336); 
-    analysisManager->CreateH1("complexDSB_2", "complexDSB_2", 336, 0, 336); 
-    analysisManager->CreateH1("complexDSB_3", "complexDSB_3", 336, 0, 336); 
-    analysisManager->CreateH1("complexDSB_4", "complexDSB_4", 336, 0, 336); 
-    analysisManager->CreateH1("complexDSB_5", "complexDSB_5", 336, 0, 336); 
-    analysisManager->CreateH1("complexDSB_6", "complexDSB_6", 336, 0, 336); 
-    analysisManager->CreateH1("complexDSB_7", "complexDSB_7", 336, 0, 336); 
-    analysisManager->CreateH1("complexDSB_8", "complexDSB_8", 336, 0, 336); 
+    analysisManager->CreateH1("complexDSB_0", "complexDSB_0", 336, 0, 336);
+    analysisManager->CreateH1("complexDSB_1", "complexDSB_1", 336, 0, 336);
+    analysisManager->CreateH1("complexDSB_2", "complexDSB_2", 336, 0, 336);
+    analysisManager->CreateH1("complexDSB_3", "complexDSB_3", 336, 0, 336);
+    analysisManager->CreateH1("complexDSB_4", "complexDSB_4", 336, 0, 336);
+    analysisManager->CreateH1("complexDSB_5", "complexDSB_5", 336, 0, 336);
+    analysisManager->CreateH1("complexDSB_6", "complexDSB_6", 336, 0, 336);
+    analysisManager->CreateH1("complexDSB_7", "complexDSB_7", 336, 0, 336);
+    analysisManager->CreateH1("complexDSB_8", "complexDSB_8", 336, 0, 336);
     analysisManager->CreateH1("complexDSB_9", "complexDSB_9", 336, 0, 336);
     analysisManager->CreateH1("Dose_0", "Dose_0", 336, 0, 336);
     analysisManager->CreateH1("Dose_1", "Dose_1", 336, 0, 336);
@@ -114,6 +113,13 @@ void RunAction::BeginOfRunAction(const G4Run *)
     analysisManager->CreateH1("Dose_8", "Dose_8", 336, 0, 336);
     analysisManager->CreateH1("Dose_9", "Dose_9", 336, 0, 336);
 
+    analysisManager->CreateNtuple("Info", "Info");
+    analysisManager->CreateNtupleDColumn("NumPrimaries");
+    analysisManager->CreateNtupleDColumn("Rmin");
+    analysisManager->CreateNtupleDColumn("Rmax");
+    analysisManager->CreateNtupleSColumn("GitHash");
+
+    analysisManager->FinishNtuple();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -125,29 +131,36 @@ void RunAction::EndOfRunAction(const G4Run *run)
 
     G4int numPrimaries = run->GetNumberOfEvent();
     G4double RnDeabsorptionIN = fpEventAction->getRnDeabsorptionIN();
-    G4cout << "Deabsoption of Rn220 from is " << (1-RnDeabsorptionIN / numPrimaries) * 100 << "%, expect 40%." << G4endl;
+    G4cout << "Deabsoption of Rn220 from is " << (1 - RnDeabsorptionIN / numPrimaries) * 100 << "%, expect 40%." << G4endl;
 
     G4double PbDeabsorptionIN = fpEventAction->getPbDeabsorptionIN();
-    G4cout << "Deabsoption of Pb212 from is " << (1-PbDeabsorptionIN / numPrimaries) * 100 << "%, expect 55%." << G4endl;
+    G4cout << "Deabsoption of Pb212 from is " << (1 - PbDeabsorptionIN / numPrimaries) * 100 << "%, expect 55%." << G4endl;
 
     G4double PbLeakage = fpEventAction->getPbLeakage();
     G4double PbNoLeakage = fpEventAction->getPbNoLeakage();
     G4cout << "Leakage of Pb212 from is " << PbLeakage / (PbLeakage + PbNoLeakage) * 100 << "%, value depends on tumour size" << G4endl;
 
-    G4cout << "Activity of Radon 224 = " << numPrimaries/fpEventAction->getTotalRaDecayTime()/s << " s-1" << G4endl;
-
+    G4cout << "Activity of Radon 224 = " << numPrimaries / fpEventAction->getTotalRaDecayTime() / s << " s-1" << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
-void RunAction::Write(const G4Run *)
+void RunAction::Write(const G4Run* run)
 {
     CommandLineParser *parser = CommandLineParser::GetParser();
     Command *command(0);
     if ((command = parser->GetCommandIfActive("-out")) == 0)
         return;
     G4AnalysisManager *analysisManager = G4AnalysisManager::Instance();
+
+
+    analysisManager->FillNtupleDColumn(0, run->GetNumberOfEvent());
+    analysisManager->FillNtupleDColumn(1, Rmin/um);
+    G4cout << "rmin = " << Rmin << G4endl;
+    analysisManager->FillNtupleDColumn(2, Rmax/um);
+    analysisManager->FillNtupleSColumn(3, kGitHash);
+    analysisManager->AddNtupleRow();
 
     analysisManager->Write();
     analysisManager->CloseFile();
@@ -160,8 +173,8 @@ void RunAction::saveDose(G4double inEdep, G4double time, G4int cp)
     G4AnalysisManager *analysisManager = G4AnalysisManager::Instance();
 
     G4double mass;
-    mass = 997 * (4/3)*3.141593*5e-6*5e-6*5e-6; // sphere of water desnity water 997 kg/m3
+    mass = 997 * (4 / 3) * 3.141593 * 5e-6 * 5e-6 * 5e-6; // sphere of water desnity water 997 kg/m3
 
     G4double Edep = ((inEdep) / joule);
-    analysisManager->FillH1(20+cp, time/60/60, Edep / mass);
+    analysisManager->FillH1(20 + cp, time / 60 / 60, Edep / mass);
 }

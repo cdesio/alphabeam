@@ -65,8 +65,6 @@ int main(int argc, char **argv)
   pRunManager->SetUserInitialization(pPhysList);
   pRunManager->SetUserInitialization(new ActionInitialization());
 
-  // Initialize G4 kernel
-  pRunManager->Initialize();
 
   G4UImanager *UImanager = G4UImanager::GetUIpointer();
 
