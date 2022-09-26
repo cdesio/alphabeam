@@ -27,7 +27,7 @@
 #pragma once
 #include "G4UserRunAction.hh"
 #include "G4String.hh"
-
+#include <vector>
 class DetectorConstruction;
 
 
@@ -48,8 +48,11 @@ public:
     void setRmin(G4double min) {Rmin = min;}
     void setRmax(G4double max) {Rmax = max;}
 
+    void setNumCells(G4int numCells) {NumCells.push_back(numCells); }
+
 private:
     void Write(const G4Run*);
     G4double Rmin{0};
     G4double Rmax{0};
+    std::vector<G4int> NumCells;
 };

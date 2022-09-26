@@ -34,7 +34,7 @@
 #include "G4Event.hh"
 #include "DetectorConstruction.hh"
 #include "git_version.hh"
-#include "G4SystemOfUnits.hh"
+#include "G4SystemOfUnits.hh" 
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 using namespace G4DNAPARSER;
@@ -118,8 +118,12 @@ void RunAction::BeginOfRunAction(const G4Run *)
     analysisManager->CreateNtupleDColumn("Rmin");
     analysisManager->CreateNtupleDColumn("Rmax");
     analysisManager->CreateNtupleSColumn("GitHash");
+    analysisManager->FinishNtuple(0);
 
-    analysisManager->FinishNtuple();
+    analysisManager->CreateNtuple("NumCells", "NumCells");
+    analysisManager->CreateNtupleIColumn("NumCells");
+
+    analysisManager->FinishNtuple(1);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -140,7 +144,7 @@ void RunAction::EndOfRunAction(const G4Run *run)
     G4double PbNoLeakage = fpEventAction->getPbNoLeakage();
     G4cout << "Leakage of Pb212 from is " << PbLeakage / (PbLeakage + PbNoLeakage) * 100 << "%, value depends on tumour size" << G4endl;
 
-    G4cout << "Activity of Radon 224 = " << numPrimaries / fpEventAction->getTotalRaDecayTime() / s << " s-1" << G4endl;
+    G4cout << "Activity of Radon 224 = " << numPrimaries*numPrimaries / (fpEventAction->getTotalRaDecayTime() / s) << " s-1" << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -155,13 +159,19 @@ void RunAction::Write(const G4Run* run)
     G4AnalysisManager *analysisManager = G4AnalysisManager::Instance();
 
 
-    analysisManager->FillNtupleDColumn(0, run->GetNumberOfEvent());
-    analysisManager->FillNtupleDColumn(1, Rmin/um);
-    G4cout << "rmin = " << Rmin << G4endl;
-    analysisManager->FillNtupleDColumn(2, Rmax/um);
-    analysisManager->FillNtupleSColumn(3, kGitHash);
-    analysisManager->AddNtupleRow();
+    analysisManager->FillNtupleDColumn(0,0, run->GetNumberOfEvent());
+    analysisManager->FillNtupleDColumn(0, 1, Rmin/um);
+    analysisManager->FillNtupleDColumn(0,2, Rmax/um);
+    analysisManager->FillNtupleSColumn(0,3, kGitHash);
+    analysisManager->AddNtupleRow(0);
 
+    for (int i=0; i<NumCells.size(); ++i)
+    {
+    G4cout << "NumCells = " << NumCells[i] << G4endl;
+
+    analysisManager->FillNtupleIColumn(1, 0, NumCells[i]);
+    analysisManager->AddNtupleRow(1);
+    }
     analysisManager->Write();
     analysisManager->CloseFile();
     analysisManager->Clear();
