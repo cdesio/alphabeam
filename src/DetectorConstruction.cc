@@ -165,8 +165,6 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   logicWorld->SetVisAttributes(&invisGrey);
   logicSeed->SetVisAttributes(&visGrey);
 
-  logicWorld->SetUserLimits(new G4UserLimits(0.25 * um));
-
   return physiWorld;
 }
 void DetectorConstruction::SetMin(G4double min)
