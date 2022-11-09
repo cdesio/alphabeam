@@ -130,6 +130,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
 
   for (G4int r = 0; r < R.size(); ++r)
   {
+    G4int numCells{0};
     for (G4int z = -100; z <= 100; z += 10)
     {
       for (float theta = 0; theta <= 2 * 3.14159 - 10.5 * micrometer / R[r]; theta += 10.5 * micrometer / R[r])
@@ -159,8 +160,11 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
                                                         0,
                                                         r,
                                                         0);
+        numCells++;
       }
     }
+    RunAction *myRunAction = (RunAction *)(G4RunManager::GetRunManager()->GetUserRunAction());
+    myRunAction -> setNumCells(numCells);
   }
   logicWorld->SetVisAttributes(&invisGrey);
   logicSeed->SetVisAttributes(&visGrey);
