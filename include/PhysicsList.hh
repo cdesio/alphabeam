@@ -43,7 +43,7 @@ public:
     PhysicsList();
     ~PhysicsList() override;
     
-    void ConstructParticle() override;
+    // void ConstructParticle() override;
     // void ConstructProcess() override;
 
     // void RegisterConstructor(const G4String& name);

@@ -95,7 +95,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   G4Material *waterMaterial = man->FindOrBuildMaterial("G4_WATER");
   G4Material *S_Steel = G4NistManager::Instance()->FindOrBuildMaterial("G4_STAINLESS-STEEL");
 
-  G4Box *solidWorld = new G4Box("world", 1000 * mm, 1000 * mm, 1000 * mm);
+  G4Box *solidWorld = new G4Box("world", 10 * mm, 10 * mm, 10 * mm);
 
   G4Tubs *solidSeed = new G4Tubs("seed", 0., 0.15 * mm, 3 * mm, 0, 360 * degree);
   G4Orb *solidCell = new G4Orb("cell", 5 * micrometer);
@@ -168,8 +168,6 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   }
   logicWorld->SetVisAttributes(&invisGrey);
   logicSeed->SetVisAttributes(&visGrey);
-
-  logicWorld->SetUserLimits(new G4UserLimits(0.25 * um));
 
   return physiWorld;
 }
