@@ -37,7 +37,7 @@
 #include "G4SystemOfUnits.hh"
 #include "G4UnitsTable.hh"
 
-#include "G4EmStandardPhysics.hh"
+#include "G4EmStandardPhysics_option4.hh"
 // #include "G4EmExtraPhysics.hh"
 #include "G4EmParameters.hh"
 #include "G4DecayPhysics.hh"
@@ -76,7 +76,7 @@ PhysicsList::PhysicsList()
   //
 //   new G4UnitDefinition( "millielectronVolt", "meV", "Energy", 1.e-3*eV);   
   // EM physics
-  RegisterPhysics(new G4EmStandardPhysics());
+  RegisterPhysics(new G4EmStandardPhysics_option4());
 
   G4EmParameters* param = G4EmParameters::Instance();
   param->SetAugerCascade(true);
