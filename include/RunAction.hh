@@ -44,7 +44,6 @@ public:
     void BeginOfRunAction(const G4Run*) override;
     void EndOfRunAction(const G4Run*) override;
     
-    void saveDose(G4double inEdep, G4double time, G4int cp);
     void setRmin(G4double min) {Rmin = min;}
     void setRmax(G4double max) {Rmax = max;}
 
