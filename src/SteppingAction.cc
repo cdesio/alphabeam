@@ -171,6 +171,20 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
         particleID = 2;
       else if (particleName == "alpha")
         particleID = 3;
+      else if (particleName == "Rn220")
+        particleID = 4;
+      else if (particleName == "Po216")
+        particleID = 5;
+      else if (particleName == "Pb212")
+        particleID = 6;
+      else if (particleName == "Bi212")
+        particleID = 7;
+      else if (particleName == "Tl208")
+        particleID = 8;
+      else if (particleName == "Po212")
+        particleID = 9;
+      else if (particleName == "Pb208")
+        particleID = 10;
       else
       {
         G4cout << particleName << " outside  not saved" << G4endl;
@@ -224,6 +238,20 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
       particleID = 2;
     else if (particleName == "alpha")
       particleID = 3;
+    else if (particleName == "Rn220")
+      particleID = 4;
+    else if (particleName == "Po216")
+      particleID = 5;
+    else if (particleName == "Pb212")
+      particleID = 6;
+    else if (particleName == "Bi212")
+      particleID = 7;
+    else if (particleName == "Tl208")
+      particleID = 8;
+    else if (particleName == "Po212")
+      particleID = 9;
+    else if (particleName == "Pb208")
+      particleID = 10;
     else
     {
       G4cout << particleName << " inside  not saved" << G4endl;
