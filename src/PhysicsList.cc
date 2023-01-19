@@ -71,6 +71,7 @@ PhysicsList::PhysicsList()
 {
   G4int verb = 1;
   SetVerboseLevel(verb);
+  SetDefaultCutValue(1.0*nanometer);
 
   //add new units for radioActive decays
   //

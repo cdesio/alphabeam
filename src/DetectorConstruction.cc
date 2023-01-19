@@ -66,6 +66,8 @@ using CLHEP::nanometer;
 
 static G4VisAttributes visGrey(true, G4Colour(0.839216, 0.839216, 0.839216));
 static G4VisAttributes invisGrey(false, G4Colour(0.839216, 0.839216, 0.839216));
+static G4VisAttributes visRed(true, G4Colour(1, 0, 0));
+
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -94,20 +96,38 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   G4NistManager *man = G4NistManager::Instance();
   G4Material *waterMaterial = man->FindOrBuildMaterial("G4_WATER");
   G4Material *S_Steel = G4NistManager::Instance()->FindOrBuildMaterial("G4_STAINLESS-STEEL");
+  G4Material *air = G4NistManager::Instance()->FindOrBuildMaterial("G4_AIR");
 
-  G4Box *solidWorld = new G4Box("world", 10 * mm, 10 * mm, 10 * mm);
+  G4double nucleusSize = 300*nm;
+  G4double margin = 20*nm;
+
+  G4Box *solidWorld = new G4Box("world", 100 * mm, 100 * mm, 100 * mm);
+
+  G4Box *solidWater = new G4Box("water", 10 * mm, 10 * mm, 10 * mm);
 
   G4Tubs *solidSeed = new G4Tubs("seed", 0., 0.15 * mm, 3 * mm, 0, 360 * degree);
-  G4Orb *solidCell = new G4Orb("cell", 5 * micrometer);
-  G4Orb *solidNucleus = new G4Orb("nucleus", 2.5 * micrometer);
+  G4Box *solidCell = new G4Box("cell", nucleusSize/2+ margin, nucleusSize/2 + margin, nucleusSize/2+ margin);
+  // G4Box *solidNucleus = new G4Box("nucleus", nucleusSize/2, nucleusSize/2, nucleusSize/2);
 
   G4LogicalVolume *logicWorld = new G4LogicalVolume(solidWorld,
-                                                    waterMaterial,
+                                                    air,
                                                     "world");
 
   G4PVPlacement *physiWorld = new G4PVPlacement(0,
                                                 G4ThreeVector(),
                                                 "world",
+                                                logicWorld,
+                                                0,
+                                                false,
+                                                0);
+
+  G4LogicalVolume *logicWater = new G4LogicalVolume(solidWater,
+                                                    waterMaterial,
+                                                    "water");
+  G4PVPlacement *physiWater = new G4PVPlacement(0,
+                                                G4ThreeVector(),
+                                                logicWater,
+                                                "water",
                                                 logicWorld,
                                                 0,
                                                 false,
@@ -121,7 +141,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
                                                G4ThreeVector(),
                                                logicSeed,
                                                "seed",
-                                               logicWorld,
+                                               logicWater,
                                                0,
                                                false,
                                                0);
@@ -133,40 +153,50 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
     G4int numCells{0};
     for (G4int z = -100; z <= 100; z += 10)
     {
-      for (float theta = 0; theta <= 2 * 3.14159 - 10.5 * micrometer / R[r]; theta += 10.5 * micrometer / R[r])
+      // for (float theta = 0; theta <= 2 * 3.14159 - 10.5 * micrometer / R[r]; theta += 10.5 * micrometer / R[r])
+      for (float theta = 0; theta < 2 * 3.14159 ; theta += 3.14159/120)
       {
-        // G4LogicalVolume *logicCell = new G4LogicalVolume(solidCell,
-        //                                                  waterMaterial,
-        //                                                  "cell");
+        G4LogicalVolume *logicCell = new G4LogicalVolume(solidCell,
+                                                         waterMaterial,
+                                                         "cell");
 
-        // G4PVPlacement *physiCell = new G4PVPlacement(0,
-        //                                              G4ThreeVector(R[r] * cos(theta), R[r] * sin(theta), z * micrometer),
-        //                                              logicCell,
-        //                                              "cell",
-        //                                              logicWorld,
-        //                                              0,
-        //                                              r,
-        //                                              0);
+        G4RotationMatrix* rot = new G4RotationMatrix(theta, 
+                                              0,
+                                              0) ;
 
-        G4LogicalVolume *logicNucleus = new G4LogicalVolume(solidNucleus,
-                                                            waterMaterial,
-                                                            "nucleus");
 
-        G4PVPlacement *physiNucleus = new G4PVPlacement(0,
-                                                        G4ThreeVector(R[r] * cos(theta), R[r] * sin(theta), z * micrometer),
-                                                        logicNucleus,
-                                                        "nucleus",
-                                                        logicWorld,
-                                                        0,
-                                                        r,
-                                                        0);
+        G4PVPlacement *physiCell = new G4PVPlacement(rot,
+                                                     G4ThreeVector(R[r] * cos(theta), R[r] * sin(theta), z * micrometer),
+                                                     logicCell,
+                                                     "cell",
+                                                     logicWater,
+                                                     0,
+                                                     r,
+                                                     0);
+
+        // G4LogicalVolume *logicNucleus = new G4LogicalVolume(solidNucleus,
+        //                                                     waterMaterial,
+        //                                                     "nucleus");
+
+        // G4PVPlacement *physiNucleus = new G4PVPlacement(rot,
+        //                                                 G4ThreeVector(R[r] * cos(theta), R[r] * sin(theta), z * micrometer),
+        //                                                 logicNucleus,
+        //                                                 "nucleus",
+        //                                                 logicWater,
+        //                                                 0,
+        //                                                 r,
+        //                                                 0);
         numCells++;
+        // logicNucleus->SetVisAttributes(&visGrey);
+        logicCell->SetVisAttributes(&visRed);
       }
     }
     RunAction *myRunAction = (RunAction *)(G4RunManager::GetRunManager()->GetUserRunAction());
     myRunAction -> setNumCells(numCells);
   }
+
   logicWorld->SetVisAttributes(&invisGrey);
+  logicWater->SetVisAttributes(&invisGrey);
   logicSeed->SetVisAttributes(&visGrey);
 
   return physiWorld;

@@ -50,5 +50,7 @@ public:
 private:
   EventAction* fpEventAction;
   RunAction *fRunAction;
+  std::ofstream PSfile;
+
 
 };
