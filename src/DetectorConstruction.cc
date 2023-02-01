@@ -160,13 +160,12 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
                                                          waterMaterial,
                                                          "cell");
 
-        G4RotationMatrix* rot = new G4RotationMatrix(theta, 
+        G4RotationMatrix* rot = new G4RotationMatrix(-1*theta, 
                                               0,
                                               0) ;
 
-
         G4PVPlacement *physiCell = new G4PVPlacement(rot,
-                                                     G4ThreeVector(R[r] * cos(theta), R[r] * sin(theta), z * micrometer),
+                                                     G4ThreeVector(R[r] * sin(theta), R[r] * cos(theta), z * micrometer),
                                                      logicCell,
                                                      "cell",
                                                      logicWater,
