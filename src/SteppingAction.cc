@@ -122,6 +122,7 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
       {
         step->GetTrack()->SetTrackStatus(fKillTrackAndSecondaries);
         fpEventAction->addPbLeakage();
+        return;
       }
       else
       {
@@ -132,6 +133,8 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
   if ((particleName == "Pb208") && (particleEnergy == 0))
   {
     step->GetTrack()->SetTrackStatus(fKillTrackAndSecondaries);
+    return;
+
   }
 
   CommandLineParser *parser = CommandLineParser::GetParser();
