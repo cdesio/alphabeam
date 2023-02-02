@@ -2,7 +2,7 @@
 /run/verbose 1
 #
 /det/cellPos_min 155 micrometer
-/det/cellPos_max 335 micrometer
+/det/cellPos_max 245 micrometer
 
 /run/initialize
 /gun/particle ion
