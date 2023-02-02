@@ -36,6 +36,7 @@
 #include "DetectorConstruction.hh"
 #include "CommandLineParser.hh"
 #include "EventAction.hh"
+#include "G4Ions.hh"
 
 using namespace G4DNAPARSER;
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -105,7 +106,7 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
       fpEventAction->addRnDeabsorptionIN();
     }
   }
-  if ((particleName.contains("Pb212")) && (step->GetPreStepPoint()->GetKineticEnergy() == 0))
+  if ((G4StrUtil::contains(particleName,"Pb212")) && (step->GetPreStepPoint()->GetKineticEnergy() == 0))
   {
     if (step->GetPreStepPoint()->GetPhysicalVolume()->GetName() == "seed")
     {
@@ -168,32 +169,32 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
       G4String particleName = step->GetTrack()->GetParticleDefinition()->GetParticleName();
 
       G4float particleID{0};
-      if (particleName == "e-")
+      if (G4StrUtil::contains(particleName,"e-"))
         particleID = 1;
-      else if (particleName == "gamma")
+      else if (G4StrUtil::contains(particleName,"gamma"))
         particleID = 2;
-      else if (particleName == "alpha")
+      else if (G4StrUtil::contains(particleName,"alpha"))
         particleID = 3;
-      else if (particleName == "Rn220")
+      else if (G4StrUtil::contains(particleName,"Rn220"))
         particleID = 4;
-      else if (particleName == "Po216")
+      else if (G4StrUtil::contains(particleName,"Po216"))
         particleID = 5;
-      else if (particleName == "Pb212")
+      else if (G4StrUtil::contains(particleName,"Pb212"))
         particleID = 6;
-      else if (particleName == "Bi212")
+      else if (G4StrUtil::contains(particleName,"Bi212"))
         particleID = 7;
-      else if (particleName == "Tl208")
+      else if (G4StrUtil::contains(particleName,"Tl208"))
         particleID = 8;
-      else if (particleName == "Po212")
+      else if (G4StrUtil::contains(particleName,"Po212"))
         particleID = 9;
-      else if (particleName == "Pb208")
+      else if (G4StrUtil::contains(particleName,"Pb208"))
         particleID = 10;
       else
       {
         G4cout << particleName << " outside  not saved" << G4endl;
         return;
       }
-      float output[11];
+      float output[12];
       output[0] = localPos.x() / mm;
       output[1] = localPos.y() / mm;
       output[2] = localPos.z() / mm;
@@ -205,6 +206,7 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
       output[8] = particleID;
       output[9] = step->GetPostStepPoint()->GetPhysicalVolume()->GetCopyNo();
       output[10] = time / s;
+      output[11] = ((const G4Ions*)( step->GetTrack()->GetParticleDefinition()))->GetExcitationEnergy();
 
       PSfile.write((char *)&output, sizeof(output));
     }
