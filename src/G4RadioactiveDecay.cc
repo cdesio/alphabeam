@@ -1457,6 +1457,8 @@ G4ThreeVector G4RadioactiveDecay::ChooseCollimationDirection() const
 
 G4ThreeVector G4RadioactiveDecay::calculateDiffusion(const G4double diffusionTime, const G4double Dwater, const G4Track &theTrack)
 {
+    G4double tolerance = 1e-12; // tolerance for checking time for intersection with seed to avoid round errors
+
     G4ThreeVector changePosition = G4ThreeVector();
 
     // generate random direction vector for the total diffusion
@@ -1504,19 +1506,19 @@ G4ThreeVector G4RadioactiveDecay::calculateDiffusion(const G4double diffusionTim
 
             std::vector<G4double> possible;
 
-            if ((abs(tRadial1 * direction.z()+startPos.z()) < zMinMax) && (tRadial1 > 0))
+            if ((abs(tRadial1 * direction.z()+startPos.z()) < zMinMax) && (tRadial1 > tolerance))
             {
                 possible.push_back(tRadial1);
             }
-            if ((abs(tRadial2 * direction.z()+startPos.z()) < zMinMax) && (tRadial2 > 0))
+            if ((abs(tRadial2 * direction.z()+startPos.z()) < zMinMax) && (tRadial2 > tolerance))
             {
                 possible.push_back(tRadial2);
             }
-            if (((std::pow(tZmin * direction.x()+startPos.x(),2) + std::pow(tZmin * direction.y()+startPos.y(),2)) < r * r) && (tZmin > 0))
+            if (((std::pow(tZmin * direction.x()+startPos.x(),2) + std::pow(tZmin * direction.y()+startPos.y(),2)) < r * r) && (tZmin > tolerance))
             {
                 possible.push_back(tZmin);
             }
-            if (((std::pow(tZmax * direction.x()+startPos.x(),2) + std::pow(tZmax * direction.y()+startPos.y(),2)) < r * r) && (tZmax > 0))
+            if (((std::pow(tZmax * direction.x()+startPos.x(),2) + std::pow(tZmax * direction.y()+startPos.y(),2)) < r * r) && (tZmax > tolerance))
             {
                 possible.push_back(tZmax);
             }
@@ -1584,19 +1586,19 @@ G4ThreeVector G4RadioactiveDecay::calculateDiffusion(const G4double diffusionTim
 
                     std::vector<G4double> possible;
 
-                    if ((abs(tRadial1 * direction2.z()+position.z()) < zMinMax) && (tRadial1 > 0))
+                    if ((abs(tRadial1 * direction2.z()+position.z()) < zMinMax) && (tRadial1 > tolerance))
                     {
                         possible.push_back(tRadial1);
                     }
-                    if ((abs(tRadial2 * direction2.z()+position.z()) < zMinMax) && (tRadial2 > 0))
+                    if ((abs(tRadial2 * direction2.z()+position.z()) < zMinMax) && (tRadial2 > tolerance))
                     {
                         possible.push_back(tRadial2);
                     }
-                    if ((std::pow(tZmin * direction2.x()+position.x(),2) + std::pow(tZmin * direction2.y() +position.y(),2) < r * r) && (tZmin > 0))
+                    if ((std::pow(tZmin * direction2.x()+position.x(),2) + std::pow(tZmin * direction2.y() +position.y(),2) < r * r) && (tZmin > tolerance))
                     {
                         possible.push_back(tZmin);
                     }
-                    if ((std::pow(tZmax * direction2.x()+position.x(),2) + std::pow(tZmax * direction2.y() +position.y(),2) < r * r) && (tZmax > 0))
+                    if ((std::pow(tZmax * direction2.x()+position.x(),2) + std::pow(tZmax * direction2.y() +position.y(),2) < r * r) && (tZmax > tolerance))
                     {
                         possible.push_back(tZmax);
                     }
