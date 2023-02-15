@@ -44,7 +44,7 @@ public:
     ~SteppingAction() override;
 
     void UserSteppingAction(const G4Step* step) override;
-
+    void calculateDSB(G4double KE, G4double stepLength, G4double time, G4int cp);
     // void Initialize();
 private:
   EventAction* fpEventAction;

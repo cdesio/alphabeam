@@ -81,6 +81,39 @@ void RunAction::BeginOfRunAction(const G4Run *)
 
     G4cout << "\n----> Histogram file is opened in " << fileName << G4endl;
 
+
+// dose and strand breaks are calculated at 10 radial distances from the seed, in the nucleus volume
+    analysisManager->CreateH1("simpleDSB_0", "simpleDSB_0", 20160, 0, 20160); // time (1hr)
+    analysisManager->CreateH1("simpleDSB_1", "simpleDSB_1", 20160, 0, 20160);
+    analysisManager->CreateH1("simpleDSB_2", "simpleDSB_2", 20160, 0, 20160);
+    analysisManager->CreateH1("simpleDSB_3", "simpleDSB_3", 20160, 0, 20160);
+    analysisManager->CreateH1("simpleDSB_4", "simpleDSB_4", 20160, 0, 20160);
+    analysisManager->CreateH1("simpleDSB_5", "simpleDSB_5", 20160, 0, 20160);
+    analysisManager->CreateH1("simpleDSB_6", "simpleDSB_6", 20160, 0, 20160);
+    analysisManager->CreateH1("simpleDSB_7", "simpleDSB_7", 20160, 0, 20160);
+    analysisManager->CreateH1("simpleDSB_8", "simpleDSB_8", 20160, 0, 20160);
+    analysisManager->CreateH1("simpleDSB_9", "simpleDSB_9", 20160, 0, 20160);
+    analysisManager->CreateH1("complexDSB_0", "complexDSB_0", 20160, 0, 20160);
+    analysisManager->CreateH1("complexDSB_1", "complexDSB_1", 20160, 0, 20160);
+    analysisManager->CreateH1("complexDSB_2", "complexDSB_2", 20160, 0, 20160);
+    analysisManager->CreateH1("complexDSB_3", "complexDSB_3", 20160, 0, 20160);
+    analysisManager->CreateH1("complexDSB_4", "complexDSB_4", 20160, 0, 20160);
+    analysisManager->CreateH1("complexDSB_5", "complexDSB_5", 20160, 0, 20160);
+    analysisManager->CreateH1("complexDSB_6", "complexDSB_6", 20160, 0, 20160);
+    analysisManager->CreateH1("complexDSB_7", "complexDSB_7", 20160, 0, 20160);
+    analysisManager->CreateH1("complexDSB_8", "complexDSB_8", 20160, 0, 20160);
+    analysisManager->CreateH1("complexDSB_9", "complexDSB_9", 20160, 0, 20160);
+    analysisManager->CreateH1("Dose_0", "Dose_0", 20160, 0, 20160);
+    analysisManager->CreateH1("Dose_1", "Dose_1", 20160, 0, 20160);
+    analysisManager->CreateH1("Dose_2", "Dose_2", 20160, 0, 20160);
+    analysisManager->CreateH1("Dose_3", "Dose_3", 20160, 0, 20160);
+    analysisManager->CreateH1("Dose_4", "Dose_4", 20160, 0, 20160);
+    analysisManager->CreateH1("Dose_5", "Dose_5", 20160, 0, 20160);
+    analysisManager->CreateH1("Dose_6", "Dose_6", 20160, 0, 20160);
+    analysisManager->CreateH1("Dose_7", "Dose_7", 20160, 0, 20160);
+    analysisManager->CreateH1("Dose_8", "Dose_8", 20160, 0, 20160);
+    analysisManager->CreateH1("Dose_9", "Dose_9", 20160, 0, 20160);
+
     analysisManager->CreateNtuple("Info", "Info");
     analysisManager->CreateNtupleDColumn("NumPrimaries");
     analysisManager->CreateNtupleDColumn("Rmin");
