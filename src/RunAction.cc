@@ -142,7 +142,7 @@ void RunAction::EndOfRunAction(const G4Run *run)
     G4double PbNoLeakage = fpEventAction->getPbNoLeakage();
     G4cout << "Leakage of Pb212 from is " << PbLeakage / (PbLeakage + PbNoLeakage) * 100 << "%, value depends on tumour size" << G4endl;
 
-    G4cout << "Activity of Radon 224 = " << numPrimaries*numPrimaries / (fpEventAction->getTotalRaDecayTime() / s) << " s-1" << G4endl;
+    G4cout << "Activity of Radium 224 = " << numPrimaries / (fpEventAction->getTotalRaDecayTime() / s) << " s-1" << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
