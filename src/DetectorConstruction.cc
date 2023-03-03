@@ -147,15 +147,16 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
                                                0);
 
   SetCells(Rmin, Rmax, Nboxes);
+  G4int numberRadialDivisions = 250;
 
   for (G4int r = 0; r < R.size(); ++r)
   {
     G4int numCells{0};
     for (G4int z = -100; z <= 100; z += 10)
     {
-      // for (float theta = 0; theta <= 2 * 3.14159 - 10.5 * micrometer / R[r]; theta += 10.5 * micrometer / R[r])
-      for (float theta = 0; theta < 2 * 3.14159 ; theta += 2*3.14159/250)
+      for (G4int idx = 0; idx < numberRadialDivisions; idx++)
       {
+        G4double theta = idx * 2*3.14159/numberRadialDivisions;
         G4LogicalVolume *logicCell = new G4LogicalVolume(solidCell,
                                                          waterMaterial,
                                                          "cell");
