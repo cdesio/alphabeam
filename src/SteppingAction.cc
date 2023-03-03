@@ -148,47 +148,6 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
     return;
 
 
-  G4double edep = step->GetTotalEnergyDeposit();
-
-  // Save Edep from all particles to calculate dose
-  if ((edep > 0) && (step->GetPreStepPoint()->GetPhysicalVolume()->GetName() == "cell"))
-  {
-    G4TouchableHandle theTouchable = step->GetPreStepPoint()->GetTouchableHandle();
-    G4ThreeVector worldPos = step->GetPreStepPoint()->GetPosition();
-    G4ThreeVector localPos = theTouchable->GetHistory()->GetTopTransform().TransformPoint(worldPos);
-
-    if ((abs(localPos.x())<=150*nm) && (abs(localPos.y())<=150*nm) && (abs(localPos.z())<=150*nm))// check within cell not margin
-    {
-    G4double time = (step->GetPreStepPoint()->GetGlobalTime() + step->GetPostStepPoint()->GetGlobalTime()) / 2 / s;
-    G4int cp = step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo();
-
-    G4double mass = 997 * 300e-9 * 300e-9 * 300e-9; // cube of water desnity water 997 kg/m3
-    G4AnalysisManager *analysisManager = G4AnalysisManager::Instance();
-
-    analysisManager->FillH1(20 + cp, time / 60 / 60, edep / joule  / mass);
- 
-    }
-  }
-  // Save SB of all alpha particles
-  if ((particleName == "alpha") && (step->GetPreStepPoint()->GetPhysicalVolume()->GetName() == "cell")) // save for alpha steps in the cell
-  {
-    G4TouchableHandle theTouchable = step->GetPreStepPoint()->GetTouchableHandle();
-    G4ThreeVector worldPos = step->GetPreStepPoint()->GetPosition();
-    G4ThreeVector localPos = theTouchable->GetHistory()->GetTopTransform().TransformPoint(worldPos);
-
-    if ((abs(localPos.x())<=150*nm) && (abs(localPos.y())<=150*nm) && (abs(localPos.z())<=150*nm))// check within cell not margin
-    {
-    G4double time = (step->GetPreStepPoint()->GetGlobalTime() + step->GetPostStepPoint()->GetGlobalTime()) / 2 / s;
-
-    G4double particleMeanEnergy = (step->GetPreStepPoint()->GetKineticEnergy() + step->GetPostStepPoint()->GetKineticEnergy()) / 2;
-    G4int cp = step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo();
-
-
-    calculateDSB(particleMeanEnergy, step->GetStepLength(), time, cp);
-    }
-  }
-
-
   G4String volumeNamePre = step->GetPreStepPoint()->GetPhysicalVolume()->GetName();
 
   if (volumeNamePre == "water") // particle from water volume entering the cell - save details in PS file
@@ -323,70 +282,4 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
 
   }
 
-}
-
-void SteppingAction::calculateDSB(G4double KE, G4double stepLength, G4double time, G4int cp)
-{
-  // function to calculate the number of DSB per step (IRT model)
-    G4double KEtoSimpleDSB[19][2] = {{0, 0},
-                                    { 0.0323994848612319 , 0.000822124951113371 },
-                                    { 0.07331541275594013 , 0.001260892261700282 },
-                                    { 0.10526875591635568 , 0.0015894685658994524 },
-                                    { 0.21507798335636447 , 0.0019816137839281486 },
-                                    { 0.2977516237592551 , 0.0021355788894433366 },
-                                    { 0.4322209190842615 , 0.002404038864169155 },
-                                    { 0.5272446136259942 , 0.0025020526253341103 },
-                                    { 0.7781060949171443 , 0.0027010955277722306 },
-                                    { 1.0405580968411194 , 0.002826203719055142 },
-                                    { 1.305946937526972 , 0.0027134382480948184 },
-                                    { 1.8361135787388494 , 0.0024749385171951746 },
-                                    { 2.875233873666144 , 0.0021252485845039645 },
-                                    { 3.897210833430267 , 0.0017181087287708374 },
-                                    { 4.912156939921248 , 0.001474603986659365 },
-                                    { 5.923284731371911 , 0.0012570639073881825 },
-                                    { 6.931295280324434 , 0.0011539019920032583 },
-                                    { 7.937943873452893 , 0.0009839364297663405 },
-                                    { 8.943067543805933 , 0.0009202625486618789 }};
-
-    G4double KEtoComplexDSB[19][2] = {{0, 0},
-                                      { 0.0323994848612319 , 0.0004661538727662737 },
-                                      { 0.07331541275594013 , 0.001043588338656949 },
-                                      { 0.10526875591635568 , 0.0014392680179136298 },
-                                      { 0.21507798335636447 , 0.0023925828245363865 },
-                                      { 0.2977516237592551 , 0.0028391964878529694 },
-                                      { 0.4322209190842615 , 0.0033766871078409525 },
-                                      { 0.5272446136259942 , 0.0035028713592227282 },
-                                      { 0.7781060949171443 , 0.0035090382944870774 },
-                                      { 1.0405580968411194 , 0.003279310696866271 },
-                                      { 1.305946937526972 , 0.0029336215302320128 },
-                                      { 1.8361135787388494 , 0.0022277537138450667 },
-                                      { 2.875233873666144 , 0.0013256274508608485 },
-                                      { 3.897210833430267 , 0.0009556822035093806 },
-                                      { 4.912156939921248 , 0.0007197188643735522 },
-                                      { 5.923284731371911 , 0.0005418645525326428 },
-                                      { 6.931295280324434 , 0.000447865508992609 },
-                                      { 7.937943873452893 , 0.0003379691041638497 },
-                                      { 8.943067543805933 , 0.0003270240995646832 }};
-
-  // KE values are the same for complex and simple, so can use the same index
-  G4int i = 0;
-  while (KE > KEtoSimpleDSB[i][0])
-  {
-    ++i;
-  }
-
-  // index of points either side of E
-  G4int minBound{i - 1};
-  G4int maxBound{i};
-
-  // linearly interpolate DSB to get value for KE
-  G4double simpleDSB = stepLength / nm * KEtoSimpleDSB[minBound][1] + ((KE - KEtoSimpleDSB[minBound][0]) / (KEtoSimpleDSB[maxBound][0] - KEtoSimpleDSB[minBound][0])) * abs(KEtoSimpleDSB[maxBound][1] - KEtoSimpleDSB[minBound][1]);
-
-  G4double complexDSB = stepLength / nm * KEtoComplexDSB[minBound][1] + ((KE - KEtoComplexDSB[minBound][0]) / (KEtoComplexDSB[maxBound][0] - KEtoComplexDSB[minBound][0])) * abs(KEtoComplexDSB[maxBound][1] - KEtoComplexDSB[minBound][1]);
-
-  G4AnalysisManager *analysisManager = G4AnalysisManager::Instance();
-
-  analysisManager->FillH1(cp, time / 60 / 60, simpleDSB);
-  analysisManager->FillH1(cp+10, time / 60 / 60, complexDSB);
-  return;
 }
