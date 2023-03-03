@@ -146,7 +146,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
                                                false,
                                                0);
 
-  SetCells(Rmin, Rmax);
+  SetCells(Rmin, Rmax, Nboxes);
 
   for (G4int r = 0; r < R.size(); ++r)
   {
@@ -154,7 +154,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
     for (G4int z = -100; z <= 100; z += 10)
     {
       // for (float theta = 0; theta <= 2 * 3.14159 - 10.5 * micrometer / R[r]; theta += 10.5 * micrometer / R[r])
-      for (float theta = 0; theta < 2 * 3.14159 ; theta += 3.14159/120)
+      for (float theta = 0; theta < 2 * 3.14159 ; theta += 2*3.14159/250)
       {
         G4LogicalVolume *logicCell = new G4LogicalVolume(solidCell,
                                                          waterMaterial,
@@ -212,11 +212,19 @@ void DetectorConstruction::SetMax(G4double max)
   RunAction *myRunAction = (RunAction *)(G4RunManager::GetRunManager()->GetUserRunAction());
   myRunAction->setRmax(max);
 }
-void DetectorConstruction::SetCells(G4double min, G4double max)
+void DetectorConstruction::SetNboxes(G4int N)
 {
-  for (G4int i = 0; i < R.size(); ++i)
+  Nboxes = N;
+  RunAction *myRunAction = (RunAction *)(G4RunManager::GetRunManager()->GetUserRunAction());
+  myRunAction->setNboxes(Nboxes);
+}
+void DetectorConstruction::SetCells(G4double min, G4double max, G4int Nboxes)
+{
+  R.resize(Nboxes);
+
+  for (G4int i = 0; i < Nboxes; ++i)
   {
-    R[i] = min + i * (max - min) / 9;
+    R[i] = min + i * (max - min) / (Nboxes-1);
     G4cout << "R[" << i << "] = " << R[i] / um << G4endl;
   }
 }

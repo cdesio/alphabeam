@@ -39,11 +39,12 @@
 #include "G4UIcmdWithAString.hh"
 #include "G4UIcmdWithADoubleAndUnit.hh"
 #include "G4UIcmdWithoutParameter.hh"
+#include "G4UIcmdWithAnInteger.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 DetectorMessenger::DetectorMessenger(DetectorConstruction *Det)
-    : G4UImessenger(), fDetector(Det), fPosMin(0), fPosMax(0)
+    : G4UImessenger(), fDetector(Det), fPosMin(0), fPosMax(0), fNboxes(0)
 {
   fPosMin = new G4UIcmdWithADoubleAndUnit("/det/cellPos_min", this);
   fPosMin->SetGuidance("Set min cell positions");
@@ -60,6 +61,13 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction *Det)
   fPosMax->SetUnitCategory("Length");
   fPosMax->AvailableForStates(G4State_PreInit, G4State_Idle);
   fPosMax->SetToBeBroadcasted(false);
+
+  fNboxes = new G4UIcmdWithAnInteger("/det/cellPos_Nboxes", this);
+  fNboxes->SetGuidance("Set number od radial cell positions");
+  fNboxes->SetParameterName("Nboxes", false);
+  fNboxes->SetRange("Nboxes>0");
+  fNboxes->AvailableForStates(G4State_PreInit, G4State_Idle);
+  fNboxes->SetToBeBroadcasted(false);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -69,20 +77,26 @@ DetectorMessenger::~DetectorMessenger()
 
   delete fPosMin;
   delete fPosMax;
+  delete fNboxes;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void DetectorMessenger::SetNewValue(G4UIcommand *command, G4String newValue)
 {
-  if(command == fPosMin ) 
+  if (command == fPosMin)
   {
     fDetector->SetMin(fPosMin->GetNewDoubleValue(newValue));
-     }
-    if(command == fPosMax ) 
+  }
+  if (command == fPosMax)
   {
     fDetector->SetMax(fPosMax->GetNewDoubleValue(newValue));
-     }
+  }
+  if (command == fNboxes)
+  {
+    fDetector->SetNboxes(fNboxes->GetNewIntValue(newValue));
+
+  }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

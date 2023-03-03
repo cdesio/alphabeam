@@ -46,6 +46,7 @@ public:
     
     void setRmin(G4double min) {Rmin = min;}
     void setRmax(G4double max) {Rmax = max;}
+    void setNboxes(G4double N) {Nboxes = N;}
 
     void setNumCells(G4int numCells) {NumCells.push_back(numCells); }
 
@@ -53,5 +54,6 @@ private:
     void Write(const G4Run*);
     G4double Rmin{0};
     G4double Rmax{0};
+    G4double Nboxes{0};
     std::vector<G4int> NumCells;
 };
