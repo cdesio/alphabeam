@@ -103,7 +103,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
 
   G4Box *solidWorld = new G4Box("world", 100 * mm, 100 * mm, 100 * mm);
 
-  G4Box *solidWater = new G4Box("water", 10 * mm, 10 * mm, 10 * mm);
+  G4Box *solidWater = new G4Box("water", Rmax + 1 * mm, Rmax + 1 * mm, 10 * mm); // reduce x/y size of volume where particles are tracked
 
   G4Tubs *solidSeed = new G4Tubs("seed", 0., 0.15 * mm, 3 * mm, 0, 360 * degree);
   G4Box *solidCell = new G4Box("cell", nucleusSize/2+ margin, nucleusSize/2 + margin, nucleusSize/2+ margin);
@@ -146,13 +146,13 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
                                                false,
                                                0);
 
-  SetCells(Rmin, Rmax, Nboxes);
-  G4int numberRadialDivisions = 250;
+  SetCells(Rmin, Rmax, Nrings);
+  G4int numberRadialDivisions = NperRing;
 
   for (G4int r = 0; r < R.size(); ++r)
   {
     G4int numCells{0};
-    for (G4int z = -100; z <= 100; z += 10)
+    for (G4int z = -3000; z <= 3000; z += 10)
     {
       for (G4int idx = 0; idx < numberRadialDivisions; idx++)
       {
@@ -213,19 +213,25 @@ void DetectorConstruction::SetMax(G4double max)
   RunAction *myRunAction = (RunAction *)(G4RunManager::GetRunManager()->GetUserRunAction());
   myRunAction->setRmax(max);
 }
-void DetectorConstruction::SetNboxes(G4int N)
+void DetectorConstruction::SetNrings(G4int N)
 {
-  Nboxes = N;
+  Nrings = N;
   RunAction *myRunAction = (RunAction *)(G4RunManager::GetRunManager()->GetUserRunAction());
-  myRunAction->setNboxes(Nboxes);
+  myRunAction->setNrings(Nrings);
 }
-void DetectorConstruction::SetCells(G4double min, G4double max, G4int Nboxes)
+void DetectorConstruction::SetNperRing(G4int N)
 {
-  R.resize(Nboxes);
+  NperRing = N;
+  RunAction *myRunAction = (RunAction *)(G4RunManager::GetRunManager()->GetUserRunAction());
+  myRunAction->setNperRing(NperRing);
+}
+void DetectorConstruction::SetCells(G4double min, G4double max, G4int Nrings)
+{
+  R.resize(Nrings);
 
-  for (G4int i = 0; i < Nboxes; ++i)
+  for (G4int i = 0; i < Nrings; ++i)
   {
-    R[i] = min + i * (max - min) / (Nboxes-1);
+    R[i] = min + i * (max - min) / (Nrings-1);
     G4cout << "R[" << i << "] = " << R[i] / um << G4endl;
   }
 }

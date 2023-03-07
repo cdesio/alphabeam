@@ -66,7 +66,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
   numParticles++;
 
-  G4double wirePosition = 0.5*mm; //only place Ra within central +/- 0.5mm because only calculating in central +/- 0.1 mm
+  G4double wirePosition = 6*mm; //only place Ra within central +/- 0.5mm because only calculating in central +/- 0.1 mm
   G4double wireRadius = 0.15*mm;
   G4double zPos = (G4UniformRand() - 0.5) * wirePosition;
   G4double DummyAngle = G4UniformRand() * 2 * 3.1415926535;

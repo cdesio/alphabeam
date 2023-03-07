@@ -85,7 +85,8 @@ void RunAction::BeginOfRunAction(const G4Run *)
     analysisManager->CreateNtupleDColumn("NumPrimaries");
     analysisManager->CreateNtupleDColumn("Rmin");
     analysisManager->CreateNtupleDColumn("Rmax");
-    analysisManager->CreateNtupleIColumn("Nboxes");
+    analysisManager->CreateNtupleIColumn("Nrings");
+    analysisManager->CreateNtupleIColumn("NperRing");
     analysisManager->CreateNtupleSColumn("GitHash");
     analysisManager->FinishNtuple(0);
 
@@ -128,8 +129,9 @@ void RunAction::Write(const G4Run* run)
     analysisManager->FillNtupleDColumn(0,0, run->GetNumberOfEvent());
     analysisManager->FillNtupleDColumn(0, 1, Rmin/um);
     analysisManager->FillNtupleDColumn(0,2, Rmax/um);
-    analysisManager->FillNtupleIColumn(0,3, Nboxes);
-    analysisManager->FillNtupleSColumn(0,4, kGitHash);
+    analysisManager->FillNtupleIColumn(0,3, Nrings);
+    analysisManager->FillNtupleIColumn(0,4, NperRing);
+    analysisManager->FillNtupleSColumn(0,5, kGitHash);
     analysisManager->AddNtupleRow(0);
 
     analysisManager->Write();

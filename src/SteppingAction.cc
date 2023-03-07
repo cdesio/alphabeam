@@ -83,15 +83,12 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
     // G4cout << particleName << " " << step->GetPreStepPoint()->GetKineticEnergy() << " " << step->GetPostStepPoint()->GetPhysicalVolume()->GetName() << " " << step->GetPostStepPoint()->GetPosition()<< G4endl;
   // }
 
-  if (step->GetPreStepPoint()->GetPhysicalVolume()->GetName() == "water")
-  {
     if (step->GetPostStepPoint()->GetPhysicalVolume()->GetName() == "world")
     {
-      step->GetTrack()->SetTrackStatus(fStopAndKill);
+      step->GetTrack()->SetTrackStatus(fKillTrackAndSecondaries);
 
       return;
     }
-  }
 
   if ((particleName == "Ra224") && (step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() == "RadioactiveDecay"))
   {
@@ -168,6 +165,7 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
       G4int eventID = G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID();
 
       G4String particleName = step->GetTrack()->GetParticleDefinition()->GetParticleName();
+      // G4cout << particleName << " saved in " << step->GetPostStepPoint()->GetPhysicalVolume()->GetCopyNo() << G4endl;
 
       G4float particleID{0};
       if (G4StrUtil::contains(particleName,"e-"))
@@ -236,6 +234,7 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
     G4int eventID = G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID();
 
     G4String particleName = step->GetTrack()->GetParticleDefinition()->GetParticleName();
+      // G4cout << particleName << " saved in " << step->GetPostStepPoint()->GetPhysicalVolume()->GetCopyNo() << G4endl;
 
     G4float particleID{0};
     if (G4StrUtil::contains(particleName,"e-"))

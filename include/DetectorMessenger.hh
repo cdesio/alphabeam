@@ -60,7 +60,8 @@ class DetectorMessenger: public G4UImessenger
     DetectorConstruction*      fDetector;
     G4UIcmdWithADoubleAndUnit* fPosMin;
     G4UIcmdWithADoubleAndUnit* fPosMax;
-    G4UIcmdWithAnInteger* fNboxes;
+    G4UIcmdWithAnInteger* fNrings;
+    G4UIcmdWithAnInteger* fNperRing;
 
 };
 

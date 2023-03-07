@@ -3,7 +3,8 @@
 #
 /det/cellPos_min 155 micrometer
 /det/cellPos_max 245 micrometer
-/det/cellPos_Nboxes 10
+/det/cellPos_Nrings 10
+/det/cellPos_NperRing 250
 
 /run/initialize
 /gun/particle ion
