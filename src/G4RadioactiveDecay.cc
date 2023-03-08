@@ -1457,7 +1457,7 @@ G4ThreeVector G4RadioactiveDecay::ChooseCollimationDirection() const
 
 G4ThreeVector G4RadioactiveDecay::calculateDiffusion(const G4double diffusionTime, const G4double Dwater, const G4Track &theTrack)
 {
-    G4double tolerance = 1e-12; // tolerance for checking time for intersection with seed to avoid round errors
+    G4double tolerance = 1e-12; // tolerance for checking time for intersection with seed to avoid rounding errors
 
     G4ThreeVector changePosition = G4ThreeVector();
 
@@ -1581,8 +1581,8 @@ G4ThreeVector G4RadioactiveDecay::calculateDiffusion(const G4double diffusionTim
 
                     G4double tRadial1 = (-B + sqrt(B * B - 4 * A * C)) / (2 * A); // arb time to reach seed cyclinder side boundary
                     G4double tRadial2 = (-B - sqrt(B * B - 4 * A * C)) / (2 * A); // arb time to reach seed cyclinder side boundary
-                    G4double tZmin = (-1 * zMinMax - startPos.z()) / direction.z();
-                    G4double tZmax = (zMinMax - startPos.z()) / direction.z();
+                    G4double tZmin = (-1 * zMinMax - position.z()) / direction2.z();
+                    G4double tZmax = (zMinMax - position.z()) / direction2.z();
 
                     std::vector<G4double> possible;
 
@@ -1612,8 +1612,6 @@ G4ThreeVector G4RadioactiveDecay::calculateDiffusion(const G4double diffusionTim
                     {
                         direction2 = G4ThreeVector(G4UniformRand() - 0.5, G4UniformRand() - 0.5, G4UniformRand() - 0.5);
                         direction2 = direction2 * 1 / direction2.mag();
-                        //
-                        // check new direction does not intersect the seed, otherwise pick a new one
                         A = direction2.x() * direction2.x() + direction2.y() * direction2.y();
                         B = 2 * (position.x() * direction2.x() + position.y() * direction2.y());
                         C = position.x() * position.x() + position.y() * position.y() - r * r;
