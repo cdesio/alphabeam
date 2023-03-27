@@ -77,18 +77,18 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
 
   G4String particleName = step->GetTrack()->GetParticleDefinition()->GetParticleName();
 
-  // if (step->GetPreStepPoint() != nullptr)
-  // {
-    // G4cout << particleName << " " << step->GetTrack()->GetTrackID() << " " << step->GetPreStepPoint()->GetPhysicalVolume()->GetName() << " " << step->GetPostStepPoint()->GetPhysicalVolume()->GetName() << G4endl;
-    // G4cout << particleName << " " << step->GetPreStepPoint()->GetKineticEnergy() << " " << step->GetPostStepPoint()->GetPhysicalVolume()->GetName() << " " << step->GetPostStepPoint()->GetPosition()<< G4endl;
-  // }
+  if (step->GetTrack()->GetCreatorProcess() != nullptr)
+  {
+  G4cout << particleName << " Track ID = " << step->GetTrack()->GetTrackID() << " creator process = " << step->GetTrack()->GetCreatorProcess()->GetProcessName() << " KE = " << step->GetPreStepPoint()->GetKineticEnergy() << " parent = " << step->GetTrack()->GetParentID() << "position = " << step->GetPreStepPoint()->GetPosition() <<  " " << step->GetPostStepPoint()->GetPhysicalVolume()->GetName() <<G4endl;
+  // G4cout << particleName << " " << step->GetPreStepPoint()->GetKineticEnergy() << " " << step->GetPostStepPoint()->GetPhysicalVolume()->GetName() << " " << step->GetPostStepPoint()->GetPosition()<< G4endl;
+  }
 
-    if (step->GetPostStepPoint()->GetPhysicalVolume()->GetName() == "world")
-    {
-      step->GetTrack()->SetTrackStatus(fKillTrackAndSecondaries);
+  if (step->GetPostStepPoint()->GetPhysicalVolume()->GetName() == "world")
+  {
+    step->GetTrack()->SetTrackStatus(fKillTrackAndSecondaries);
 
-      return;
-    }
+    return;
+  }
 
   if ((particleName == "Ra224") && (step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() == "RadioactiveDecay"))
   {
@@ -103,7 +103,7 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
       fpEventAction->addRnDeabsorptionIN();
     }
   }
-  if ((G4StrUtil::contains(particleName,"Pb212")) && (step->GetPreStepPoint()->GetKineticEnergy() == 0))
+  if ((G4StrUtil::contains(particleName, "Pb212")) && (step->GetPreStepPoint()->GetKineticEnergy() == 0))
   {
     if (step->GetPreStepPoint()->GetPhysicalVolume()->GetName() == "seed")
     {
@@ -132,7 +132,6 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
   {
     step->GetTrack()->SetTrackStatus(fKillTrackAndSecondaries);
     return;
-
   }
 
   CommandLineParser *parser = CommandLineParser::GetParser();
@@ -141,144 +140,107 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
   if ((command = parser->GetCommandIfActive("-out")) == 0)
     return;
 
-  if (step->GetPreStepPoint() == nullptr) 
+  if (step->GetPreStepPoint() == nullptr)
     return;
 
+  // G4cout << step->GetTrack()->GetParticleDefinition()->GetParticleName() << " from r = " << std::pow(std::pow(step->GetPreStepPoint()->GetPosition().x(), 2) + std::pow(step->GetPreStepPoint()->GetPosition().y(), 2), 0.5) / mm << " to r = " << std::pow(std::pow(step->GetPostStepPoint()->GetPosition().x(), 2) + std::pow(step->GetPostStepPoint()->GetPosition().y(), 2), 0.5) / mm << G4endl;
 
   G4String volumeNamePre = step->GetPreStepPoint()->GetPhysicalVolume()->GetName();
+  // if (volumeNamePre == "water") // particle entering cylindrical bands 
+  // {
+  //   if (step->GetPostStepPoint()->GetPhysicalVolume()->GetName() == "cell")
+  //   {
+  //     if (step->GetPreStepPoint()->GetKineticEnergy() > 0)
+  //     {
+  //       savePoint(step, step->GetPostStepPoint());
+  //     }
+  //   }
+  // }
+  // if ((volumeNamePre == "cell") && (step->IsFirstStepInVolume())) // save particles created in the cell or nucleus
+  // {
+  //   if (step->GetPostStepPoint()->GetProcessDefinedStep() == nullptr)
+  //     // if prestep process is nullptr this is the first step of particle created by interaction in the cell - only save those created by processes in cell
 
-  if (volumeNamePre == "water") // particle from water volume entering the cell - save details in PS file
-  {
-    if (step->GetPostStepPoint()->GetPhysicalVolume()->GetName() == "cell") // last step before entering cell
-    {
-
-      G4TouchableHandle theTouchable = step->GetPostStepPoint()->GetTouchableHandle();
-      G4ThreeVector worldPos = step->GetPostStepPoint()->GetPosition();
-      G4ThreeVector localPos = theTouchable->GetHistory()->GetTopTransform().TransformPoint(worldPos);
-
-      G4ThreeVector worldMomentum = step->GetPostStepPoint()->GetMomentumDirection();
-      G4ThreeVector localMomentum = (*(theTouchable->GetHistory()->GetTopVolume()->GetRotation()))*worldMomentum; // rotate momentum direction by volume rotation
-
-      G4double time = step->GetPostStepPoint()->GetGlobalTime();
-
-      auto particleEnergy = step->GetPostStepPoint()->GetKineticEnergy();
-      G4int eventID = G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID();
-
-      G4String particleName = step->GetTrack()->GetParticleDefinition()->GetParticleName();
-      // G4cout << particleName << " saved in " << step->GetPostStepPoint()->GetPhysicalVolume()->GetCopyNo() << G4endl;
-
-      G4float particleID{0};
-      if (G4StrUtil::contains(particleName,"e-"))
-        particleID = 1;
-      else if (G4StrUtil::contains(particleName,"gamma"))
-        particleID = 2;
-      else if (G4StrUtil::contains(particleName,"alpha"))
-        particleID = 3;
-      else if (G4StrUtil::contains(particleName,"Rn220"))
-        particleID = 4;
-      else if (G4StrUtil::contains(particleName,"Po216"))
-        particleID = 5;
-      else if (G4StrUtil::contains(particleName,"Pb212"))
-        particleID = 6;
-      else if (G4StrUtil::contains(particleName,"Bi212"))
-        particleID = 7;
-      else if (G4StrUtil::contains(particleName,"Tl208"))
-        particleID = 8;
-      else if (G4StrUtil::contains(particleName,"Po212"))
-        particleID = 9;
-      else if (G4StrUtil::contains(particleName,"Pb208"))
-        particleID = 10;
-      else
+  //   if (step->GetTrack()->GetCreatorProcess()->GetProcessName() == "RadioactiveDecay")
+  //     // only save products of radioactive decay other products are from parents which are saved on entering the cell and will be tracked in DNA simulation.
+  //     if (step->GetPostStepPoint()->GetKineticEnergy() > 0)
+  //     {
+  //       savePoint(step, step->GetPreStepPoint());
+  //     }
+  //   }
+  
+  // save all steps in rings
+  if ((volumeNamePre == "cell"))
+{
+      if (step->GetPreStepPoint()->GetKineticEnergy() > 0)
       {
-        G4cout << particleName << " outside  not saved" << G4endl;
-        return;
+        if (step->IsLastStepInVolume())
+            savePoint(step, step->GetPostStepPoint());
+        else
+            savePoint(step, step->GetPreStepPoint());
       }
-      float output[12];
-      output[0] = localPos.x() / mm;
-      output[1] = localPos.y() / mm;
-      output[2] = localPos.z() / mm;
-      output[3] = localMomentum.x();
-      output[4] = localMomentum.y();
-      output[5] = localMomentum.z();
-      output[6] = particleEnergy / MeV;
-      output[7] = eventID;
-      output[8] = particleID;
-      output[9] = step->GetPostStepPoint()->GetPhysicalVolume()->GetCopyNo();
-      output[10] = time / s;
-      output[11] = ((const G4Ions*)( step->GetTrack()->GetParticleDefinition()))->GetExcitationEnergy();
-
-      PSfile.write((char *)&output, sizeof(output));
-    }
   }
+}
 
-  if ((volumeNamePre == "cell") && (step->IsFirstStepInVolume())) // save particles created in the cell or nucleus
+void SteppingAction::savePoint(const G4Step *step, const G4StepPoint * point)
+{
+  // G4TouchableHandle theTouchable = step->GetPostStepPoint()->GetTouchableHandle();
+  G4ThreeVector worldPos = point->GetPosition();
+  // G4ThreeVector localPos = theTouchable->GetHistory()->GetTopTransform().TransformPoint(worldPos);
+
+  G4ThreeVector worldMomentum = point->GetMomentumDirection();
+  // G4ThreeVector localMomentum = (*(theTouchable->GetHistory()->GetTopVolume()->GetRotation())) * worldMomentum; // rotate momentum direction by volume rotation
+
+  G4double time = point->GetGlobalTime();
+
+  auto particleEnergy = point->GetKineticEnergy();
+  G4int eventID = G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID();
+
+  G4String particleName = step->GetTrack()->GetParticleDefinition()->GetParticleName();
+
+  G4float particleID{0};
+  if (G4StrUtil::contains(particleName, "e-"))
+    particleID = 1;
+  else if (G4StrUtil::contains(particleName, "gamma"))
+    particleID = 2;
+  else if (G4StrUtil::contains(particleName, "alpha"))
+    particleID = 3;
+  else if (G4StrUtil::contains(particleName, "Rn220"))
+    particleID = 4;
+  else if (G4StrUtil::contains(particleName, "Po216"))
+    particleID = 5;
+  else if (G4StrUtil::contains(particleName, "Pb212"))
+    particleID = 6;
+  else if (G4StrUtil::contains(particleName, "Bi212"))
+    particleID = 7;
+  else if (G4StrUtil::contains(particleName, "Tl208"))
+    particleID = 8;
+  else if (G4StrUtil::contains(particleName, "Po212"))
+    particleID = 9;
+  else if (G4StrUtil::contains(particleName, "Pb208"))
+    particleID = 10;
+  else
   {
-
-    if (step->GetPreStepPoint()->GetProcessDefinedStep() != nullptr)
-      return; // if prestep process is nullptr this is the first step of particle created by interaction in the cell - only save those created by processes in cell
-
-    if (step->GetTrack()->GetCreatorProcess()->GetProcessName() != "RadioactiveDecay")
-      return; // only save products of radioactive decay other products are from parents which are saved on entering the cell and will be tracked in DNA simulation.
-
-
-    G4TouchableHandle theTouchable = step->GetPreStepPoint()->GetTouchableHandle();
-    G4ThreeVector worldPos = step->GetPreStepPoint()->GetPosition();
-    G4ThreeVector localPos = theTouchable->GetHistory()->GetTopTransform().TransformPoint(worldPos);
-
-    G4ThreeVector worldMomentum = step->GetPreStepPoint()->GetMomentumDirection();
-    G4ThreeVector localMomentum = (*(theTouchable->GetHistory()->GetTopVolume()->GetRotation()))*worldMomentum;
-
-    G4double time = step->GetPreStepPoint()->GetGlobalTime();
-
-    auto particleEnergy = step->GetPreStepPoint()->GetKineticEnergy();
-    G4int eventID = G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID();
-
-    G4String particleName = step->GetTrack()->GetParticleDefinition()->GetParticleName();
-      // G4cout << particleName << " saved in " << step->GetPostStepPoint()->GetPhysicalVolume()->GetCopyNo() << G4endl;
-
-    G4float particleID{0};
-    if (G4StrUtil::contains(particleName,"e-"))
-      particleID = 1;
-    else if (G4StrUtil::contains(particleName,"gamma"))
-      particleID = 2;
-    else if (G4StrUtil::contains(particleName,"alpha"))
-      particleID = 3;
-    else if (G4StrUtil::contains(particleName,"Rn220"))
-      particleID = 4;
-    else if (G4StrUtil::contains(particleName,"Po216"))
-      particleID = 5;
-    else if (G4StrUtil::contains(particleName,"Pb212"))
-      particleID = 6;
-    else if (G4StrUtil::contains(particleName,"Bi212"))
-      particleID = 7;
-    else if (G4StrUtil::contains(particleName,"Tl208"))
-      particleID = 8;
-    else if (G4StrUtil::contains(particleName,"Po212"))
-      particleID = 9;
-    else if (G4StrUtil::contains(particleName,"Pb208"))
-      particleID = 10;
-    else
-    {
-      G4cout << particleName << " inside  not saved" << G4endl;
-      return;
-    }
-
-    float output[12];
-    output[0] = localPos.x() / mm;
-    output[1] = localPos.y() / mm;
-    output[2] = localPos.z() / mm;
-    output[3] = localMomentum.x();
-    output[4] = localMomentum.y();
-    output[5] = localMomentum.z();
-    output[6] = particleEnergy / MeV;
-    output[7] = eventID;
-    output[8] = particleID;
-    output[9] = step->GetPostStepPoint()->GetPhysicalVolume()->GetCopyNo();
-    output[10] = time / s;
-    output[11] = ((const G4Ions*)( step->GetTrack()->GetParticleDefinition()))->GetExcitationEnergy();
-
-    PSfile.write((char *)&output, sizeof(output));
-
+    G4cout << particleName << "  not saved" << G4endl;
+    return;
   }
+  float output[14];
+  output[0] = worldPos.x() / mm;
+  output[1] = worldPos.y() / mm;
+  output[2] = worldPos.z() / mm;
+  output[3] = worldMomentum.x();
+  output[4] = worldMomentum.y();
+  output[5] = worldMomentum.z();
+  output[6] = particleEnergy / MeV;
+  output[7] = eventID;
+  output[8] = particleID;
+  output[9] = step->GetPostStepPoint()->GetPhysicalVolume()->GetCopyNo();
+  output[10] = time / s;
+  output[11] = ((const G4Ions *)(step->GetTrack()->GetParticleDefinition()))->GetExcitationEnergy();
+  output[12] = step->GetTrack()->GetTrackID();
+  output[13] = step->GetTrack()->GetCreatorProcess()->GetProcessName() == "RadioactiveDecay" ? 1 : 0; // 1 if from radioactive decay
 
+  PSfile.write((char *)&output, sizeof(output));
+
+  G4cout << particleName << " saved at = " << std::pow(std::pow(worldPos.x(), 2) + std::pow(worldPos.y(), 2), 0.5) / mm << G4endl;
 }

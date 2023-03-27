@@ -106,7 +106,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   G4Box *solidWater = new G4Box("water", Rmax + 1 * mm, Rmax + 1 * mm, 10 * mm); // reduce x/y size of volume where particles are tracked
 
   G4Tubs *solidSeed = new G4Tubs("seed", 0., 0.15 * mm, 3 * mm, 0, 360 * degree);
-  G4Box *solidCell = new G4Box("cell", nucleusSize/2+ margin, nucleusSize/2 + margin, nucleusSize/2+ margin);
+  // G4Box *solidCell = new G4Box("cell", nucleusSize/2+ margin, nucleusSize/2 + margin, nucleusSize/2+ margin);
   // G4Box *solidNucleus = new G4Box("nucleus", nucleusSize/2, nucleusSize/2, nucleusSize/2);
 
   G4LogicalVolume *logicWorld = new G4LogicalVolume(solidWorld,
@@ -151,49 +151,22 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
 
   for (G4int r = 0; r < R.size(); ++r)
   {
-    G4int numCells{0};
-    for (G4int z = -3000; z <= 3000; z += 10)
-    {
-      for (G4int idx = 0; idx < numberRadialDivisions; idx++)
-      {
-        G4double theta = idx * 2*3.14159/numberRadialDivisions;
+        G4Tubs *solidCell = new G4Tubs("seed", R[r]-150*nm, R[r]+150*nm, 3 * mm, 0, 360 * degree);
+
         G4LogicalVolume *logicCell = new G4LogicalVolume(solidCell,
                                                          waterMaterial,
                                                          "cell");
 
-        G4RotationMatrix* rot = new G4RotationMatrix(-1*theta, 
-                                              0,
-                                              0) ;
-
-        G4PVPlacement *physiCell = new G4PVPlacement(rot,
-                                                     G4ThreeVector(R[r] * sin(theta), R[r] * cos(theta), z * micrometer),
+        G4PVPlacement *physiCell = new G4PVPlacement(0,
+                                                     G4ThreeVector(),
                                                      logicCell,
                                                      "cell",
                                                      logicWater,
                                                      0,
                                                      r,
                                                      0);
-
-        // G4LogicalVolume *logicNucleus = new G4LogicalVolume(solidNucleus,
-        //                                                     waterMaterial,
-        //                                                     "nucleus");
-
-        // G4PVPlacement *physiNucleus = new G4PVPlacement(rot,
-        //                                                 G4ThreeVector(R[r] * cos(theta), R[r] * sin(theta), z * micrometer),
-        //                                                 logicNucleus,
-        //                                                 "nucleus",
-        //                                                 logicWater,
-        //                                                 0,
-        //                                                 r,
-        //                                                 0);
-        numCells++;
-        // logicNucleus->SetVisAttributes(&visGrey);
-        logicCell->SetVisAttributes(&visRed);
       }
-    }
-    RunAction *myRunAction = (RunAction *)(G4RunManager::GetRunManager()->GetUserRunAction());
-    myRunAction -> setNumCells(numCells);
-  }
+    
 
   logicWorld->SetVisAttributes(&invisGrey);
   logicWater->SetVisAttributes(&invisGrey);

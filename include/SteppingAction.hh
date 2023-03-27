@@ -30,7 +30,7 @@
 #include <fstream>
 #include <iostream>
 #include "RunAction.hh"
-
+#include "G4StepPoint.hh"
 class EventAction;
 class RunAction;
 
@@ -49,6 +49,7 @@ private:
   EventAction* fpEventAction;
   RunAction *fRunAction;
   std::ofstream PSfile;
+  void savePoint(const G4Step *step, const G4StepPoint* point);
 
 
 };
