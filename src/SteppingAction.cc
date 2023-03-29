@@ -77,11 +77,11 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
 
   G4String particleName = step->GetTrack()->GetParticleDefinition()->GetParticleName();
 
-  if (step->GetTrack()->GetCreatorProcess() != nullptr)
-  {
-  G4cout << particleName << " Track ID = " << step->GetTrack()->GetTrackID() << " creator process = " << step->GetTrack()->GetCreatorProcess()->GetProcessName() << " KE = " << step->GetPreStepPoint()->GetKineticEnergy() << " parent = " << step->GetTrack()->GetParentID() << "position = " << step->GetPreStepPoint()->GetPosition() <<  " " << step->GetPreStepPoint()->GetPhysicalVolume()->GetName() <<"-"<<step->GetPostStepPoint()->GetPhysicalVolume()->GetName() <<G4endl;
-  // G4cout << particleName << " " << step->GetPreStepPoint()->GetKineticEnergy() << " " << step->GetPostStepPoint()->GetPhysicalVolume()->GetName() << " " << step->GetPostStepPoint()->GetPosition()<< G4endl;
-  }
+  // if (step->GetTrack()->GetCreatorProcess() != nullptr)
+  // {
+  // G4cout << particleName << " Track ID = " << step->GetTrack()->GetTrackID() << " creator process = " << step->GetTrack()->GetCreatorProcess()->GetProcessName() << " KE = " << step->GetPreStepPoint()->GetKineticEnergy() << " parent = " << step->GetTrack()->GetParentID() << "position = " << step->GetPreStepPoint()->GetPosition() <<  " " << step->GetPreStepPoint()->GetPhysicalVolume()->GetName() <<"-"<<step->GetPostStepPoint()->GetPhysicalVolume()->GetName() <<G4endl;
+  // // G4cout << particleName << " " << step->GetPreStepPoint()->GetKineticEnergy() << " " << step->GetPostStepPoint()->GetPhysicalVolume()->GetName() << " " << step->GetPostStepPoint()->GetPosition()<< G4endl;
+  // }
 
   if (step->GetPostStepPoint()->GetPhysicalVolume()->GetName() == "world")
   {
@@ -247,5 +247,5 @@ void SteppingAction::savePoint(const G4Step *step, const G4StepPoint * point, co
 
   PSfile.write((char *)&output, sizeof(output));
 
-  G4cout << particleName << " saved at = " << std::pow(std::pow(worldPos.x(), 2) + std::pow(worldPos.y(), 2), 0.5) / mm << G4endl;
+  // G4cout << particleName << " saved at = " << std::pow(std::pow(worldPos.x(), 2) + std::pow(worldPos.y(), 2), 0.5) / mm << G4endl;
 }
