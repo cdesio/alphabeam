@@ -225,18 +225,17 @@ particleMap = {1: "e-",
 
 mmTonm = 1000*1000
 try:
-    with open("compareToBoxes.bin", "rb") as f:
-        numpy_data = np.fromfile(f,np.float32)
+    with open("/Users/lg9783/GEANT4/working/DaRTSim/changeSavePS/DaRT/build/compareToBoxes29Mar.bin", "rb") as f:
+        numpy_data = np.fromfile(f,np.float64)
 except IOError:
     print('Error While Opening the file!')  
 
-# boxCentre = 0.155 #mm
-boxCentre = 0.235 #mm
-boxCopyID = 8
-boxMin = boxCentre - 0.00015
-boxMax = boxCentre + 0.00015
+boxPositions = np.linspace(0.155, 0.445, 30) #mm
+newMomentum = []
+newAllOther = []
+newPos = []
 data = numpy_data.reshape(int(len(numpy_data)/14),14)
-plotGraphs = True
+plotGraphs = False
 
 if plotGraphs:
     ax = plt.figure().add_subplot(projection='3d')
@@ -254,45 +253,43 @@ for event in eventIDs:
     trackIDs = list(set([int(dataEvent[i,12]) for i in range(dataEvent.shape[0])]))
 
     for i in range(len(trackIDs)):
-        d = dataEvent[dataEvent[:,12]==trackIDs[i]] #select data with given track ID
-        d = d[d[:,9]==boxCopyID] #select data with given box copy number
-        x = d[:,0]
-        y = d[:,1]
+        for boxCopyID, boxCentre in enumerate(boxPositions):
+            boxMin = boxCentre - 0.00015
+            boxMax = boxCentre + 0.00015
+            d = dataEvent[dataEvent[:,12]==trackIDs[i]] #select data with given track ID
+            d = d[d[:,9]==boxCopyID] #select data with given box copy number
+            x = d[:,0]
+            y = d[:,1]
 
-        r = (x**2 + y**2)**0.5
+            r = (x**2 + y**2)**0.5
 
-        if len(r) ==0:
-            continue
-
-
-        a = []
-        if np.isclose(boxMin,r[0].round(5)) or np.isclose(boxMax, r[0].round(5)): # track is entering volume not created in volume - need to do decay products differently
-
-            for ind,value in enumerate(r):
-                # if np.isclose(0.15485, value) or np.isclose(0.15515, value):
-                if (value.round(5)>boxMin and value.round(5)<boxMax) or np.isclose(boxMin,value.round(5)) or np.isclose(boxMax, value.round(5)):
-                    a.append(True)
-
-                else:
-                    a.append(False)
-
-            # a = np.where((0.15485==r)|(r==0.15515), True, False)
-            if sum(a)>0:
-                # plotAll(ax, d[a], mmTonm)
-                tracksToConsider.append(d[a])
-                # print(r)
-
-        else:
-            if r[0]>boxMin and r[0] < boxMax and d[0][13]==1:
-                print("track starts inside from radioactive decay - keep", particleMap[d[0][8]], "event = ", d[0][7], "creator process ", d[0][13], "track = ", d[0][12], "r=", r[0])
-                tracksToConsider.append(d[0])
+            if len(r) ==0:
+                continue
 
 
+            a = []
+            if np.isclose(boxMin,r[0].round(5)) or np.isclose(boxMax, r[0].round(5)): # track is entering volume not created in volume - need to do decay products differently
 
-newMomentum = []
-newAllOther = []
-newPos = []
-count = 0
+                for ind,value in enumerate(r):
+                    # if np.isclose(0.15485, value) or np.isclose(0.15515, value):
+                    if (value.round(5)>boxMin and value.round(5)<boxMax) or np.isclose(boxMin,value.round(5)) or np.isclose(boxMax, value.round(5)):
+                        a.append(True)
+
+                    else:
+                        a.append(False)
+
+                # a = np.where((0.15485==r)|(r==0.15515), True, False)
+                if sum(a)>0:
+                    # plotAll(ax, d[a], mmTonm)
+                    tracksToConsider.append(d[a])
+                    # print(r)
+
+            else:
+                if r[0]>boxMin and r[0] < boxMax and d[0][13]==1:
+                    print("track starts inside from radioactive decay - keep", particleMap[d[0][8]], "event = ", d[0][7], "creator process ", d[0][13], "track = ", d[0][12], "r=", r[0])
+                    tracksToConsider.append(d[0])
+
+
 for i in tracksToConsider:
     # print(len(i), "particle = ", particleMap[i[0][8]])
     # ax.scatter(i[0][0]*mmTonm, i[0][1]*mmTonm, i[0][2]*mmTonm, color ='b')
@@ -303,7 +300,7 @@ for i in tracksToConsider:
         newMomentum_ = updateMomentum(i)
         r = (i[1]**2 + i[0]**2)**0.5
 
-        newPos.append([random.uniform(-.00017,.00017),r-boxCentre,random.uniform(-.00017,.00017)])      
+        newPos.append([random.uniform(-.00017,.00017),r-boxPositions[int(i[9])],random.uniform(-.00017,.00017)])      
 
         newMomentum.append(newMomentum_)
         newAllOther.append(i[6:12])
@@ -318,13 +315,13 @@ for i in tracksToConsider:
 
         newMomentum_ = updateMomentum(i[0])
 
-        if np.isclose(r.round(5),boxMin):
+        if np.isclose(r.round(5),boxPositions[int(i[0][9])]-0.00015):
             if newMomentum_[1]>0:
                 # check is coming into box
                 newPos.append([random.uniform(-.00017,.00017),-.00017, random.uniform(-.00017,.00017)])
             else:
                 continue
-        elif np.isclose(r.round(5),boxMax):
+        elif np.isclose(r.round(5),boxPositions[int(i[0][9])]+0.00015):
             if newMomentum_[1]<0:
                 # check is coming into box
                 newPos.append([random.uniform(-.00017,.00017),.00017,random.uniform(-.00017,.00017)])      
@@ -338,10 +335,7 @@ for i in tracksToConsider:
         newAllOther.append(i[0][6:12])
 
 
-    
-    # print(f"/gps/direction {newMomentum[count][0]} {newMomentum[count][1]} {newMomentum[count][2]}")
 
-    count +=1
 
 if plotGraphs:
     cmap = mpl.cm.nipy_spectral
@@ -408,11 +402,11 @@ for ind, value in enumerate(newPos):
 newBin = np.hstack([np.array(newPos), np.array(newMomentum), np.array(newAllOther)])
 
 newBin = np.vstack([newBin, np.array(toAdd)])
-print("number of particles in box = ", len(np.array(newBin)))
+print("number of particles in all boxes = ", len(np.array(newBin)))
 
 newBin = newBin.flatten()
 
-newBin.astype('float64').tofile(f"compareToBoxesTransformed_{int(boxCentre*1000)}um.bin")
+newBin.astype('float64').tofile(f"compareToBoxesTransformed.bin")
 
 
 # data = numpy_data.reshape(int(len(numpy_data)/12),12)
