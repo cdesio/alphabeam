@@ -73,7 +73,7 @@ def checkCross(point, momentum, stepsInTrack, distanceTravelled):
     d = findDistanceBetween(cross, (0,0,0)) #distance to cross point
 
     # do particle steps exit box
-    if type(stepsInTrack[0])==np.float32:# only 1 step in track, does not exit
+    if type(stepsInTrack[0])==np.float64:# only 1 step in track, does not exit
         maxStepDistFromStart = 0 
     else:
         maxStepDistFromStart = np.max([findDistanceBetween((stepsInTrack[i][0],stepsInTrack[i][1],stepsInTrack[i][2]), (stepsInTrack[0][0],stepsInTrack[0][1],stepsInTrack[0][2])) for i in range(len(stepsInTrack))])
@@ -116,9 +116,7 @@ def plotAll(ax, data, mmTonm):
     x = data[:,0]*mmTonm
     y = data[:,1]*mmTonm
     z = data[:,2]*mmTonm
-    u = data[:,3]
-    v = data[:,4]
-    w = data[:,5]
+
     particle = [int(data[i,8]) for i in range(data.shape[0])]
     trackID = [int(data[i,12]) for i in range(data.shape[0])]
 
@@ -224,6 +222,7 @@ particleMap = {1: "e-",
                8: "Tl208",
                9: "Po212",
                10: "Pb208"}
+
 mmTonm = 1000*1000
 try:
     with open("compareToBoxes.bin", "rb") as f:
@@ -232,11 +231,12 @@ except IOError:
     print('Error While Opening the file!')  
 
 # boxCentre = 0.155 #mm
-boxCentre = 0.445 #mm
+boxCentre = 0.235 #mm
+boxCopyID = 8
 boxMin = boxCentre - 0.00015
 boxMax = boxCentre + 0.00015
 data = numpy_data.reshape(int(len(numpy_data)/14),14)
-plotGraphs = False
+plotGraphs = True
 
 if plotGraphs:
     ax = plt.figure().add_subplot(projection='3d')
@@ -250,15 +250,19 @@ if plotGraphs:
 eventIDs = list(set([int(data[i,7]) for i in range(data.shape[0])]))
 tracksToConsider = []
 for event in eventIDs:
-    dataEvent = data[data[:,7]==event] #only event 0
+    dataEvent = data[data[:,7]==event] 
     trackIDs = list(set([int(dataEvent[i,12]) for i in range(dataEvent.shape[0])]))
 
     for i in range(len(trackIDs)):
-        d = dataEvent[dataEvent[:,12]==trackIDs[i]]
+        d = dataEvent[dataEvent[:,12]==trackIDs[i]] #select data with given track ID
+        d = d[d[:,9]==boxCopyID] #select data with given box copy number
         x = d[:,0]
         y = d[:,1]
 
         r = (x**2 + y**2)**0.5
+
+        if len(r) ==0:
+            continue
 
 
         a = []
@@ -292,7 +296,7 @@ count = 0
 for i in tracksToConsider:
     # print(len(i), "particle = ", particleMap[i[0][8]])
     # ax.scatter(i[0][0]*mmTonm, i[0][1]*mmTonm, i[0][2]*mmTonm, color ='b')
-    if type(i[0])==np.float32:# only 1 step in track
+    if type(i[0])==np.float64:# only 1 step in track
         print()
         print("starts inside, particle = ", particleMap[i[8]], "event = ", i[7], "creator process ", i[13], "track = ", i[12])
 
@@ -340,9 +344,19 @@ for i in tracksToConsider:
     count +=1
 
 if plotGraphs:
+    cmap = mpl.cm.nipy_spectral
+    norm = mpl.colors.Normalize()
+    norm.autoscale(np.linspace(1,10,10))
 
+# arrow colours are all arrows, then arrow 1 head 1, arrow 1 head2, arrow 2 head 1 ...
+    colourMap = [x[2] for x in newAllOther]
+    for j, _ in enumerate(newPos):
+        colourMap.append(colourMap[j])
+        colourMap.append(colourMap[j])
+
+    colourMap = cmap(norm(colourMap))
     ax2 = plt.figure().add_subplot(projection='3d')
-    ax2.quiver([x[0] for x in newPos],[x[1] for x in newPos],[x[2] for x in newPos],[x[0] for x in newMomentum],[x[1] for x in newMomentum],[x[2] for x in newMomentum], length=0.0001, normalize=True)
+    ax2.quiver([x[0] for x in newPos],[x[1] for x in newPos],[x[2] for x in newPos],[x[0] for x in newMomentum],[x[1] for x in newMomentum],[x[2] for x in newMomentum], length=0.0001, normalize=True, color = colourMap)
 
     a = .00017*2
     b = .00017*2
@@ -398,7 +412,7 @@ print("number of particles in box = ", len(np.array(newBin)))
 
 newBin = newBin.flatten()
 
-newBin.astype('float32').tofile(f"compareToBoxesTransformed_{int(boxCentre*1000)}um.bin")
+newBin.astype('float64').tofile(f"compareToBoxesTransformed_{int(boxCentre*1000)}um.bin")
 
 
 # data = numpy_data.reshape(int(len(numpy_data)/12),12)

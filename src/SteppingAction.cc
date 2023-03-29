@@ -79,7 +79,7 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
 
   if (step->GetTrack()->GetCreatorProcess() != nullptr)
   {
-  G4cout << particleName << " Track ID = " << step->GetTrack()->GetTrackID() << " creator process = " << step->GetTrack()->GetCreatorProcess()->GetProcessName() << " KE = " << step->GetPreStepPoint()->GetKineticEnergy() << " parent = " << step->GetTrack()->GetParentID() << "position = " << step->GetPreStepPoint()->GetPosition() <<  " " << step->GetPostStepPoint()->GetPhysicalVolume()->GetName() <<G4endl;
+  G4cout << particleName << " Track ID = " << step->GetTrack()->GetTrackID() << " creator process = " << step->GetTrack()->GetCreatorProcess()->GetProcessName() << " KE = " << step->GetPreStepPoint()->GetKineticEnergy() << " parent = " << step->GetTrack()->GetParentID() << "position = " << step->GetPreStepPoint()->GetPosition() <<  " " << step->GetPreStepPoint()->GetPhysicalVolume()->GetName() <<"-"<<step->GetPostStepPoint()->GetPhysicalVolume()->GetName() <<G4endl;
   // G4cout << particleName << " " << step->GetPreStepPoint()->GetKineticEnergy() << " " << step->GetPostStepPoint()->GetPhysicalVolume()->GetName() << " " << step->GetPostStepPoint()->GetPosition()<< G4endl;
   }
 
@@ -174,15 +174,20 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
 {
       if (step->GetPreStepPoint()->GetKineticEnergy() > 0)
       {
-        if (step->IsLastStepInVolume())
-            savePoint(step, step->GetPostStepPoint());
+        if ((step->IsFirstStepInVolume())&&(step->IsLastStepInVolume())) //only one step in volume
+        {
+            savePoint(step, step->GetPreStepPoint(), step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo());
+            savePoint(step, step->GetPostStepPoint(), step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo());
+        }
+        else if (step->IsLastStepInVolume())
+            savePoint(step, step->GetPostStepPoint(), step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo());
         else
-            savePoint(step, step->GetPreStepPoint());
+            savePoint(step, step->GetPreStepPoint(),step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo());
       }
   }
 }
 
-void SteppingAction::savePoint(const G4Step *step, const G4StepPoint * point)
+void SteppingAction::savePoint(const G4Step *step, const G4StepPoint * point, const int copy)
 {
   // G4TouchableHandle theTouchable = step->GetPostStepPoint()->GetTouchableHandle();
   G4ThreeVector worldPos = point->GetPosition();
@@ -224,7 +229,7 @@ void SteppingAction::savePoint(const G4Step *step, const G4StepPoint * point)
     G4cout << particleName << "  not saved" << G4endl;
     return;
   }
-  float output[14];
+  double output[14];
   output[0] = worldPos.x() / mm;
   output[1] = worldPos.y() / mm;
   output[2] = worldPos.z() / mm;
@@ -234,7 +239,7 @@ void SteppingAction::savePoint(const G4Step *step, const G4StepPoint * point)
   output[6] = particleEnergy / MeV;
   output[7] = eventID;
   output[8] = particleID;
-  output[9] = step->GetPostStepPoint()->GetPhysicalVolume()->GetCopyNo();
+  output[9] = copy;
   output[10] = time / s;
   output[11] = ((const G4Ions *)(step->GetTrack()->GetParticleDefinition()))->GetExcitationEnergy();
   output[12] = step->GetTrack()->GetTrackID();

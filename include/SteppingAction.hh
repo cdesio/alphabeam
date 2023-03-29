@@ -49,7 +49,7 @@ private:
   EventAction* fpEventAction;
   RunAction *fRunAction;
   std::ofstream PSfile;
-  void savePoint(const G4Step *step, const G4StepPoint* point);
+  void savePoint(const G4Step *step, const G4StepPoint* point, const int copy);
 
 
 };
