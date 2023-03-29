@@ -25,6 +25,7 @@
 /vis/viewer/set/autoRefresh true
 /vis/verbose warnings
 
+/vis/viewer/set/globalLineWidthScale 2
 /vis/scene/add/trajectories rich
 
 /vis/viewer/set/viewpointThetaPhi 0 90 deg
@@ -33,10 +34,10 @@
 /vis/filtering/trajectories/particleFilter-0/add gamma
 /vis/filtering/trajectories/particleFilter-0/add anti_nu_e
 /vis/filtering/trajectories/particleFilter-0/invert true
-/vis/touchable/set/lineSegmentsPerCircle 100
+/vis/viewer/set/lineSegmentsPerCircle 100
 
 /vis/modeling/trajectories/create/drawByCharge
-/vis/modeling/trajectories/drawByCharge-0/default/setDrawStepPts false
+/vis/modeling/trajectories/drawByCharge-0/default/setDrawStepPts true
 /vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 1
 
 
