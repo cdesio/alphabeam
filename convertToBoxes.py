@@ -225,7 +225,7 @@ particleMap = {1: "e-",
 
 mmTonm = 1000*1000
 try:
-    with open("/Users/lg9783/GEANT4/working/DaRTSim/changeSavePS/DaRT/build/compareToBoxes29Mar.bin", "rb") as f:
+    with open("dart.bin", "rb") as f:
         numpy_data = np.fromfile(f,np.float64)
 except IOError:
     print('Error While Opening the file!')  
@@ -239,100 +239,69 @@ plotGraphs = False
 
 if plotGraphs:
     ax = plt.figure().add_subplot(projection='3d')
+    
     plot_cylinder_along_z(0,0,0.15*mmTonm,3*mmTonm, ax)
     # plot_cylinder_along_z(0,0,0.155*mmTonm,0.1*mmTonm, ax)
     ax.set_xlabel("x (nm)")
     ax.set_ylabel("y (nm)")
     ax.set_zlabel("z (nm)")
+    ax.set_xlim(-0.2*mmTonm, 0.2*mmTonm)
+    ax.set_ylim(-0.2*mmTonm, 0.2*mmTonm)
+    ax.set_zlim(-0.2*mmTonm, 0.2*mmTonm)
 
 
 eventIDs = list(set([int(data[i,7]) for i in range(data.shape[0])]))
 tracksToConsider = []
 for event in eventIDs:
     dataEvent = data[data[:,7]==event] 
-    trackIDs = list(set([int(dataEvent[i,12]) for i in range(dataEvent.shape[0])]))
 
-    for i in range(len(trackIDs)):
-        for boxCopyID, boxCentre in enumerate(boxPositions):
-            boxMin = boxCentre - 0.00015
-            boxMax = boxCentre + 0.00015
-            d = dataEvent[dataEvent[:,12]==trackIDs[i]] #select data with given track ID
-            d = d[d[:,9]==boxCopyID] #select data with given box copy number
-            x = d[:,0]
-            y = d[:,1]
+    for boxCopyID, boxCentre in enumerate(boxPositions):
+        boxMin = boxCentre - 0.00017
+        boxMax = boxCentre + 0.00017
+        d = dataEvent[dataEvent[:,9]==boxCopyID] #select data with given box copy number
+        x = d[:,0]
+        y = d[:,1]
 
-            r = (x**2 + y**2)**0.5
+        r = (x**2 + y**2)**0.5
 
-            if len(r) ==0:
-                continue
+        if len(r) ==0:
+            continue
 
+        a = []
+        if np.isclose(boxMin,r[0].round(5)) or np.isclose(boxMax, r[0].round(5)): # track is entering volume not created in volume - need to do decay products differently
 
-            a = []
-            if np.isclose(boxMin,r[0].round(5)) or np.isclose(boxMax, r[0].round(5)): # track is entering volume not created in volume - need to do decay products differently
+            for ind,value in enumerate(r):
+                # if np.isclose(0.15485, value) or np.isclose(0.15515, value):
+                if (value.round(5)>boxMin and value.round(5)<boxMax) or np.isclose(boxMin,value.round(5)) or np.isclose(boxMax, value.round(5)):
+                    a.append(True)
 
-                for ind,value in enumerate(r):
-                    # if np.isclose(0.15485, value) or np.isclose(0.15515, value):
-                    if (value.round(5)>boxMin and value.round(5)<boxMax) or np.isclose(boxMin,value.round(5)) or np.isclose(boxMax, value.round(5)):
-                        a.append(True)
+                else:
+                    a.append(False)
 
-                    else:
-                        a.append(False)
-
-                # a = np.where((0.15485==r)|(r==0.15515), True, False)
-                if sum(a)>0:
-                    # plotAll(ax, d[a], mmTonm)
-                    tracksToConsider.append(d[a])
-                    # print(r)
-
-            else:
-                if r[0]>boxMin and r[0] < boxMax and d[0][13]==1:
-                    print("track starts inside from radioactive decay - keep", particleMap[d[0][8]], "event = ", d[0][7], "creator process ", d[0][13], "track = ", d[0][12], "r=", r[0])
-                    tracksToConsider.append(d[0])
+            # a = np.where((0.15485==r)|(r==0.15515), True, False)
+            if sum(a)>0:
+                # plotAll(ax, d[a], mmTonm)
+                tracksToConsider.extend(d[a])
+                # print(r)
+        else:
+            print(particleMap[d[0][8]])
+            if r[0]>boxMin and r[0] < boxMax and d[0][13]==1:
+                print("track starts inside from radioactive decay - keep", particleMap[d[0][8]], "event = ", d[0][7], "creator process ", d[0][13], "track = ", d[0][12], "r=", r[0])
+                tracksToConsider.append(d[0])
 
 
 for i in tracksToConsider:
     # print(len(i), "particle = ", particleMap[i[0][8]])
     # ax.scatter(i[0][0]*mmTonm, i[0][1]*mmTonm, i[0][2]*mmTonm, color ='b')
-    if type(i[0])==np.float64:# only 1 step in track
-        print()
-        print("starts inside, particle = ", particleMap[i[8]], "event = ", i[7], "creator process ", i[13], "track = ", i[12])
+    # print("starts inside, particle = ", particleMap[i[8]], "event = ", i[7], "creator process ", i[13], "track = ", i[12])
+    newMomentum_ = updateMomentum(i)
+    r = (i[1]**2 + i[0]**2)**0.5
 
-        newMomentum_ = updateMomentum(i)
-        r = (i[1]**2 + i[0]**2)**0.5
+    newPos.append([random.uniform(-.00017,.00017),r-boxPositions[int(i[9])],random.uniform(-.00017,.00017)])      
 
-        newPos.append([random.uniform(-.00017,.00017),r-boxPositions[int(i[9])],random.uniform(-.00017,.00017)])      
+    newMomentum.append(newMomentum_)
+    newAllOther.append(i[6:12])
 
-        newMomentum.append(newMomentum_)
-        newAllOther.append(i[6:12])
-
-
-    else:
-        # print("theta = ", theta)
-        # ax.scatter(i[0][0]*mmTonm*np.cos(theta)-i[0][1]*mmTonm*np.sin(theta), i[0][0]*mmTonm*np.sin(theta)+i[0][1]*mmTonm*np.cos(theta), i[0][2]*mmTonm, color ='r')
-
-
-        r = (i[0][1]**2 + i[0][0]**2)**0.5
-
-        newMomentum_ = updateMomentum(i[0])
-
-        if np.isclose(r.round(5),boxPositions[int(i[0][9])]-0.00015):
-            if newMomentum_[1]>0:
-                # check is coming into box
-                newPos.append([random.uniform(-.00017,.00017),-.00017, random.uniform(-.00017,.00017)])
-            else:
-                continue
-        elif np.isclose(r.round(5),boxPositions[int(i[0][9])]+0.00015):
-            if newMomentum_[1]<0:
-                # check is coming into box
-                newPos.append([random.uniform(-.00017,.00017),.00017,random.uniform(-.00017,.00017)])      
-            else:
-                continue
-        
-        else:
-            print("????")
-
-        newMomentum.append(newMomentum_)
-        newAllOther.append(i[0][6:12])
 
 
 
@@ -381,32 +350,14 @@ if plotGraphs:
     ax3.set_ylabel("y (mm)")
     ax3.set_zlabel("z (mm)")
 
-toAdd = []
-newEnergy = []
-newOther = []
-for ind, value in enumerate(newPos):
-    # check where/if track exits cube
-    point = value
-    momentum = newMomentum[ind]
-    add = True
-    distanceTravelled = 0
-    while add:
-        add, distanceTravelled = checkCross(point, momentum, tracksToConsider[ind],distanceTravelled)
-        if add:
-            # workout energy by interpolating
-            toAdd.append(add+ momentum + [calculateEnergy(tracksToConsider[ind],distanceTravelled)] + list(tracksToConsider[ind][0][7:12] ))
-
-            point = add
-            
 
 newBin = np.hstack([np.array(newPos), np.array(newMomentum), np.array(newAllOther)])
 
-newBin = np.vstack([newBin, np.array(toAdd)])
 print("number of particles in all boxes = ", len(np.array(newBin)))
 
 newBin = newBin.flatten()
 
-newBin.astype('float64').tofile(f"compareToBoxesTransformed.bin")
+newBin.astype('float64').tofile(f"transformed.bin")
 
 
 # data = numpy_data.reshape(int(len(numpy_data)/12),12)

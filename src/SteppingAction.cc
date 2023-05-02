@@ -146,7 +146,7 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
   // G4cout << step->GetTrack()->GetParticleDefinition()->GetParticleName() << " from r = " << std::pow(std::pow(step->GetPreStepPoint()->GetPosition().x(), 2) + std::pow(step->GetPreStepPoint()->GetPosition().y(), 2), 0.5) / mm << " to r = " << std::pow(std::pow(step->GetPostStepPoint()->GetPosition().x(), 2) + std::pow(step->GetPostStepPoint()->GetPosition().y(), 2), 0.5) / mm << G4endl;
 
   G4String volumeNamePre = step->GetPreStepPoint()->GetPhysicalVolume()->GetName();
-  // if (volumeNamePre == "water") // particle entering cylindrical bands 
+  // if (volumeNamePre == "water") // particle entering cylindrical bands
   // {
   //   if (step->GetPostStepPoint()->GetPhysicalVolume()->GetName() == "cell")
   //   {
@@ -168,26 +168,50 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
   //       savePoint(step, step->GetPreStepPoint());
   //     }
   //   }
-  
+
   // save all steps in rings
-  if ((volumeNamePre == "cell"))
-{
-      if (step->GetPreStepPoint()->GetKineticEnergy() > 0)
-      {
-        if ((step->IsFirstStepInVolume())&&(step->IsLastStepInVolume())) //only one step in volume
+  //   if ((volumeNamePre == "cell"))
+  // {
+  //       if (step->GetPreStepPoint()->GetKineticEnergy() > 0)
+  //       {
+  //         if ((step->IsFirstStepInVolume())&&(step->IsLastStepInVolume())) //only one step in volume
+  //         {
+  //             savePoint(step, step->GetPreStepPoint(), step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo());
+  //             savePoint(step, step->GetPostStepPoint(), step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo());
+  //         }
+  //         else if (step->IsLastStepInVolume())
+  //             savePoint(step, step->GetPostStepPoint(), step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo());
+  //         else
+  //             savePoint(step, step->GetPreStepPoint(),step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo());
+  //       }
+  //   }
+  // }
+
+  // save all steps entering rings
+  if ((volumeNamePre == "water") && (step->GetPostStepPoint()->GetPhysicalVolume()->GetName() == "cell"))
+  {
+    if (step->GetPreStepPoint()->GetKineticEnergy() > 0)
+    {
+      savePoint(step, step->GetPostStepPoint(), step->GetPostStepPoint()->GetPhysicalVolume()->GetCopyNo());
+    }
+  }
+  // save decay in box
+  if ((volumeNamePre == "cell") && (step->IsFirstStepInVolume())) // save particles created in the cell or nucleus
+  {
+    if (step->GetPostStepPoint()->GetProcessDefinedStep() == nullptr)
+      // if prestep process is nullptr this is the first step of particle created by interaction in the cell - only save those created by processes in cell
+
+      if (step->GetTrack()->GetCreatorProcess()->GetProcessName() == "RadioactiveDecay")
+        // only save products of radioactive decay other products are from parents which are saved on entering the cell and will be tracked in DNA simulation.
+        if (step->GetPostStepPoint()->GetKineticEnergy() > 0)
         {
-            savePoint(step, step->GetPreStepPoint(), step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo());
-            savePoint(step, step->GetPostStepPoint(), step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo());
+          savePoint(step, step->GetPreStepPoint(), step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo());
+          G4cout << "saved Rdecay" << G4endl;
         }
-        else if (step->IsLastStepInVolume())
-            savePoint(step, step->GetPostStepPoint(), step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo());
-        else
-            savePoint(step, step->GetPreStepPoint(),step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo());
-      }
   }
 }
 
-void SteppingAction::savePoint(const G4Step *step, const G4StepPoint * point, const int copy)
+void SteppingAction::savePoint(const G4Step *step, const G4StepPoint *point, const int copy)
 {
   // G4TouchableHandle theTouchable = step->GetPostStepPoint()->GetTouchableHandle();
   G4ThreeVector worldPos = point->GetPosition();
