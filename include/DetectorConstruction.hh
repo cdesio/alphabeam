@@ -49,9 +49,9 @@ public:
     void SetNperRing(G4int n);
 
     DetectorMessenger* fDetectorMessenger;
+    std::vector<G4double> R;
 
 private:
-    std::vector<G4double> R;
     G4double Rmin{0};
     G4double Rmax{0};
     G4int Nrings{0};

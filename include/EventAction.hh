@@ -59,6 +59,9 @@ public:
   void addDecayTimeRa(G4double val) { totalRaDecayTime += val; }
   G4double getTotalRaDecayTime() { return totalRaDecayTime; }
 
+  std::map<G4int, G4ThreeVector> particlePos;
+  std::map<G4int, G4ThreeVector> particleDist;
+
 private:
   G4int RnDeabsorptionIN{0};
   G4int PbDeabsorptionIN{0};

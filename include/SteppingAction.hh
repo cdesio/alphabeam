@@ -30,7 +30,7 @@
 #include <fstream>
 #include <iostream>
 #include "RunAction.hh"
-#include "G4StepPoint.hh"
+#include "G4Track.hh"
 class EventAction;
 class RunAction;
 
@@ -40,7 +40,7 @@ class RunAction;
 class SteppingAction : public G4UserSteppingAction
 {
 public:
-    SteppingAction(/*DetectorConstruction* fpDet*/);
+    SteppingAction(DetectorConstruction* fpDet);
     ~SteppingAction() override;
 
     void UserSteppingAction(const G4Step* step) override;
@@ -49,7 +49,7 @@ private:
   EventAction* fpEventAction;
   RunAction *fRunAction;
   std::ofstream PSfile;
-  void savePoint(const G4Step *step, const G4StepPoint* point, const int copy);
-
-
+  void savePoint(const G4Track *track, G4ThreeVector worldPos,  G4ThreeVector worldMomentum, const int copy, G4double KE, G4double time);
+  G4ThreeVector transformDirection(G4ThreeVector position,  G4ThreeVector worldMomentum);
+  DetectorConstruction* fDetector;
 };
