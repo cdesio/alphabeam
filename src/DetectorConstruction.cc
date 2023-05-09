@@ -66,7 +66,7 @@ using CLHEP::nanometer;
 
 static G4VisAttributes visGrey(true, G4Colour(0.839216, 0.839216, 0.839216));
 static G4VisAttributes invisGrey(false, G4Colour(0.839216, 0.839216, 0.839216));
-static G4VisAttributes visRed(true, G4Colour(1, 0, 0));
+static G4VisAttributes visRed(true, G4Colour(0, 0, 1));
 
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -146,6 +146,20 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
                                                false,
                                                0);
 
+  // Example of User Limits
+  //
+  // Below is an example of how to set tracking constraints in a given
+  // logical volume
+  //
+  // Sets a max step length in the tracker region, with G4StepLimiter
+
+  G4double maxStep = 0.01*nucleusSize;
+  auto fStepLimit = new G4UserLimits(maxStep);
+  // logicWorld->SetUserLimits(fStepLimit);
+  // logicWater->SetUserLimits(fStepLimit);
+  // logicSeed->SetUserLimits(fStepLimit);
+
+
   SetCells(Rmin, Rmax, Nrings);
   G4int numberRadialDivisions = NperRing;
 
@@ -156,6 +170,8 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
         G4LogicalVolume *logicCell = new G4LogicalVolume(solidCell,
                                                          waterMaterial,
                                                          "cell");
+        logicCell->SetUserLimits(fStepLimit);
+        logicCell->SetVisAttributes(&visRed);
 
         G4PVPlacement *physiCell = new G4PVPlacement(0,
                                                      G4ThreeVector(),
@@ -171,6 +187,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   logicWorld->SetVisAttributes(&invisGrey);
   logicWater->SetVisAttributes(&invisGrey);
   logicSeed->SetVisAttributes(&visGrey);
+
 
   return physiWorld;
 }

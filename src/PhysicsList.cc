@@ -62,7 +62,7 @@
 // #include "G4IonConstructor.hh"
 // #include "G4ShortLivedConstructor.hh"
 
-// #include "G4StepLimiterPhysics.hh"
+#include "G4StepLimiterPhysics.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -90,7 +90,7 @@ PhysicsList::PhysicsList()
   // Radioactive decay
   RegisterPhysics(new G4RadioactiveDecayPhysics());
 
-  // RegisterPhysics(new G4StepLimiterPhysics());
+  RegisterPhysics(new G4StepLimiterPhysics());
             
   // Hadron Elastic scattering
   // RegisterPhysics( new G4HadronElasticPhysicsHP(verb) );
