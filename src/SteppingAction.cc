@@ -171,7 +171,7 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
   else if ((volumeNamePre == "cell") && (step->IsFirstStepInVolume())) // save particles created in the cell or nucleus if from radioactive decay as not simulated in RBE
   {
     if (step->GetPreStepPoint()->GetProcessDefinedStep() == nullptr)
-    // if prestep process is nullptr this is the first step of particle created by interaction in the cell - only save those created by processes in cell
+    // if prestep process is nullptr this is the first step of particle created by interaction in the cell - only save those created by processes in cell not in other volumes
     {
       if (step->GetTrack()->GetCreatorProcess()->GetProcessName() == "RadioactiveDecay")
       {
@@ -182,7 +182,7 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
         G4double newX = (G4UniformRand() * .00017 * 2) - .00017;
         G4double newZ = (G4UniformRand() * .00017 * 2) - .00017;
 
-        G4double radius = std::pow(worldPos.x() * worldPos.x() + worldPos.y() * worldPos.x(), 0.5);
+        G4double radius = std::pow(worldPos.x() * worldPos.x() + worldPos.y() * worldPos.y(), 0.5);
         G4double newY = radius - fDetector->R[step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo()];
 
         // pick position in box frame
@@ -191,7 +191,7 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
 
         savePoint(step->GetTrack(), newPos, newMomentum, step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo(), step->GetPreStepPoint()->GetKineticEnergy(), step->GetPreStepPoint()->GetGlobalTime());
 
-        G4cout << step->GetTrack()->GetParticleDefinition()->GetParticleName() << " saved at " << newPos << G4endl;
+        // G4cout << step->GetTrack()->GetParticleDefinition()->GetParticleName() << " saved at " << newPos << G4endl;
       }
     }
   }
