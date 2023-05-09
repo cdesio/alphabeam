@@ -144,7 +144,6 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
   if (step->GetPreStepPoint() == nullptr)
     return;
 
-
   G4String volumeNamePre = step->GetPreStepPoint()->GetPhysicalVolume()->GetName();
 
   // save all steps entering rings
@@ -172,24 +171,29 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
   else if ((volumeNamePre == "cell") && (step->IsFirstStepInVolume())) // save particles created in the cell or nucleus if from radioactive decay as not simulated in RBE
   {
     if (step->GetPreStepPoint()->GetProcessDefinedStep() == nullptr)
-      // if prestep process is nullptr this is the first step of particle created by interaction in the cell - only save those created by processes in cell
-
+    // if prestep process is nullptr this is the first step of particle created by interaction in the cell - only save those created by processes in cell
+    {
       if (step->GetTrack()->GetCreatorProcess()->GetProcessName() == "RadioactiveDecay")
+      {
         // only save products of radioactive decay other products are from parents which are saved on entering the cell and will be tracked in DNA simulation.
-          G4cout << "saved Rdecay" << G4endl;
+        G4cout << "saved Rdecay" << G4endl;
 
-          G4ThreeVector worldPos = step->GetPreStepPoint()->GetPosition();
-          G4double newX = (G4UniformRand() * .00017 * 2) - .00017;
-          G4double newZ = (G4UniformRand() * .00017 * 2) - .00017;
+        G4ThreeVector worldPos = step->GetPreStepPoint()->GetPosition();
+        G4double newX = (G4UniformRand() * .00017 * 2) - .00017;
+        G4double newZ = (G4UniformRand() * .00017 * 2) - .00017;
 
-          G4double radius = std::pow(worldPos.x() * worldPos.x() + worldPos.y() * worldPos.x(), 0.5);
-          G4double newY = radius - fDetector->R[step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo()];
+        G4double radius = std::pow(worldPos.x() * worldPos.x() + worldPos.y() * worldPos.x(), 0.5);
+        G4double newY = radius - fDetector->R[step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo()];
 
-          // pick position in box frame
-          G4ThreeVector newPos = G4ThreeVector(newX, newY, newZ);
-          G4ThreeVector newMomentum = transformDirection(step->GetPreStepPoint()->GetPosition(), step->GetPreStepPoint()->GetMomentumDirection());
+        // pick position in box frame
+        G4ThreeVector newPos = G4ThreeVector(newX, newY, newZ);
+        G4ThreeVector newMomentum = transformDirection(step->GetPreStepPoint()->GetPosition(), step->GetPreStepPoint()->GetMomentumDirection());
 
-          savePoint(step->GetTrack(), newPos, newMomentum, step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo(), step->GetPreStepPoint()->GetKineticEnergy(), step->GetPreStepPoint()->GetGlobalTime());
+        savePoint(step->GetTrack(), newPos, newMomentum, step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo(), step->GetPreStepPoint()->GetKineticEnergy(), step->GetPreStepPoint()->GetGlobalTime());
+
+        G4cout << step->GetTrack()->GetParticleDefinition()->GetParticleName() << " saved at " << newPos << G4endl;
+      }
+    }
   }
   else if (volumeNamePre == "cell") // is a step in the cell but not first, check if crosses virtual box boundary, if it does it is saved as if entering the box from the side faces
   {
@@ -197,14 +201,13 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
     {
       G4ThreeVector entryPosition = fpEventAction->particlePos[step->GetTrack()->GetTrackID()]; // look up position in box frame from last step
 
-      G4ThreeVector deltaWorld = step->GetPostStepPoint()->GetPosition()-step->GetPreStepPoint()->GetPosition(); // change in position in world frame
+      G4ThreeVector deltaWorld = step->GetPostStepPoint()->GetPosition() - step->GetPreStepPoint()->GetPosition(); // change in position in world frame
 
       G4ThreeVector boxMomentum = transformDirection(step->GetPostStepPoint()->GetPosition(), step->GetPostStepPoint()->GetMomentumDirection()); // particle momentum in box frame
 
-      G4ThreeVector delta = deltaWorld.mag()*boxMomentum; // change in position in box frame
+      G4ThreeVector delta = deltaWorld.mag() * boxMomentum; // change in position in box frame
 
       G4ThreeVector postStepBox = entryPosition + (fpEventAction->particleDist)[step->GetTrack()->GetTrackID()] + delta; // post step position in box frame
-
 
       if ((std::abs(postStepBox.x()) >= 0.00017) || (std::abs(postStepBox.z()) >= 0.00017)) // if >=0.00017 has crossed the boundary
       {
@@ -222,7 +225,6 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
         G4double tZneg = (-.00017 - preStepBox.z()) / boxMomentum.z();
         G4double tZpos = (.00017 - preStepBox.z()) / boxMomentum.z();
 
-
         tXneg = tXneg > 0 ? tXneg : 1e9;
         tXpos = tXpos > 0 ? tXpos : 1e9;
         tYneg = tYneg > 0 ? tYneg : 1e9;
@@ -234,7 +236,6 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
 
         if ((tYneg <= distanceToExit) || (tYpos <= distanceToExit)) // exit y
           return;
-
 
         G4double stepDistance = step->GetStepLength();
 
@@ -256,13 +257,13 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
         // calculate KE at point where crossing occurs
         G4double newKE = step->GetPreStepPoint()->GetKineticEnergy() - (step->GetPreStepPoint()->GetKineticEnergy() - step->GetPostStepPoint()->GetKineticEnergy()) * percentageOfStep;
         // calculate time at point where crossing occurs
-        G4double newTime = step->GetPreStepPoint()->GetGlobalTime() + (step->GetDeltaTime() * percentageOfStep); 
+        G4double newTime = step->GetPreStepPoint()->GetGlobalTime() + (step->GetDeltaTime() * percentageOfStep);
 
         savePoint(step->GetTrack(), newPos, step->GetPostStepPoint()->GetMomentumDirection(), step->GetPostStepPoint()->GetPhysicalVolume()->GetCopyNo(), newKE, newTime);
       }
       else
       {
-        //  if not update distance travelled in box 
+        //  if not update distance travelled in box
         G4ThreeVector previousDelta = (fpEventAction->particleDist)[step->GetTrack()->GetTrackID()];
 
         // G4cout << "add delta " << delta << G4endl;
@@ -282,10 +283,8 @@ void SteppingAction::savePoint(const G4Track *track, G4ThreeVector newPos, G4Thr
 
   fpEventAction->particlePos.insert(std::pair<int, G4ThreeVector>(track->GetTrackID(), newPos)); // add current box entry position for this track
 
-
-  fpEventAction->particleDist.erase(track->GetTrackID()); // erase distance travelled for this track in the box
+  fpEventAction->particleDist.erase(track->GetTrackID());                                                  // erase distance travelled for this track in the box
   fpEventAction->particleDist.insert(std::pair<int, G4ThreeVector>(track->GetTrackID(), G4ThreeVector())); // made initial distance travelled zero
-
 
   G4int eventID = G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetEventID();
 
