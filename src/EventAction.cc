@@ -64,6 +64,7 @@ EventAction::~EventAction()
 void EventAction::BeginOfEventAction(const G4Event *)
 {
     particlePos.empty();
+    particleDist.empty();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
