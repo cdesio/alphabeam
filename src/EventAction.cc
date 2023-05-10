@@ -65,6 +65,7 @@ void EventAction::BeginOfEventAction(const G4Event *)
 {
     particlePos.empty();
     particleDist.empty();
+    decayPos.empty();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
