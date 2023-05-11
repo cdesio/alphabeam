@@ -173,46 +173,46 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
     if (step->GetPreStepPoint()->GetProcessDefinedStep() == nullptr)
     // if prestep process is nullptr this is the first step of particle created by interaction in the cell - only save those created by processes in cell not in other volumes
     {
-      if (step->GetTrack()->GetCreatorProcess()->GetProcessName() == "RadioactiveDecay")
+      if ((step->GetTrack()->GetCreatorProcess()->GetProcessName() == "RadioactiveDecay")&&(((const G4Ions *)(step->GetTrack()->GetParticleDefinition()))->GetExcitationEnergy()<1e-10))
       {
-        // only save products of radioactive decay other products are from parents which are saved on entering the cell and will be tracked in DNA simulation.
+        // only save products of radioactive decay other products are from parents which are saved on entering the cell and will be tracked in DNA simulation. Excited states are not saved as de-excitation is not simulated in RBE, products are saved to phase space file.
         // G4cout << "saved Rdecay" << G4endl;
 
         G4int parentID = step->GetTrack()->GetParentID();
 
-        G4ThreeVector worldPos = step->GetPreStepPoint()->GetPosition();
+          G4ThreeVector worldPos = step->GetPreStepPoint()->GetPosition();
 
-        // decay products should start in the same place in box reference frame, check if is first product
-        if (fpEventAction->decayPos.find(parentID) == fpEventAction->decayPos.end())
-        {
-          // parent ID not found, is first product, pick new position and save
-          G4double newX = (G4UniformRand() * .00017 * 2) - .00017;
-          G4double newZ = (G4UniformRand() * .00017 * 2) - .00017;
+          // decay products should start in the same place in box reference frame, check if is first product
+          if (fpEventAction->decayPos.find(parentID) == fpEventAction->decayPos.end())
+          {
+            // parent ID not found, is first product, pick new position and save
+            G4double newX = (G4UniformRand() * .00017 * 2) - .00017;
+            G4double newZ = (G4UniformRand() * .00017 * 2) - .00017;
 
-          G4double radius = std::pow(worldPos.x() * worldPos.x() + worldPos.y() * worldPos.y(), 0.5);
-          G4double newY = radius - fDetector->R[step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo()];
-          // pick position in box frame
-          G4ThreeVector newPos = G4ThreeVector(newX, newY, newZ);
+            G4double radius = std::pow(worldPos.x() * worldPos.x() + worldPos.y() * worldPos.y(), 0.5);
+            G4double newY = radius - fDetector->R[step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo()];
+            // pick position in box frame
+            G4ThreeVector newPos = G4ThreeVector(newX, newY, newZ);
 
-          // save
-          fpEventAction->decayPos.insert(std::pair<int, G4ThreeVector>(parentID, newPos));
+            // save
+            fpEventAction->decayPos.insert(std::pair<int, G4ThreeVector>(parentID, newPos));
 
-          G4ThreeVector newMomentum = transformDirection(worldPos, step->GetPreStepPoint()->GetMomentumDirection());
+            G4ThreeVector newMomentum = transformDirection(worldPos, step->GetPreStepPoint()->GetMomentumDirection());
 
-          savePoint(step->GetTrack(), newPos, newMomentum, step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo(), step->GetPreStepPoint()->GetKineticEnergy(), step->GetPreStepPoint()->GetGlobalTime());
+            savePoint(step->GetTrack(), newPos, newMomentum, step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo(), step->GetPreStepPoint()->GetKineticEnergy(), step->GetPreStepPoint()->GetGlobalTime());
 
-          // G4cout << step->GetTrack()->GetParticleDefinition()->GetParticleName() << " saved at " << newPos << " previous pos = " << worldPos << " mother ID " << step->GetTrack()->GetParentID() << G4endl;
-        }
-        else
-        {
-          // parent ID found, look up new position
-          G4ThreeVector newPos = fpEventAction->decayPos[parentID];
+            // G4cout << step->GetTrack()->GetParticleDefinition()->GetParticleName() << " saved at " << newPos << " previous pos = " << worldPos << " mother ID " << step->GetTrack()->GetParentID() << G4endl;
+          }
+          else
+          {
+            // parent ID found, look up new position
+            G4ThreeVector newPos = fpEventAction->decayPos[parentID];
 
-          G4ThreeVector newMomentum = transformDirection(worldPos, step->GetPreStepPoint()->GetMomentumDirection());
+            G4ThreeVector newMomentum = transformDirection(worldPos, step->GetPreStepPoint()->GetMomentumDirection());
 
-          savePoint(step->GetTrack(), newPos, newMomentum, step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo(), step->GetPreStepPoint()->GetKineticEnergy(), step->GetPreStepPoint()->GetGlobalTime());
+            savePoint(step->GetTrack(), newPos, newMomentum, step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo(), step->GetPreStepPoint()->GetKineticEnergy(), step->GetPreStepPoint()->GetGlobalTime());
 
-          // G4cout << step->GetTrack()->GetParticleDefinition()->GetParticleName() << " saved at " << newPos << " previous pos = " << worldPos << " mother ID " << step->GetTrack()->GetParentID() << G4endl;
+            // G4cout << step->GetTrack()->GetParticleDefinition()->GetParticleName() << " saved at " << newPos << " previous pos = " << worldPos << " mother ID " << step->GetTrack()->GetParentID() << G4endl;
         }
       }
     }
@@ -313,25 +313,25 @@ void SteppingAction::savePoint(const G4Track *track, G4ThreeVector newPos, G4Thr
   G4String particleName = track->GetParticleDefinition()->GetParticleName();
 
   G4float particleID{0};
-  if (G4StrUtil::contains(particleName, "e-"))
+  if (particleName=="e-")
     particleID = 1;
-  else if (G4StrUtil::contains(particleName, "gamma"))
+  else if (particleName=="gamma")
     particleID = 2;
-  else if (G4StrUtil::contains(particleName, "alpha"))
+  else if (particleName=="alpha")
     particleID = 3;
-  else if (G4StrUtil::contains(particleName, "Rn220"))
+  else if (particleName=="Rn220")
     particleID = 4;
-  else if (G4StrUtil::contains(particleName, "Po216"))
+  else if (particleName=="Po216")
     particleID = 5;
-  else if (G4StrUtil::contains(particleName, "Pb212"))
+  else if (particleName=="Pb212")
     particleID = 6;
-  else if (G4StrUtil::contains(particleName, "Bi212"))
+  else if (particleName=="Bi212")
     particleID = 7;
-  else if (G4StrUtil::contains(particleName, "Tl208"))
+  else if (particleName=="Tl208")
     particleID = 8;
-  else if (G4StrUtil::contains(particleName, "Po212"))
+  else if (particleName=="Po212")
     particleID = 9;
-  else if (G4StrUtil::contains(particleName, "Pb208"))
+  else if (particleName=="Pb208")
     particleID = 10;
   else
   {
@@ -350,7 +350,7 @@ void SteppingAction::savePoint(const G4Track *track, G4ThreeVector newPos, G4Thr
   output[8] = particleID;
   output[9] = copy;
   output[10] = time / s;
-  output[11] = ((const G4Ions *)(track->GetParticleDefinition()))->GetExcitationEnergy();
+  output[11] = 0; //Not used saved after de-excitation
   // output[12] = track->GetTrackID();
   // output[13] = track->GetCreatorProcess()->GetProcessName() == "RadioactiveDecay" ? 1 : 0; // 1 if from radioactive decay
 
