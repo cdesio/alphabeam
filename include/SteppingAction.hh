@@ -23,7 +23,7 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// 
+//
 #pragma once
 #include "G4UserSteppingAction.hh"
 #include "G4String.hh"
@@ -34,22 +34,35 @@
 class EventAction;
 class RunAction;
 
-
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 class SteppingAction : public G4UserSteppingAction
 {
 public:
-    SteppingAction(DetectorConstruction* fpDet);
-    ~SteppingAction() override;
+  SteppingAction(DetectorConstruction *fpDet);
+  ~SteppingAction() override;
 
-    void UserSteppingAction(const G4Step* step) override;
+  void UserSteppingAction(const G4Step *step) override;
 
 private:
-  EventAction* fpEventAction;
+  EventAction *fpEventAction;
   RunAction *fRunAction;
   std::ofstream PSfile;
-  void savePoint(const G4Track *track, G4ThreeVector worldPos,  G4ThreeVector worldMomentum, const int copy, G4double KE, G4double time);
-  G4ThreeVector transformDirection(G4ThreeVector position,  G4ThreeVector worldMomentum);
-  DetectorConstruction* fDetector;
+  void savePoint(const G4Track *track, G4ThreeVector worldPos, G4ThreeVector worldMomentum, const int copy, G4double KE, G4double time, G4int orignParticle);
+  G4ThreeVector transformDirection(G4ThreeVector position, G4ThreeVector worldMomentum);
+  DetectorConstruction *fDetector;
+
+  std::map<G4String, G4int> particleMap{
+      {"e-", 1},
+      {"gamma", 2},
+      {"alpha", 3},
+      {"Rn220", 4},
+      {"Po216", 5},
+      {"Pb212", 6},
+      {"Bi212", 7},
+      {"Tl208", 8},
+      {"Po212", 9},
+      {"Pb208", 10},
+      {"e+", 11}
+      };
 };

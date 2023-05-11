@@ -31,7 +31,6 @@
 #include "EventAction.hh"
 #include "G4AnalysisManager.hh"
 
-
 #include "G4Event.hh"
 #include "G4LogicalVolume.hh"
 #include "G4LogicalVolumeStore.hh"
@@ -43,29 +42,41 @@
 
 using namespace G4DNAPARSER;
 
-
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 EventAction::EventAction() : G4UserEventAction()
 {
-
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 EventAction::~EventAction()
 {
-
-
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void EventAction::BeginOfEventAction(const G4Event *)
 {
-    particlePos.empty();
-    particleDist.empty();
-    decayPos.empty();
+    while (!particlePos.empty())
+    {
+        particlePos.erase(particlePos.begin());
+    }
+
+    while (!particleDist.empty())
+    {
+        particleDist.erase(particleDist.begin());
+    }
+
+    while (!decayPos.empty())
+    {
+        decayPos.erase(decayPos.begin());
+    }
+
+    while (!parentParticle.empty())
+    {
+        parentParticle.erase(parentParticle.begin());
+    }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
