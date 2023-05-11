@@ -333,6 +333,8 @@ void SteppingAction::savePoint(const G4Track *track, G4ThreeVector newPos, G4Thr
     particleID = 9;
   else if (particleName=="Pb208")
     particleID = 10;
+  else if (particleName=="e+")
+    particleID = 11;
   else
   {
     G4cout << particleName << "  not saved" << G4endl;
