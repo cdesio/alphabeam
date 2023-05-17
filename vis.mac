@@ -52,3 +52,8 @@
 #/vis/modeling/trajectories/drawByParticleID-0/set e- mediumaquamarine
 #/vis/modeling/trajectories/drawByParticleID-0/set alpha darkorchid
 #/vis/modeling/trajectories/drawByParticleID-0/default/setLineWidth 2
+
+# add scale 
+
+#/vis/scene/add/scale 1 mm x 0 0 0 manual 1 -1 0 mm
+#/vis/scene/endOfEventAction accumulate 500
