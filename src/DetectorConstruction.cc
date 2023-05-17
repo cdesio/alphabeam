@@ -165,7 +165,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
 
   for (G4int r = 0; r < R.size(); ++r)
   {
-        G4Tubs *solidCell = new G4Tubs("seed", R[r]-(nucleusSize/2+ margin), R[r]+(nucleusSize/2+ margin), 3 * mm, 0, 360 * degree);
+        G4Tubs *solidCell = new G4Tubs("cell", R[r]-(nucleusSize/2+ margin), R[r]+(nucleusSize/2+ margin), 3 * mm, 0, 360 * degree);
 
         G4LogicalVolume *logicCell = new G4LogicalVolume(solidCell,
                                                          waterMaterial,
