@@ -77,6 +77,11 @@ void EventAction::BeginOfEventAction(const G4Event *)
     {
         parentParticle.erase(parentParticle.begin());
     }
+
+    while (!tracks.empty())
+    {
+        tracks.erase(tracks.begin());
+    }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

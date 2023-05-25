@@ -51,6 +51,7 @@ private:
   void savePoint(const G4Track *track, G4ThreeVector worldPos, G4ThreeVector worldMomentum, const int copy, G4double KE, G4double time, G4int orignParticle);
   G4ThreeVector transformDirection(G4ThreeVector position, G4ThreeVector worldMomentum);
   DetectorConstruction *fDetector;
+  G4double calculateDistanceToExitBox(G4ThreeVector preStepPosition, G4ThreeVector preStepMomentumDirection);
 
   std::map<G4String, G4int> particleMap{
       {"e-", 1},

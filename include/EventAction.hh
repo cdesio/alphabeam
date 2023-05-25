@@ -63,6 +63,7 @@ public:
   std::map<G4int, G4ThreeVector> particleDist;
   std::map<G4int, G4ThreeVector> decayPos;
   std::map<G4int, G4int> parentParticle; //map to parent particle from radioactive decay
+  std::vector<G4int> tracks;
 
 private:
   G4int RnDeabsorptionIN{0};
