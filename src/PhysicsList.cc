@@ -37,7 +37,7 @@
 #include "G4SystemOfUnits.hh"
 #include "G4UnitsTable.hh"
 
-#include "G4EmStandardPhysics_option4.hh"
+#include "G4EmPenelopePhysics.hh"
 // #include "G4EmExtraPhysics.hh"
 #include "G4EmParameters.hh"
 #include "G4DecayPhysics.hh"
@@ -77,13 +77,14 @@ PhysicsList::PhysicsList()
   //
 //   new G4UnitDefinition( "millielectronVolt", "meV", "Energy", 1.e-3*eV);   
   // EM physics
-  RegisterPhysics(new G4EmStandardPhysics_option4());
+  RegisterPhysics(new G4EmPenelopePhysics());
 
   G4EmParameters* param = G4EmParameters::Instance();
   param->SetAugerCascade(true);
-  param->SetStepFunction(1., 1*CLHEP::mm);
-  param->SetStepFunctionMuHad(1., 1*CLHEP::mm);
- 
+
+  G4ProductionCutsTable::GetProductionCutsTable()->
+    SetEnergyRange(100*eV, 1*GeV);
+
   // Decay
   RegisterPhysics(new G4DecayPhysics());
 
