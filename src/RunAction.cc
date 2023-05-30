@@ -88,7 +88,21 @@ void RunAction::BeginOfRunAction(const G4Run *)
     analysisManager->CreateNtupleIColumn("Nrings");
     analysisManager->CreateNtupleIColumn("NperRing");
     analysisManager->CreateNtupleSColumn("GitHash");
+    analysisManager->CreateNtupleDColumn("Rn220Desorption");
+    analysisManager->CreateNtupleDColumn("Pb212Desorption");
+    analysisManager->CreateNtupleDColumn("Pb212Leakage");
+    analysisManager->CreateNtupleDColumn("Ra224Activty");
     analysisManager->FinishNtuple(0);
+
+    analysisManager->CreateH1("1", "dose", 5000, 0, 5000);
+    analysisManager->CreateH1("2", "Ra224DecaySeed", 84, 0, 14);
+    analysisManager->CreateH1("3", "Rn220DecayTumour", 84, 0, 14);
+    analysisManager->CreateH1("4", "Po216DecayTumour", 48, 0, 14);
+    analysisManager->CreateH1("5", "Pb212DecayTumour", 48, 0, 14);
+    analysisManager->CreateH1("6", "Bi212DecayTumour", 48, 0, 14);
+    analysisManager->CreateH1("7", "Po212DecayTumour", 48, 0, 14);
+    analysisManager->CreateH1("8", "Tl208DecayTumour", 48, 0, 14);
+
 
 
 }
@@ -101,11 +115,11 @@ void RunAction::EndOfRunAction(const G4Run *run)
     auto fpEventAction = (EventAction *)G4EventManager::GetEventManager()->GetUserEventAction();
 
     G4int numPrimaries = run->GetNumberOfEvent();
-    G4double RnDeabsorptionIN = fpEventAction->getRnDeabsorptionIN();
-    G4cout << "Deabsoption of Rn220 from is " << (1 - RnDeabsorptionIN / numPrimaries) * 100 << "%, expect 40%." << G4endl;
+    G4double RnDesorptionIN = fpEventAction->getRnDesorptionIN();
+    G4cout << "Desorption of Rn220 from is " << (1 - RnDesorptionIN / numPrimaries) * 100 << "%, expect 40%." << G4endl;
 
-    G4double PbDeabsorptionIN = fpEventAction->getPbDeabsorptionIN();
-    G4cout << "Deabsoption of Pb212 from is " << (1 - PbDeabsorptionIN / numPrimaries) * 100 << "%, expect 55%." << G4endl;
+    G4double PbDesorptionIN = fpEventAction->getPbDesorptionIN();
+    G4cout << "Desorption of Pb212 from is " << (1 - PbDesorptionIN / numPrimaries) * 100 << "%, expect 55%." << G4endl;
 
     G4double PbLeakage = fpEventAction->getPbLeakage();
     G4double PbNoLeakage = fpEventAction->getPbNoLeakage();
@@ -125,6 +139,13 @@ void RunAction::Write(const G4Run* run)
         return;
     G4AnalysisManager *analysisManager = G4AnalysisManager::Instance();
 
+    auto fpEventAction = (EventAction *)G4EventManager::GetEventManager()->GetUserEventAction();
+
+    G4int numPrimaries = run->GetNumberOfEvent();
+    G4double RnDesorptionIN = fpEventAction->getRnDesorptionIN();
+    G4double PbDesorptionIN = fpEventAction->getPbDesorptionIN();
+    G4double PbLeakage = fpEventAction->getPbLeakage();
+    G4double PbNoLeakage = fpEventAction->getPbNoLeakage();
 
     analysisManager->FillNtupleDColumn(0,0, run->GetNumberOfEvent());
     analysisManager->FillNtupleDColumn(0, 1, Rmin/um);
@@ -132,6 +153,11 @@ void RunAction::Write(const G4Run* run)
     analysisManager->FillNtupleIColumn(0,3, Nrings);
     analysisManager->FillNtupleIColumn(0,4, NperRing);
     analysisManager->FillNtupleSColumn(0,5, kGitHash);
+    analysisManager->FillNtupleDColumn(0,6, 1 - RnDesorptionIN / numPrimaries);
+    analysisManager->FillNtupleDColumn(0,7, 1 - PbDesorptionIN / numPrimaries);
+    analysisManager->FillNtupleDColumn(0,8, PbLeakage / (PbLeakage + PbNoLeakage));
+    analysisManager->FillNtupleDColumn(0,9, numPrimaries / (fpEventAction->getTotalRaDecayTime() / s));
+
     analysisManager->AddNtupleRow(0);
 
     analysisManager->Write();

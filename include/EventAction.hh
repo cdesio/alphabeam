@@ -45,11 +45,11 @@ public:
   virtual void BeginOfEventAction(const G4Event *);
   virtual void EndOfEventAction(const G4Event *);
 
-  void addRnDeabsorptionIN() { RnDeabsorptionIN++; }
-  G4int getRnDeabsorptionIN() { return RnDeabsorptionIN; }
+  void addRnDesorptionIN() { RnDesorptionIN++; }
+  G4int getRnDesorptionIN() { return RnDesorptionIN; }
 
-  void addPbDeabsorptionIN() { PbDeabsorptionIN++; }
-  G4int getPbDeabsorptionIN() { return PbDeabsorptionIN; }
+  void addPbDesorptionIN() { PbDesorptionIN++; }
+  G4int getPbDesorptionIN() { return PbDesorptionIN; }
 
   void addPbLeakage() { PbLeakage++; }
   void addPbNoLeakage() { PbNoLeakage++; }
@@ -66,8 +66,8 @@ public:
   std::vector<G4int> tracks;
 
 private:
-  G4int RnDeabsorptionIN{0};
-  G4int PbDeabsorptionIN{0};
+  G4int RnDesorptionIN{0};
+  G4int PbDesorptionIN{0};
   G4int PbLeakage{0};
   G4int PbNoLeakage{0};
   G4double totalRaDecayTime{0};
