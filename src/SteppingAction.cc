@@ -167,33 +167,33 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
   // Save per nuclei activity
   if ((step->GetPreStepPoint()->GetKineticEnergy() == 0) && (G4StrUtil::contains(particleName, "Ra224")))
   {
-      analysisManager->FillH1(2, step->GetPostStepPoint()->GetGlobalTime()/day, 1);
+      analysisManager->FillH1(1, step->GetPostStepPoint()->GetGlobalTime()/day, 1);
   }
   if ((step->GetPreStepPoint()->GetKineticEnergy() == 0) && (volumeNamePre != "seed"))
   {
     if (G4StrUtil::contains(particleName, "Rn220"))
     {
-      analysisManager->FillH1(3, step->GetPostStepPoint()->GetGlobalTime()/day, 1);
+      analysisManager->FillH1(2, step->GetPostStepPoint()->GetGlobalTime()/day, 1);
     }
     if (G4StrUtil::contains(particleName, "Po216"))
     {
-      analysisManager->FillH1(4, step->GetPostStepPoint()->GetGlobalTime()/day, 1);
+      analysisManager->FillH1(3, step->GetPostStepPoint()->GetGlobalTime()/day, 1);
     }
     if ((G4StrUtil::contains(particleName, "Pb212")) && (step->GetTrack()->GetTrackStatus() != fKillTrackAndSecondaries )) // Pb lost through leakage not counted
     {
-      analysisManager->FillH1(5, step->GetPostStepPoint()->GetGlobalTime()/day, 1);
+      analysisManager->FillH1(4, step->GetPostStepPoint()->GetGlobalTime()/day, 1);
     }
     if (G4StrUtil::contains(particleName, "Bi212"))
     {
-      analysisManager->FillH1(6, step->GetPostStepPoint()->GetGlobalTime()/day, 1);
+      analysisManager->FillH1(5, step->GetPostStepPoint()->GetGlobalTime()/day, 1);
     }
     if (G4StrUtil::contains(particleName, "Po212"))
     {
-      analysisManager->FillH1(7, step->GetPostStepPoint()->GetGlobalTime()/day, 1);
+      analysisManager->FillH1(6, step->GetPostStepPoint()->GetGlobalTime()/day, 1);
     }
     if (G4StrUtil::contains(particleName, "Tl208"))
     {
-      analysisManager->FillH1(8, step->GetPostStepPoint()->GetGlobalTime()/day, 1);
+      analysisManager->FillH1(7, step->GetPostStepPoint()->GetGlobalTime()/day, 1);
     }
   }
   // Calculate dose for all rings

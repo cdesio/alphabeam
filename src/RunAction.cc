@@ -94,14 +94,14 @@ void RunAction::BeginOfRunAction(const G4Run *)
     analysisManager->CreateNtupleDColumn("Ra224Activty");
     analysisManager->FinishNtuple(0);
 
-    analysisManager->CreateH1("1", "dose", 5000, 0, 5000);
-    analysisManager->CreateH1("2", "Ra224DecaySeed", 84, 0, 14);
-    analysisManager->CreateH1("3", "Rn220DecayTumour", 84, 0, 14);
-    analysisManager->CreateH1("4", "Po216DecayTumour", 48, 0, 14);
-    analysisManager->CreateH1("5", "Pb212DecayTumour", 48, 0, 14);
-    analysisManager->CreateH1("6", "Bi212DecayTumour", 48, 0, 14);
-    analysisManager->CreateH1("7", "Po212DecayTumour", 48, 0, 14);
-    analysisManager->CreateH1("8", "Tl208DecayTumour", 48, 0, 14);
+    analysisManager->CreateH1("0", "dose", 5000, 0, 5000);
+    analysisManager->CreateH1("1", "Ra224DecaySeed", 84, 0, 14);
+    analysisManager->CreateH1("2", "Rn220DecayTumour", 84, 0, 14);
+    analysisManager->CreateH1("3", "Po216DecayTumour", 48, 0, 14);
+    analysisManager->CreateH1("4", "Pb212DecayTumour", 48, 0, 14);
+    analysisManager->CreateH1("5", "Bi212DecayTumour", 48, 0, 14);
+    analysisManager->CreateH1("6", "Po212DecayTumour", 48, 0, 14);
+    analysisManager->CreateH1("7", "Tl208DecayTumour", 48, 0, 14);
 
 
 
