@@ -200,14 +200,16 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
   if (volumeNamePre == "cell")
   {
     G4double radius = fDetector->R[step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo()] / um;
-    G4double edep = step->GetTotalEnergyDeposit();
+    G4double edep = step->GetTotalEnergyDeposit()/joule;
 
-    G4double OutR = radius + .150;
-    G4double InR = radius - .150;
+    G4double OutR = (radius + .150)*1e-6; //m
+    G4double InR = (radius - .150)*1e-6; //m
 
-    G4double volumeCylinder = (3.14159 * 6000 * (OutR * OutR - InR * InR));
+    G4double volumeCylinder = (3.14159 * 6e-3 * (OutR * OutR - InR * InR));
+    G4double density = 1000; //water
+    G4double massCylinder = density*volumeCylinder;
 
-    analysisManager->FillH1(0, radius, edep / volumeCylinder);
+    analysisManager->FillH1(0, radius, edep / massCylinder);
   }
 
   // save all steps entering rings
