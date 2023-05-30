@@ -1275,9 +1275,6 @@ void G4RadioactiveDecay::DecayAnalog(const G4Track &theTrack)
         G4PhysicsModelCatalog::GetModelID("model_RDM_AtomicRelaxation");
 
 
-    G4AnalysisManager *analysisManager = G4AnalysisManager::Instance();
-
-
     G4ThreeVector changePosition{0};
     if ((numberOfSecondaries > 0) && (theTrack.GetParticleDefinition()->GetParticleName() == "Rn220"))
     {
@@ -1286,7 +1283,6 @@ void G4RadioactiveDecay::DecayAnalog(const G4Track &theTrack)
     if ((numberOfSecondaries > 0) && (G4StrUtil::contains(theTrack.GetParticleDefinition()->GetParticleName(),"Pb212")))
     {
         changePosition = calculateDiffusion(finalLocalTime, 1.22e-5, theTrack); // mm2 s-1
-                                                                                 /
     }
     if ((numberOfSecondaries > 0) && (G4StrUtil::contains(theTrack.GetParticleDefinition()->GetParticleName(),"Bi212")))
     {
