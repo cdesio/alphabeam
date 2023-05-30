@@ -1274,20 +1274,24 @@ void G4RadioactiveDecay::DecayAnalog(const G4Track &theTrack)
     const G4int modelID_forAtomicRelaxation =
         G4PhysicsModelCatalog::GetModelID("model_RDM_AtomicRelaxation");
 
+
+    G4AnalysisManager *analysisManager = G4AnalysisManager::Instance();
+
+
     G4ThreeVector changePosition{0};
     if ((numberOfSecondaries > 0) && (theTrack.GetParticleDefinition()->GetParticleName() == "Rn220"))
     {
-        changePosition = calculateDiffusion(finalLocalTime, 1.9e-3, theTrack); // mm2 s-1
-
-        // G4cout << "position before diffusion" << theTrack.GetPosition() << G4endl;
-        // G4cout << "position after diffusion" << theTrack.GetPosition() + changePosition << G4endl;
+        changePosition = calculateDiffusion(finalLocalTime, 1.12e-3, theTrack); // mm2 s-1
     }
     if ((numberOfSecondaries > 0) && (G4StrUtil::contains(theTrack.GetParticleDefinition()->GetParticleName(),"Pb212")))
     {
-        // G4cout << "calculateing diffusion " << G4endl;
-        changePosition = calculateDiffusion(finalLocalTime, 0.651e-5, theTrack); // mm2 s-1
+        changePosition = calculateDiffusion(finalLocalTime, 1.22e-5, theTrack); // mm2 s-1
+                                                                                 /
+    }
+    if ((numberOfSecondaries > 0) && (G4StrUtil::contains(theTrack.GetParticleDefinition()->GetParticleName(),"Bi212")))
+    {
+        changePosition = calculateDiffusion(finalLocalTime, 6.78e-7, theTrack); // mm2 s-1
                                                                                  // G4cout << "position before diffusion" << theTrack.GetPosition() << G4endl;
-        // G4cout << "position after diffusion" << theTrack.GetPosition() + changePosition << G4endl;
     }
 
     for (G4int index = 0; index < numberOfSecondaries; ++index)
