@@ -90,7 +90,14 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
     // track ID not found, save which to map, trackID: creator particle from decay (e-,alpha, gamma) for split of DNA damage by source
     if (step->GetTrack()->GetCreatorProcess()->GetProcessName() == "RadioactiveDecay")
     {
+      if (G4StrUtil::contains(particleName, "[")) // to catch excited states
+      {
+      fpEventAction->parentParticle.insert(std::pair<G4int, G4int>(TrackID, particleMap[particleName.substr(0, 5)])); 
+      }
+      else
+      {
       fpEventAction->parentParticle.insert(std::pair<G4int, G4int>(TrackID, particleMap[particleName])); // excited nuclei will be saved as 0, but but will not be used
+      }
     }
     else
     {
