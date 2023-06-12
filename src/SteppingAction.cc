@@ -220,8 +220,8 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
       // G4cout << "saving particle entering ring " << G4endl;
 
       G4ThreeVector worldPos = step->GetPostStepPoint()->GetPosition();
-      G4double newX = (G4UniformRand() * .00017 * 2) - .00017;
-      G4double newZ = (G4UniformRand() * .00017 * 2) - .00017;
+      G4double newX = (G4UniformRand() * .00015 * 2) - .00015;
+      G4double newZ = (G4UniformRand() * .00015 * 2) - .00015;
 
       G4double radius = std::pow(worldPos.x() * worldPos.x() + worldPos.y() * worldPos.y(), 0.5);
 
@@ -252,8 +252,8 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
         if (fpEventAction->decayPos.find(parentID) == fpEventAction->decayPos.end())
         {
           // parent ID not found, is first product, pick new position and save
-          G4double newX = (G4UniformRand() * .00017 * 2) - .00017;
-          G4double newZ = (G4UniformRand() * .00017 * 2) - .00017;
+          G4double newX = (G4UniformRand() * .00015 * 2) - .00015;
+          G4double newZ = (G4UniformRand() * .00015 * 2) - .00015;
 
           G4double radius = std::pow(worldPos.x() * worldPos.x() + worldPos.y() * worldPos.y(), 0.5);
           G4double newY = radius - fDetector->R[step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo()];
@@ -296,13 +296,13 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
 
       G4ThreeVector postStepBox = entryPosition + (fpEventAction->particleDist)[step->GetTrack()->GetTrackID()] + delta; // post step position in box frame
 
-      if ((std::abs(postStepBox.x()) >= 0.00017) || (std::abs(postStepBox.y()) >= 0.00017) || (std::abs(postStepBox.z()) >= 0.00017)) // if >=0.00017 has crossed the boundary
+      if ((std::abs(postStepBox.x()) >= 0.00015) || (std::abs(postStepBox.y()) >= 0.00015) || (std::abs(postStepBox.z()) >= 0.00015)) // if >=0.00015 has crossed the boundary
       {
         // save particle, new position and distance saved
         G4ThreeVector preStepBox = entryPosition + (fpEventAction->particleDist)[step->GetTrack()->GetTrackID()]; // pre step point position in box frame
 
         G4double distanceToExit = calculateDistanceToExitBox(preStepBox, boxMomentumPre);
-        if (std::abs(preStepBox.y()) >= 0.00017)
+        if (std::abs(preStepBox.y()) >= 0.00015)
         {
           return;
         }
@@ -311,8 +311,8 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
         // exit y
         // update start position to y exit point and zero distance travelled, in case scattering changes direction
         {
-          G4double tYneg = (-.00017 - preStepBox.y()) / boxMomentumPre.y();
-          G4double tYpos = (.00017 - preStepBox.y()) / boxMomentumPre.y();
+          G4double tYneg = (-.00015 - preStepBox.y()) / boxMomentumPre.y();
+          G4double tYpos = (.00015 - preStepBox.y()) / boxMomentumPre.y();
           tYneg = tYneg > 0 ? tYneg : DBL_MAX;
           tYpos = tYpos > 0 ? tYpos : DBL_MAX;
 
@@ -335,15 +335,15 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
           G4ThreeVector newPos = preStepBox + (distanceToExit * boxMomentumPre);
 
           // check which side of the box was crossed and change sign as particle is entering adjacent box
-          if (newPos.x() == 0.00017)
-            newPos.setX(-0.00017);
-          else if (newPos.x() == -0.00017)
-            newPos.setX(+0.00017);
+          if (newPos.x() == 0.00015)
+            newPos.setX(-0.00015);
+          else if (newPos.x() == -0.00015)
+            newPos.setX(+0.00015);
 
-          if (newPos.z() == 0.00017)
-            newPos.setZ(-0.00017);
-          else if (newPos.z() == -0.00017)
-            newPos.setZ(+0.00017);
+          if (newPos.z() == 0.00015)
+            newPos.setZ(-0.00015);
+          else if (newPos.z() == -0.00015)
+            newPos.setZ(+0.00015);
 
           G4double percentageOfStep = distanceToExit / stepDistance;
 
@@ -361,7 +361,7 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
           {
             G4ThreeVector restOfStep = newPos + (stepDistance - distanceToExit) * boxMomentumPre;
 
-            if ((std::abs(restOfStep.x()) < 0.00017) && (std::abs(restOfStep.y()) < 0.00017) && (std::abs(restOfStep.z()) < 0.00017))
+            if ((std::abs(restOfStep.x()) < 0.00015) && (std::abs(restOfStep.y()) < 0.00015) && (std::abs(restOfStep.z()) < 0.00015))
             {
               // remainder of step is contained in the adjacent box
               // save remainder of track travel to next box
@@ -382,8 +382,8 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
               if (distanceToExitRemainder == DBL_MAX) // exit y
               // update start position to y exit point and zero distance travelled, in case scattering changes direction
               {
-                G4double tYneg = (-.00017 - preStepBox.y()) / boxMomentumPre.y();
-                G4double tYpos = (.00017 - preStepBox.y()) / boxMomentumPre.y();
+                G4double tYneg = (-.00015 - preStepBox.y()) / boxMomentumPre.y();
+                G4double tYpos = (.00015 - preStepBox.y()) / boxMomentumPre.y();
                 tYneg = tYneg > 0 ? tYneg : DBL_MAX;
                 tYpos = tYpos > 0 ? tYpos : DBL_MAX;
 
@@ -405,15 +405,15 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
               newPos += (distanceToExitRemainder * boxMomentumPre);
 
               // check which side of the box was crossed and change sign as particle is entering adjacent box
-              if (newPos.x() == 0.00017)
-                newPos.setX(-0.00017);
-              else if (newPos.x() == -0.00017)
-                newPos.setX(+0.00017);
+              if (newPos.x() == 0.00015)
+                newPos.setX(-0.00015);
+              else if (newPos.x() == -0.00015)
+                newPos.setX(+0.00015);
 
-              if (newPos.z() == 0.00017)
-                newPos.setZ(-0.00017);
-              else if (newPos.z() == -0.00017)
-                newPos.setZ(+0.00017);
+              if (newPos.z() == 0.00015)
+                newPos.setZ(-0.00015);
+              else if (newPos.z() == -0.00015)
+                newPos.setZ(+0.00015);
 
               percentageOfStep = distanceToExitRemainder / stepDistance;
 
@@ -509,14 +509,14 @@ G4ThreeVector SteppingAction::transformDirection(G4ThreeVector position, G4Three
 G4double SteppingAction::calculateDistanceToExitBox(G4ThreeVector preStepPosition, G4ThreeVector preStepMomentumDirection)
 {
   // does step exit box in x and z?
-  G4double tXneg = (-.00017 - preStepPosition.x()) / preStepMomentumDirection.x();
-  G4double tXpos = (.00017 - preStepPosition.x()) / preStepMomentumDirection.x();
+  G4double tXneg = (-.00015 - preStepPosition.x()) / preStepMomentumDirection.x();
+  G4double tXpos = (.00015 - preStepPosition.x()) / preStepMomentumDirection.x();
 
-  G4double tYneg = (-.00017 - preStepPosition.y()) / preStepMomentumDirection.y();
-  G4double tYpos = (.00017 - preStepPosition.y()) / preStepMomentumDirection.y();
+  G4double tYneg = (-.00015 - preStepPosition.y()) / preStepMomentumDirection.y();
+  G4double tYpos = (.00015 - preStepPosition.y()) / preStepMomentumDirection.y();
 
-  G4double tZneg = (-.00017 - preStepPosition.z()) / preStepMomentumDirection.z();
-  G4double tZpos = (.00017 - preStepPosition.z()) / preStepMomentumDirection.z();
+  G4double tZneg = (-.00015 - preStepPosition.z()) / preStepMomentumDirection.z();
+  G4double tZpos = (.00015 - preStepPosition.z()) / preStepMomentumDirection.z();
 
   tXneg = tXneg > 0 ? tXneg : DBL_MAX;
   tXpos = tXpos > 0 ? tXpos : DBL_MAX;

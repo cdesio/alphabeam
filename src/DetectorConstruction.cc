@@ -99,7 +99,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   G4Material *air = G4NistManager::Instance()->FindOrBuildMaterial("G4_AIR");
 
   G4double nucleusSize = 300*nm;
-  G4double margin = 20*nm;
+  G4double margin = 0*nm;
 
   G4Box *solidWorld = new G4Box("world", 100 * mm, 100 * mm, 100 * mm);
 
