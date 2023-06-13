@@ -80,8 +80,8 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
 
   // if (step->GetTrack()->GetCreatorProcess() != nullptr)
   // {
-  //   G4cout << particleName << " Track ID = " << step->GetTrack()->GetTrackID() << " creator process = " << step->GetTrack()->GetCreatorProcess()->GetProcessName() << " KE = " << step->GetPreStepPoint()->GetKineticEnergy() << " parent = " << step->GetTrack()->GetParentID() << "position = " << step->GetPreStepPoint()->GetPosition() << ", process = " << step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() << G4endl;
-  //   // G4cout << particleName << " " << step->GetPreStepPoint()->GetKineticEnergy() << " " << step->GetPostStepPoint()->GetPhysicalVolume()->GetName() << " " << step->GetPostStepPoint()->GetPosition()<< G4endl;
+    // G4cout << particleName << " Track ID = " << step->GetTrack()->GetTrackID() << " creator process = " << step->GetTrack()->GetCreatorProcess()->GetProcessName() << " KE = " << step->GetPreStepPoint()->GetKineticEnergy() << " parent = " << step->GetTrack()->GetParentID() << "position = " << step->GetPreStepPoint()->GetPosition() << ", process = " << step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() << " " << fpEventAction->parentParticle[step->GetTrack()->GetParentID()] << G4endl;
+    // G4cout << particleName << " " << step->GetPreStepPoint()->GetKineticEnergy() << " " << step->GetPostStepPoint()->GetPhysicalVolume()->GetName() << " " << step->GetPostStepPoint()->GetPosition()<< G4endl;
   // }
 
   G4int TrackID = step->GetTrack()->GetTrackID();
@@ -92,11 +92,18 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
     {
       if (G4StrUtil::contains(particleName, "[")) // to catch excited states
       {
-      fpEventAction->parentParticle.insert(std::pair<G4int, G4int>(TrackID, particleMap[particleName.substr(0, 5)])); 
+        fpEventAction->parentParticle.insert(std::pair<G4int, G4int>(TrackID, particleOriginMap[particleName.substr(0, 5)]));
+      }
+      if ((particleName == "e-") || (particleName == "gamma") || (particleName == "alpha") || (particleName == "e+")) // save product and parent names
+      {
+        G4String parentName = reverseParticleOriginMap[fpEventAction->parentParticle[step->GetTrack()->GetParentID()]];
+        G4String combinedName = particleName + parentName;
+
+        fpEventAction->parentParticle.insert(std::pair<G4int, G4int>(TrackID, particleOriginMap[combinedName]));
       }
       else
       {
-      fpEventAction->parentParticle.insert(std::pair<G4int, G4int>(TrackID, particleMap[particleName])); // excited nuclei will be saved as 0, but but will not be used
+        fpEventAction->parentParticle.insert(std::pair<G4int, G4int>(TrackID, particleOriginMap[particleName]));
       }
     }
     else
@@ -174,47 +181,47 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
   // Save per nuclei activity
   if ((step->GetPreStepPoint()->GetKineticEnergy() == 0) && (G4StrUtil::contains(particleName, "Ra224")))
   {
-      analysisManager->FillH1(1, step->GetPostStepPoint()->GetGlobalTime()/day, 1);
+    analysisManager->FillH1(1, step->GetPostStepPoint()->GetGlobalTime() / day, 1);
   }
   if ((step->GetPreStepPoint()->GetKineticEnergy() == 0) && (volumeNamePre != "seed"))
   {
     if (G4StrUtil::contains(particleName, "Rn220"))
     {
-      analysisManager->FillH1(2, step->GetPostStepPoint()->GetGlobalTime()/day, 1);
+      analysisManager->FillH1(2, step->GetPostStepPoint()->GetGlobalTime() / day, 1);
     }
     if (G4StrUtil::contains(particleName, "Po216"))
     {
-      analysisManager->FillH1(3, step->GetPostStepPoint()->GetGlobalTime()/day, 1);
+      analysisManager->FillH1(3, step->GetPostStepPoint()->GetGlobalTime() / day, 1);
     }
-    if ((G4StrUtil::contains(particleName, "Pb212")) && (step->GetTrack()->GetTrackStatus() != fKillTrackAndSecondaries )) // Pb lost through leakage not counted
+    if ((G4StrUtil::contains(particleName, "Pb212")) && (step->GetTrack()->GetTrackStatus() != fKillTrackAndSecondaries)) // Pb lost through leakage not counted
     {
-      analysisManager->FillH1(4, step->GetPostStepPoint()->GetGlobalTime()/day, 1);
+      analysisManager->FillH1(4, step->GetPostStepPoint()->GetGlobalTime() / day, 1);
     }
     if (G4StrUtil::contains(particleName, "Bi212"))
     {
-      analysisManager->FillH1(5, step->GetPostStepPoint()->GetGlobalTime()/day, 1);
+      analysisManager->FillH1(5, step->GetPostStepPoint()->GetGlobalTime() / day, 1);
     }
     if (G4StrUtil::contains(particleName, "Po212"))
     {
-      analysisManager->FillH1(6, step->GetPostStepPoint()->GetGlobalTime()/day, 1);
+      analysisManager->FillH1(6, step->GetPostStepPoint()->GetGlobalTime() / day, 1);
     }
     if (G4StrUtil::contains(particleName, "Tl208"))
     {
-      analysisManager->FillH1(7, step->GetPostStepPoint()->GetGlobalTime()/day, 1);
+      analysisManager->FillH1(7, step->GetPostStepPoint()->GetGlobalTime() / day, 1);
     }
   }
   // Calculate dose for all rings
   if (volumeNamePre == "cell")
   {
     G4double radius = fDetector->R[step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo()] / um;
-    G4double edep = step->GetTotalEnergyDeposit()/joule;
+    G4double edep = step->GetTotalEnergyDeposit() / joule;
 
-    G4double OutR = (radius + .150)*1e-6; //m
-    G4double InR = (radius - .150)*1e-6; //m
+    G4double OutR = (radius + .150) * 1e-6; // m
+    G4double InR = (radius - .150) * 1e-6;  // m
 
     G4double volumeCylinder = (3.14159 * 6e-3 * (OutR * OutR - InR * InR));
-    G4double density = 1000; //water
-    G4double massCylinder = density*volumeCylinder;
+    G4double density = 1000; // water
+    G4double massCylinder = density * volumeCylinder;
 
     analysisManager->FillH1(0, radius, edep / massCylinder);
   }
@@ -489,7 +496,7 @@ void SteppingAction::savePoint(const G4Track *track, G4ThreeVector newPos, G4Thr
   PSfile.write((char *)&output, sizeof(output));
   fpEventAction->tracks.push_back(track->GetTrackID());
 
-  // G4cout << particleName << " saved at = " << newPos / mm << " with KE = " << particleEnergy << " with momentum " << boxMomentum << " TracKID = " << track->GetTrackID() << G4endl;
+  // G4cout << particleName << " saved at = " << newPos / mm << " with KE = " << particleEnergy << " with momentum " << boxMomentum << " TracKID = " << track->GetTrackID() << " originParticle "<< originParticle << G4endl;
 }
 
 G4ThreeVector SteppingAction::transformDirection(G4ThreeVector position, G4ThreeVector worldMomentum)
