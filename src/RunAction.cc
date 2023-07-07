@@ -91,7 +91,6 @@ void RunAction::BeginOfRunAction(const G4Run *)
     analysisManager->CreateNtupleDColumn("Rn220Desorption");
     analysisManager->CreateNtupleDColumn("Pb212Desorption");
     analysisManager->CreateNtupleDColumn("Pb212Leakage");
-    analysisManager->CreateNtupleDColumn("Ra224Activty");
     analysisManager->FinishNtuple(0);
 
     analysisManager->CreateH1("0", "dose", 5000, 0, 5000);
@@ -125,7 +124,6 @@ void RunAction::EndOfRunAction(const G4Run *run)
     G4double PbNoLeakage = fpEventAction->getPbNoLeakage();
     G4cout << "Leakage of Pb212 from is " << PbLeakage / (PbLeakage + PbNoLeakage) * 100 << "%, value depends on tumour size" << G4endl;
 
-    G4cout << "Activity of Radium 224 = " << numPrimaries / (fpEventAction->getTotalRaDecayTime() / s) << " s-1" << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -156,7 +154,6 @@ void RunAction::Write(const G4Run* run)
     analysisManager->FillNtupleDColumn(0,6, 1 - RnDesorptionIN / numPrimaries);
     analysisManager->FillNtupleDColumn(0,7, 1 - PbDesorptionIN / numPrimaries);
     analysisManager->FillNtupleDColumn(0,8, PbLeakage / (PbLeakage + PbNoLeakage));
-    analysisManager->FillNtupleDColumn(0,9, numPrimaries / (fpEventAction->getTotalRaDecayTime() / s));
 
     analysisManager->AddNtupleRow(0);
 
