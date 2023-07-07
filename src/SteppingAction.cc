@@ -196,7 +196,7 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
     {
       analysisManager->FillH1(3, step->GetPostStepPoint()->GetGlobalTime() / day, 1);
     }
-    if (particleName == "Pb212")) && (step->GetTrack()->GetTrackStatus() != fKillTrackAndSecondaries)) // Pb lost through leakage not counted
+    if ((particleName == "Pb212") && (step->GetTrack()->GetTrackStatus() != fKillTrackAndSecondaries)) // Pb lost through leakage not counted
     {
       analysisManager->FillH1(4, step->GetPostStepPoint()->GetGlobalTime() / day, 1);
     }
