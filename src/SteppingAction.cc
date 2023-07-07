@@ -126,7 +126,6 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
   {
     fpEventAction->addDecayTimeRa(step->GetPostStepPoint()->GetGlobalTime());
   }
-
   if ((particleName == "Rn220") && (step->GetPreStepPoint()->GetKineticEnergy() == 0))
   {
     // Desorption from the source through recoil only
@@ -148,7 +147,12 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
   {
     if (step->GetPreStepPoint()->GetPhysicalVolume()->GetName() != "seed")
     {
-      if (G4UniformRand() >= 0.5)
+      G4double alpha = 0.6931471806/(10.64*60*60); // clearance rate for Pb due to vascular routes, equal to lambda pb resulting in a leakage of 50% Phys. Med. Biol. 65 (2020)  
+      G4double leakTime = step->GetPostStepPoint()->GetLocalTime()/s;
+      G4double p = alpha*leakTime;
+      p = std::pow(2.718, -1*p);
+
+      if (p <= G4UniformRand())
       {
         step->GetTrack()->SetTrackStatus(fKillTrackAndSecondaries);
         fpEventAction->addPbLeakage();
@@ -165,7 +169,6 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
     step->GetTrack()->SetTrackStatus(fKillTrackAndSecondaries);
     return;
   }
-
   CommandLineParser *parser = CommandLineParser::GetParser();
   Command *command(0);
 
@@ -179,52 +182,38 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
   G4AnalysisManager *analysisManager = G4AnalysisManager::Instance();
 
   // Save per nuclei activity
-  if ((step->GetPreStepPoint()->GetKineticEnergy() == 0) && (G4StrUtil::contains(particleName, "Ra224")))
+  if ((step->GetPreStepPoint()->GetKineticEnergy() == 0) && (particleName == "Ra224"))
   {
     analysisManager->FillH1(1, step->GetPostStepPoint()->GetGlobalTime() / day, 1);
   }
   if ((step->GetPreStepPoint()->GetKineticEnergy() == 0) && (volumeNamePre != "seed"))
   {
-    if (G4StrUtil::contains(particleName, "Rn220"))
+    if (particleName == "Rn220") 
     {
       analysisManager->FillH1(2, step->GetPostStepPoint()->GetGlobalTime() / day, 1);
     }
-    if (G4StrUtil::contains(particleName, "Po216"))
+    if (particleName == "Po216")
     {
       analysisManager->FillH1(3, step->GetPostStepPoint()->GetGlobalTime() / day, 1);
     }
-    if ((G4StrUtil::contains(particleName, "Pb212")) && (step->GetTrack()->GetTrackStatus() != fKillTrackAndSecondaries)) // Pb lost through leakage not counted
+    if (particleName == "Pb212")) && (step->GetTrack()->GetTrackStatus() != fKillTrackAndSecondaries)) // Pb lost through leakage not counted
     {
       analysisManager->FillH1(4, step->GetPostStepPoint()->GetGlobalTime() / day, 1);
     }
-    if (G4StrUtil::contains(particleName, "Bi212"))
+    if (particleName == "Bi212")
     {
       analysisManager->FillH1(5, step->GetPostStepPoint()->GetGlobalTime() / day, 1);
     }
-    if (G4StrUtil::contains(particleName, "Po212"))
+    if (particleName == "Po212")
     {
       analysisManager->FillH1(6, step->GetPostStepPoint()->GetGlobalTime() / day, 1);
     }
-    if (G4StrUtil::contains(particleName, "Tl208"))
+    if (particleName == "Tl208")
     {
       analysisManager->FillH1(7, step->GetPostStepPoint()->GetGlobalTime() / day, 1);
     }
   }
-  // Calculate dose for all rings
-  if (volumeNamePre == "cell")
-  {
-    G4double radius = fDetector->R[step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo()] / um;
-    G4double edep = step->GetTotalEnergyDeposit() / joule;
 
-    G4double OutR = (radius + .150) * 1e-6; // m
-    G4double InR = (radius - .150) * 1e-6;  // m
-
-    G4double volumeCylinder = (3.14159 * 6e-3 * (OutR * OutR - InR * InR));
-    G4double density = 1000; // water
-    G4double massCylinder = density * volumeCylinder;
-
-    analysisManager->FillH1(0, radius, edep / massCylinder);
-  }
 
   // save all steps entering rings
   if ((volumeNamePre == "water") && (step->GetPostStepPoint()->GetPhysicalVolume()->GetName() == "cell"))
@@ -455,7 +444,22 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
       }
     }
   }
-  // }
+
+  // Calculate dose for all rings
+  if (volumeNamePre == "cell")
+  {
+    G4double radius = fDetector->R[step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo()] / um;
+    G4double edep = step->GetTotalEnergyDeposit() / joule;
+
+    G4double OutR = (radius + .150) * 1e-6; // m
+    G4double InR = (radius - .150) * 1e-6;  // m
+
+    G4double volumeCylinder = (3.14159 * 6e-3 * (OutR * OutR - InR * InR));
+    G4double density = 1000; // water
+    G4double massCylinder = density * volumeCylinder;
+
+    analysisManager->FillH1(0, radius, edep / massCylinder);
+  }
 }
 
 void SteppingAction::savePoint(const G4Track *track, G4ThreeVector newPos, G4ThreeVector boxMomentum, const int copy, G4double particleEnergy, G4double time, G4int originParticle)
