@@ -147,10 +147,10 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
   {
     if (step->GetPreStepPoint()->GetPhysicalVolume()->GetName() != "seed")
     {
-      G4double alpha = 0.6931471806/(10.64*60*60); // clearance rate for Pb due to vascular routes, equal to lambda pb resulting in a leakage of 50% Phys. Med. Biol. 65 (2020)  
-      G4double leakTime = step->GetPostStepPoint()->GetLocalTime()/s;
-      G4double p = alpha*leakTime;
-      p = std::pow(2.718, -1*p);
+      G4double alpha = 0.6931471806 / (10.64 * 60 * 60); // clearance rate for Pb due to vascular routes, equal to lambda pb resulting in a leakage of 50% Phys. Med. Biol. 65 (2020)
+      G4double leakTime = step->GetPostStepPoint()->GetLocalTime() / s;
+      G4double p = alpha * leakTime;
+      p = std::pow(2.718, -1 * p);
 
       if (p <= G4UniformRand())
       {
@@ -181,6 +181,13 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
   G4String volumeNamePre = step->GetPreStepPoint()->GetPhysicalVolume()->GetName();
   G4AnalysisManager *analysisManager = G4AnalysisManager::Instance();
 
+  // remove alphas which do not escape the seed from dose calculation as in Arazi Phys. Med. Biol. 65 (2020)
+
+  if ((step->GetPreStepPoint()->GetPhysicalVolume()->GetName() == "seed") && (G4StrUtil::contains(particleName, "alpha")))
+  {
+    step->GetTrack()->SetTrackStatus(fKillTrackAndSecondaries);
+    return;
+  }
   // Save per nuclei activity
   if ((step->GetPreStepPoint()->GetKineticEnergy() == 0) && (particleName == "Ra224"))
   {
@@ -188,7 +195,7 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
   }
   if ((step->GetPreStepPoint()->GetKineticEnergy() == 0) && (volumeNamePre != "seed"))
   {
-    if (particleName == "Rn220") 
+    if (particleName == "Rn220")
     {
       analysisManager->FillH1(2, step->GetPostStepPoint()->GetGlobalTime() / day, 1);
     }
@@ -213,7 +220,6 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
       analysisManager->FillH1(7, step->GetPostStepPoint()->GetGlobalTime() / day, 1);
     }
   }
-
 
   // save all steps entering rings
   if ((volumeNamePre == "water") && (step->GetPostStepPoint()->GetPhysicalVolume()->GetName() == "cell"))
@@ -445,20 +451,27 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
     }
   }
 
-  // Calculate dose for all rings
+  // Calculate dose for all rings - assuming all deposition at a point and only from alphas like Arazi Phys. Med. Biol. 65 (2020)
   if (volumeNamePre == "cell")
+  // if ((step->IsFirstStepInVolume( ))&&(volumeNamePre == "cell")&&(particleName=="alpha"))
   {
     G4double radius = fDetector->R[step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo()] / um;
+    // G4double edep = step->GetPreStepPoint()->GetKineticEnergy() / joule;
     G4double edep = step->GetTotalEnergyDeposit() / joule;
 
     G4double OutR = (radius + .150) * 1e-6; // m
     G4double InR = (radius - .150) * 1e-6;  // m
 
-    G4double volumeCylinder = (3.14159 * 6e-3 * (OutR * OutR - InR * InR));
+    // G4cout << OutR << G4endl;
+    // G4cout << InR << G4endl;
+    G4double volumeSphere = ((4. / 3.) * 3.14159 * (OutR * OutR * OutR - InR * InR * InR));
     G4double density = 1000; // water
-    G4double massCylinder = density * volumeCylinder;
+    G4double massSphere = density * volumeSphere;
 
-    analysisManager->FillH1(0, radius, edep / massCylinder);
+    if ((fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==9)||(fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==10)||(fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==11)||(fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==12))
+    {
+    analysisManager->FillH1(0, radius, edep/massSphere);
+    }
   }
 }
 

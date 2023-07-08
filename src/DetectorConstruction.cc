@@ -32,8 +32,8 @@
 #include "globals.hh"
 #include "G4LogicalVolume.hh"
 #include "G4Box.hh"
-#include "G4Tubs.hh"
 #include "G4Orb.hh"
+#include "G4Sphere.hh"
 #include "G4VisAttributes.hh"
 #include "G4NistManager.hh"
 #include <G4SystemOfUnits.hh>
@@ -105,9 +105,8 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
 
   G4Box *solidWater = new G4Box("water", 10 * mm, 10 * mm, 10 * mm); // reduce x/y size of volume where particles are tracked
 
-  G4Tubs *solidSeed = new G4Tubs("seed", 0., 0.15 * mm, 3 * mm, 0, 360 * degree);
-  // G4Box *solidCell = new G4Box("cell", nucleusSize/2+ margin, nucleusSize/2 + margin, nucleusSize/2+ margin);
-  // G4Box *solidNucleus = new G4Box("nucleus", nucleusSize/2, nucleusSize/2, nucleusSize/2);
+  G4Orb *solidSeed = new G4Orb("seed", 0.5 * um);
+
 
   G4LogicalVolume *logicWorld = new G4LogicalVolume(solidWorld,
                                                     air,
@@ -165,7 +164,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
 
   for (G4int r = 0; r < R.size(); ++r)
   {
-        G4Tubs *solidCell = new G4Tubs("cell", R[r]-(nucleusSize/2+ margin), R[r]+(nucleusSize/2+ margin), 3 * mm, 0, 360 * degree);
+        G4Sphere *solidCell = new G4Sphere("cell", R[r]-(nucleusSize/2), R[r]+(nucleusSize/2), 0, 360*deg, 0, 180*deg);
 
         G4LogicalVolume *logicCell = new G4LogicalVolume(solidCell,
                                                          waterMaterial,
