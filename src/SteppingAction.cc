@@ -122,10 +122,6 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
     return;
   }
 
-  if ((particleName == "Ra224") && (step->GetPostStepPoint()->GetProcessDefinedStep()->GetProcessName() == "RadioactiveDecay"))
-  {
-    fpEventAction->addDecayTimeRa(step->GetPostStepPoint()->GetGlobalTime());
-  }
   if ((particleName == "Rn220") && (step->GetPreStepPoint()->GetKineticEnergy() == 0))
   {
     // Desorption from the source through recoil only
@@ -218,6 +214,29 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
     if (particleName == "Tl208")
     {
       analysisManager->FillH1(7, step->GetPostStepPoint()->GetGlobalTime() / day, 1);
+    }
+  }
+
+  // Calculate dose for all rings - assuming all deposition at a point and only from alphas like Arazi Phys. Med. Biol. 65 (2020)
+  if (volumeNamePre == "cell")
+  // if ((step->IsFirstStepInVolume( ))&&(volumeNamePre == "cell")&&(particleName=="alpha"))
+  {
+    G4double radius = fDetector->R[step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo()] / um;
+    // G4double edep = step->GetPreStepPoint()->GetKineticEnergy() / joule;
+    G4double edep = step->GetTotalEnergyDeposit() / joule;
+
+    G4double OutR = (radius + .150) * 1e-6; // m
+    G4double InR = (radius - .150) * 1e-6;  // m
+
+    // G4cout << OutR << G4endl;
+    // G4cout << InR << G4endl;
+    G4double volumeSphere = ((4. / 3.) * 3.14159 * (OutR * OutR * OutR - InR * InR * InR));
+    G4double density = 1000; // water
+    G4double massSphere = density * volumeSphere;
+
+    if ((fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==9)||(fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==10)||(fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==11)||(fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==12))
+    {
+    analysisManager->FillH1(0, radius, edep/massSphere);
     }
   }
 
@@ -451,28 +470,7 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
     }
   }
 
-  // Calculate dose for all rings - assuming all deposition at a point and only from alphas like Arazi Phys. Med. Biol. 65 (2020)
-  if (volumeNamePre == "cell")
-  // if ((step->IsFirstStepInVolume( ))&&(volumeNamePre == "cell")&&(particleName=="alpha"))
-  {
-    G4double radius = fDetector->R[step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo()] / um;
-    // G4double edep = step->GetPreStepPoint()->GetKineticEnergy() / joule;
-    G4double edep = step->GetTotalEnergyDeposit() / joule;
 
-    G4double OutR = (radius + .150) * 1e-6; // m
-    G4double InR = (radius - .150) * 1e-6;  // m
-
-    // G4cout << OutR << G4endl;
-    // G4cout << InR << G4endl;
-    G4double volumeSphere = ((4. / 3.) * 3.14159 * (OutR * OutR * OutR - InR * InR * InR));
-    G4double density = 1000; // water
-    G4double massSphere = density * volumeSphere;
-
-    if ((fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==9)||(fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==10)||(fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==11)||(fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==12))
-    {
-    analysisManager->FillH1(0, radius, edep/massSphere);
-    }
-  }
 }
 
 void SteppingAction::savePoint(const G4Track *track, G4ThreeVector newPos, G4ThreeVector boxMomentum, const int copy, G4double particleEnergy, G4double time, G4int originParticle)
