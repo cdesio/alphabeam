@@ -234,10 +234,10 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
     G4double density = 1000; // water
     G4double massSphere = density * volumeSphere;
 
-    if ((fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==9)||(fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==10)||(fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==11)||(fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==12))
-    {
+    // if ((fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==9)||(fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==10)||(fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==11)||(fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==12))
+    // {
     analysisManager->FillH1(0, radius, edep/massSphere);
-    }
+    // }
   }
 
   // save all steps entering rings
