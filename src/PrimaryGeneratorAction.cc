@@ -67,14 +67,14 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   numParticles++;
 
   G4double wirePosition = 6*mm; 
-  G4double wireRadius = 0.5*um;
+  G4double wireRadius = 0.15*mm;
   G4double zPos = (G4UniformRand() - 0.5) * wirePosition;
   G4double DummyAngle = G4UniformRand() * 2 * 3.1415926535;
   G4double depth = 0.15*nm; //depth reported to be 5-20 nm deep, but recoil in Geant4 is only 1nm (geometric distance) so the Radon would never leave the source. Reported desorption percentages are 40% for Rn and 55% for Pb. Depth chosen as a compromise between these values.
   G4double xPos = (wireRadius-depth)*cos(DummyAngle);
   G4double yPos = (wireRadius-depth)*sin(DummyAngle);
 
-  fParticleGun->SetParticlePosition(G4ThreeVector(0,0,wireRadius - depth));   
+  fParticleGun->SetParticlePosition(G4ThreeVector(xPos,yPos,zPos));   
   fParticleGun->GeneratePrimaryVertex(anEvent);
 
 }
