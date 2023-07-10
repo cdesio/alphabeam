@@ -1489,7 +1489,7 @@ G4ThreeVector G4RadioactiveDecay::calculateDiffusion(const G4double diffusionTim
             G4double distWaterDiff = abs(G4RandGauss::shoot(0, sqrt(6 * Dwater * diffusionTime / s)));
             changePosition = distWaterDiff * direction;
 
-            G4cout << "Never crosses seed " << startVolume << G4endl;
+            // G4cout << "Never crosses seed " << startVolume << G4endl;
         }
         else
         {
