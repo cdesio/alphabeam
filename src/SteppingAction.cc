@@ -179,11 +179,11 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
 
   // remove alphas which do not escape the seed from dose calculation as in Arazi Phys. Med. Biol. 65 (2020)
 
-  if ((step->GetPreStepPoint()->GetPhysicalVolume()->GetName() == "seed") && (G4StrUtil::contains(particleName, "alpha")))
-  {
-    step->GetTrack()->SetTrackStatus(fKillTrackAndSecondaries);
-    return;
-  }
+  // if ((step->GetPreStepPoint()->GetPhysicalVolume()->GetName() == "seed") && (G4StrUtil::contains(particleName, "alpha")))
+  // {
+  //   step->GetTrack()->SetTrackStatus(fKillTrackAndSecondaries);
+  //   return;
+  // }
   // Save per nuclei activity
   if ((step->GetPreStepPoint()->GetKineticEnergy() == 0) && (particleName == "Ra224"))
   {
