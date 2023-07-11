@@ -177,39 +177,6 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
   G4String volumeNamePre = step->GetPreStepPoint()->GetPhysicalVolume()->GetName();
   G4AnalysisManager *analysisManager = G4AnalysisManager::Instance();
 
-  // Save per nuclei activity
-  if ((step->GetPreStepPoint()->GetKineticEnergy() == 0) && (particleName == "Ra224"))
-  {
-    analysisManager->FillH1(1, step->GetPostStepPoint()->GetGlobalTime() / day, 1);
-  }
-  if ((step->GetPreStepPoint()->GetKineticEnergy() == 0) && (volumeNamePre != "seed"))
-  {
-    if (particleName == "Rn220")
-    {
-      analysisManager->FillH1(2, step->GetPostStepPoint()->GetGlobalTime() / day, 1);
-    }
-    if (particleName == "Po216")
-    {
-      analysisManager->FillH1(3, step->GetPostStepPoint()->GetGlobalTime() / day, 1);
-    }
-    if ((particleName == "Pb212") && (step->GetTrack()->GetTrackStatus() != fKillTrackAndSecondaries)) // Pb lost through leakage not counted
-    {
-      analysisManager->FillH1(4, step->GetPostStepPoint()->GetGlobalTime() / day, 1);
-    }
-    if (particleName == "Bi212")
-    {
-      analysisManager->FillH1(5, step->GetPostStepPoint()->GetGlobalTime() / day, 1);
-    }
-    if (particleName == "Po212")
-    {
-      analysisManager->FillH1(6, step->GetPostStepPoint()->GetGlobalTime() / day, 1);
-    }
-    if (particleName == "Tl208")
-    {
-      analysisManager->FillH1(7, step->GetPostStepPoint()->GetGlobalTime() / day, 1);
-    }
-  }
-
   // Calculate dose for all rings
   if (volumeNamePre == "cell")
   {
@@ -224,10 +191,22 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
     G4double density = 1000; // water
     G4double massCylinder = density * volumeCylinder;
 
-    // if ((fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==9)||(fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==10)||(fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==11)||(fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==12))
-    // {
     analysisManager->FillH1(0, radius, edep/massCylinder);
-    // }
+
+    if (fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==8)
+    analysisManager->FillH1(1, radius, edep/massCylinder);
+
+    if (fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==9)
+    analysisManager->FillH1(2, radius, edep/massCylinder);
+
+    if (fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==10)
+    analysisManager->FillH1(3, radius, edep/massCylinder);
+
+    if (fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==11)
+    analysisManager->FillH1(4, radius, edep/massCylinder);
+
+    if (fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==12)
+    analysisManager->FillH1(5, radius, edep/massCylinder);
   }
 
   // save all steps entering rings
