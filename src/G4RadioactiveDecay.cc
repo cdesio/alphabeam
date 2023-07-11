@@ -1284,11 +1284,10 @@ void G4RadioactiveDecay::DecayAnalog(const G4Track &theTrack)
     {
         changePosition = calculateDiffusion(finalLocalTime, 1.22e-5, theTrack); // mm2 s-1
     }
-    // if ((numberOfSecondaries > 0) && (theTrack.GetParticleDefinition()->GetParticleName()=="Bi212"))
-    // {
-        // changePosition = calculateDiffusion(finalLocalTime, 0, theTrack); // mm2 s-1
-                                                                                 // G4cout << "position before diffusion" << theTrack.GetPosition() << G4endl;
-    // }
+    if ((numberOfSecondaries > 0) && (theTrack.GetParticleDefinition()->GetParticleName()=="Bi212"))
+    {
+        changePosition = calculateDiffusion(finalLocalTime, 6.78e-7, theTrack); // mm2 s-1
+    }
 
     for (G4int index = 0; index < numberOfSecondaries; ++index)
     {
