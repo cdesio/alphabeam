@@ -94,11 +94,6 @@ void RunAction::BeginOfRunAction(const G4Run *)
     analysisManager->FinishNtuple(0);
 
     analysisManager->CreateH1("0", "dose", 5000, 0, 5000);
-    analysisManager->CreateH1("1", "doseAlphaRa224", 5000, 0, 5000);
-    analysisManager->CreateH1("2", "doseAlphaRn220", 5000, 0, 5000);
-    analysisManager->CreateH1("3", "doseAlphaPo216", 5000, 0, 5000);
-    analysisManager->CreateH1("4", "doseAlphaBi212", 5000, 0, 5000);
-    analysisManager->CreateH1("5", "doseAlphaPo212", 5000, 0, 5000);
 
 
 

@@ -192,21 +192,6 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
     G4double massCylinder = density * volumeCylinder;
 
     analysisManager->FillH1(0, radius, edep/massCylinder);
-
-    if (fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==8)
-    analysisManager->FillH1(1, radius, edep/massCylinder);
-
-    if (fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==9)
-    analysisManager->FillH1(2, radius, edep/massCylinder);
-
-    if (fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==10)
-    analysisManager->FillH1(3, radius, edep/massCylinder);
-
-    if (fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==11)
-    analysisManager->FillH1(4, radius, edep/massCylinder);
-
-    if (fpEventAction->parentParticle[step->GetTrack()->GetTrackID()]==12)
-    analysisManager->FillH1(5, radius, edep/massCylinder);
   }
 
   // save all steps entering rings
