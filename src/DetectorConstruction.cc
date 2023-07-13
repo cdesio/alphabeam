@@ -108,7 +108,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   G4Tubs *solidSeed = new G4Tubs("seed", 0., 0.15 * mm, 3 * mm, 0, 360 * degree);
   // G4Box *solidCell = new G4Box("cell", nucleusSize/2+ margin, nucleusSize/2 + margin, nucleusSize/2+ margin);
   // G4Box *solidNucleus = new G4Box("nucleus", nucleusSize/2, nucleusSize/2, nucleusSize/2);
-
+  G4Box *solidCell = new G4Box("cell", nucleusSize/2+ margin, nucleusSize/2 + margin, nucleusSize/2+ margin);
   G4LogicalVolume *logicWorld = new G4LogicalVolume(solidWorld,
                                                     air,
                                                     "world");
@@ -165,24 +165,36 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
 
   for (G4int r = 0; r < R.size(); ++r)
   {
-        G4Tubs *solidCell = new G4Tubs("cell", R[r]-(nucleusSize/2+ margin), R[r]+(nucleusSize/2+ margin), 3 * mm, 0, 360 * degree);
-
+    G4int numCells{0};
+    for (G4int z = -3000; z <= 3000; z += 1)
+    {
+      for (G4int idx = 0; idx < numberRadialDivisions; idx++)
+      {
+        G4double theta = idx * 2*3.14159/numberRadialDivisions;
         G4LogicalVolume *logicCell = new G4LogicalVolume(solidCell,
                                                          waterMaterial,
                                                          "cell");
-        logicCell->SetUserLimits(fStepLimit);
-        logicCell->SetVisAttributes(&visRed);
 
-        G4PVPlacement *physiCell = new G4PVPlacement(0,
-                                                     G4ThreeVector(),
+        G4RotationMatrix* rot = new G4RotationMatrix(-1*theta, 
+                                              0,
+                                              0) ;
+
+        G4PVPlacement *physiCell = new G4PVPlacement(rot,
+                                                     G4ThreeVector(R[r] * sin(theta), R[r] * cos(theta), z * micrometer),
                                                      logicCell,
                                                      "cell",
                                                      logicWater,
                                                      0,
                                                      r,
                                                      0);
+
+        numCells++;
+        // logicNucleus->SetVisAttributes(&visGrey);
+        logicCell->SetVisAttributes(&visRed);
       }
-    
+    }
+  
+  }
 
   logicWorld->SetVisAttributes(&invisGrey);
   logicWater->SetVisAttributes(&invisGrey);
