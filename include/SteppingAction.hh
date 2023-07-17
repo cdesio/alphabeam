@@ -48,10 +48,10 @@ private:
   EventAction *fpEventAction;
   RunAction *fRunAction;
   std::ofstream PSfile;
-  void savePoint(const G4Track *track, G4ThreeVector worldPos, G4ThreeVector worldMomentum, const int copy, G4double KE, G4double time, G4int orignParticle);
-  G4ThreeVector transformDirection(G4ThreeVector position, G4ThreeVector worldMomentum);
+  void savePoint(const G4Track *track, const G4ThreeVector & newPos, const G4ThreeVector & boxMomentum, const G4int & copy, const G4double & particleEnergy, const G4double & time, const G4int & originParticle);
+  G4ThreeVector transformDirection(const G4ThreeVector & position, const G4ThreeVector & worldMomentum);
   DetectorConstruction *fDetector;
-  G4double calculateDistanceToExitBox(G4ThreeVector preStepPosition, G4ThreeVector preStepMomentumDirection);
+  G4double calculateDistanceToExitBox(const G4ThreeVector & preStepPosition, const G4ThreeVector & preStepMomentumDirection);
 
   std::map<G4String, G4int> particleMap{
       {"e-", 1},
