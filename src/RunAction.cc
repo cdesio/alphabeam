@@ -108,14 +108,14 @@ void RunAction::EndOfRunAction(const G4Run *run)
 
     G4int numPrimaries = run->GetNumberOfEvent();
     G4double RnDesorptionIN = fpEventAction->getRnDesorptionIN();
-    G4cout << "Desorption of Rn220 from is " << (1 - RnDesorptionIN / numPrimaries) * 100 << "%, expect 40%." << G4endl;
+    G4cout << "Desorption of Rn220 from is " << (1 - RnDesorptionIN / numPrimaries) * 100 << "%" << G4endl;
 
     G4double PbDesorptionIN = fpEventAction->getPbDesorptionIN();
-    G4cout << "Desorption of Pb212 from is " << (1 - PbDesorptionIN / numPrimaries) * 100 << "%, expect 55%." << G4endl;
+    G4cout << "Desorption of Pb212 from is " << (1 - PbDesorptionIN / numPrimaries) * 100 << "%" << G4endl;
 
     G4double PbLeakage = fpEventAction->getPbLeakage();
     G4double PbNoLeakage = fpEventAction->getPbNoLeakage();
-    G4cout << "Leakage of Pb212 from is " << PbLeakage / (PbLeakage + PbNoLeakage) * 100 << "%, value depends on tumour size" << G4endl;
+    G4cout << "Leakage of Pb212 from is " << PbLeakage / (PbLeakage + PbNoLeakage) * 100 << "%" << G4endl;
 
 }
 
