@@ -258,13 +258,40 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
           savePoint(step->GetTrack(), newPos, newMomentum, step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo(), step->GetPreStepPoint()->GetKineticEnergy(), step->GetPreStepPoint()->GetGlobalTime(), fpEventAction->parentParticle[TrackID]);
         }
       }
+      else
+      {
+        // track secondaries created in a box so they enter the adjacent box.
+        G4int parentID = step->GetTrack()->GetParentID();
+
+        G4ThreeVector worldPos = step->GetPreStepPoint()->GetPosition();
+
+        // random position for secondary in original box, will not be added to phase space file until adjacent box, where DNA is not continuous.
+
+        G4double newX = (G4UniformRand() * .00015 * 2) - .00015;
+        G4double newZ = (G4UniformRand() * .00015 * 2) - .00015;
+
+        G4double radius = std::pow(worldPos.x() * worldPos.x() + worldPos.y() * worldPos.y(), 0.5);
+        G4double newY = radius - fDetector->R[step->GetPreStepPoint()->GetPhysicalVolume()->GetCopyNo()];
+        
+        G4ThreeVector newPos = G4ThreeVector(newX, newY, newZ);
+
+        // save creation position and distance travelled
+        fpEventAction->particlePos.erase(step->GetTrack()->GetTrackID()); // erase current saved box entry position for this track
+
+        fpEventAction->particlePos.insert(std::pair<int, G4ThreeVector>(step->GetTrack()->GetTrackID(), newPos)); // add current box entry position for this track
+
+        fpEventAction->particleDist.erase(step->GetTrack()->GetTrackID());                                                  // erase distance travelled for this track in the box
+        fpEventAction->particleDist.insert(std::pair<int, G4ThreeVector>(step->GetTrack()->GetTrackID(), G4ThreeVector())); // made initial distance travelled zero
+
+        fpEventAction->tracks.push_back(step->GetTrack()->GetTrackID());
+
+      }
     }
   }
   else if ((volumeNamePre == "cell") && ((std::find(fpEventAction->tracks.begin(), fpEventAction->tracks.end(), TrackID) != fpEventAction->tracks.end())) && (particleName != "gamma")) // is a step in the cell but not first and it is a track which has previously been saved i.e. not a secondary created in the box, check if crosses virtual box boundary, if it does it is saved as if entering the box from the side faces.
   {
     if (step->GetPreStepPoint()->GetKineticEnergy() > 0)
     {
-
       G4ThreeVector entryPosition = fpEventAction->particlePos[step->GetTrack()->GetTrackID()]; // look up position in box frame from last step
 
       G4ThreeVector deltaWorld = step->GetPostStepPoint()->GetPosition() - step->GetPreStepPoint()->GetPosition(); // change in position in world frame
