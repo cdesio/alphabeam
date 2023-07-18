@@ -94,7 +94,13 @@ void RunAction::BeginOfRunAction(const G4Run *)
     analysisManager->FinishNtuple(0);
 
     analysisManager->CreateH1("0", "dose", 5000, 0, 5000);
-
+    analysisManager->CreateH1("1", "Ra224DecaySeed", 84, 0, 14);
+    analysisManager->CreateH1("2", "Rn220DecayTumour", 84, 0, 14);
+    analysisManager->CreateH1("3", "Po216DecayTumour", 84, 0, 14);
+    analysisManager->CreateH1("4", "Pb212DecayTumour", 84, 0, 14);
+    analysisManager->CreateH1("5", "Bi212DecayTumour", 84, 0, 14);
+    analysisManager->CreateH1("6", "Po212DecayTumour", 84, 0, 14);
+    analysisManager->CreateH1("7", "Tl208DecayTumour", 84, 0, 14);
 
 
 }
