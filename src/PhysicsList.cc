@@ -37,7 +37,7 @@
 #include "G4SystemOfUnits.hh"
 #include "G4UnitsTable.hh"
 
-#include "G4EmStandardPhysics.hh"
+#include "G4EmPenelopePhysics.hh"
 // #include "G4EmExtraPhysics.hh"
 #include "G4EmParameters.hh"
 #include "G4DecayPhysics.hh"
@@ -62,7 +62,7 @@
 // #include "G4IonConstructor.hh"
 // #include "G4ShortLivedConstructor.hh"
 
-// #include "G4StepLimiterPhysics.hh"
+#include "G4StepLimiterPhysics.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -71,25 +71,27 @@ PhysicsList::PhysicsList()
 {
   G4int verb = 1;
   SetVerboseLevel(verb);
+  SetDefaultCutValue(1.0*nanometer);
 
   //add new units for radioActive decays
   //
 //   new G4UnitDefinition( "millielectronVolt", "meV", "Energy", 1.e-3*eV);   
   // EM physics
-  RegisterPhysics(new G4EmStandardPhysics());
+  RegisterPhysics(new G4EmPenelopePhysics());
 
   G4EmParameters* param = G4EmParameters::Instance();
   param->SetAugerCascade(true);
-  param->SetStepFunction(1., 1*CLHEP::mm);
-  param->SetStepFunctionMuHad(1., 1*CLHEP::mm);
- 
+
+  G4ProductionCutsTable::GetProductionCutsTable()->
+    SetEnergyRange(100*eV, 1*GeV);
+
   // Decay
   RegisterPhysics(new G4DecayPhysics());
 
   // Radioactive decay
   RegisterPhysics(new G4RadioactiveDecayPhysics());
 
-  // RegisterPhysics(new G4StepLimiterPhysics());
+  RegisterPhysics(new G4StepLimiterPhysics());
             
   // Hadron Elastic scattering
   // RegisterPhysics( new G4HadronElasticPhysicsHP(verb) );

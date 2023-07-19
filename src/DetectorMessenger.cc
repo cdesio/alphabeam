@@ -39,11 +39,12 @@
 #include "G4UIcmdWithAString.hh"
 #include "G4UIcmdWithADoubleAndUnit.hh"
 #include "G4UIcmdWithoutParameter.hh"
+#include "G4UIcmdWithAnInteger.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 DetectorMessenger::DetectorMessenger(DetectorConstruction *Det)
-    : G4UImessenger(), fDetector(Det), fPosMin(0), fPosMax(0)
+    : G4UImessenger(), fDetector(Det), fPosMin(0), fPosMax(0), fNrings(0)
 {
   fPosMin = new G4UIcmdWithADoubleAndUnit("/det/cellPos_min", this);
   fPosMin->SetGuidance("Set min cell positions");
@@ -60,6 +61,20 @@ DetectorMessenger::DetectorMessenger(DetectorConstruction *Det)
   fPosMax->SetUnitCategory("Length");
   fPosMax->AvailableForStates(G4State_PreInit, G4State_Idle);
   fPosMax->SetToBeBroadcasted(false);
+
+  fNrings = new G4UIcmdWithAnInteger("/det/cellPos_Nrings", this);
+  fNrings->SetGuidance("Set number of radial cell positions");
+  fNrings->SetParameterName("Nrings", false);
+  fNrings->SetRange("Nrings>0");
+  fNrings->AvailableForStates(G4State_PreInit, G4State_Idle);
+  fNrings->SetToBeBroadcasted(false);
+
+  fNperRing = new G4UIcmdWithAnInteger("/det/cellPos_NperRing", this);
+  fNperRing->SetGuidance("Set number of cells per ring");
+  fNperRing->SetParameterName("NperRing", false);
+  fNperRing->SetRange("NperRing>0");
+  fNperRing->AvailableForStates(G4State_PreInit, G4State_Idle);
+  fNperRing->SetToBeBroadcasted(false);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -69,20 +84,30 @@ DetectorMessenger::~DetectorMessenger()
 
   delete fPosMin;
   delete fPosMax;
+  delete fNrings;
+  delete fNperRing;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void DetectorMessenger::SetNewValue(G4UIcommand *command, G4String newValue)
 {
-  if(command == fPosMin ) 
+  if (command == fPosMin)
   {
     fDetector->SetMin(fPosMin->GetNewDoubleValue(newValue));
-     }
-    if(command == fPosMax ) 
+  }
+  if (command == fPosMax)
   {
     fDetector->SetMax(fPosMax->GetNewDoubleValue(newValue));
-     }
+  }
+  if (command == fNrings)
+  {
+    fDetector->SetNrings(fNrings->GetNewIntValue(newValue));
+  }
+  if (command == fNperRing)
+  {
+    fDetector->SetNperRing(fNperRing->GetNewIntValue(newValue));
+  }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

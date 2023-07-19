@@ -41,6 +41,7 @@ class G4UIdirectory;
 class G4UIcommand;
 class G4UIcmdWithAString;
 class G4UIcmdWithADoubleAndUnit;
+class G4UIcmdWithAnInteger;
 class G4UIcmdWithoutParameter;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -59,6 +60,8 @@ class DetectorMessenger: public G4UImessenger
     DetectorConstruction*      fDetector;
     G4UIcmdWithADoubleAndUnit* fPosMin;
     G4UIcmdWithADoubleAndUnit* fPosMax;
+    G4UIcmdWithAnInteger* fNrings;
+    G4UIcmdWithAnInteger* fNperRing;
 
 };
 

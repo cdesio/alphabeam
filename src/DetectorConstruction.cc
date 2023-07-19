@@ -66,6 +66,8 @@ using CLHEP::nanometer;
 
 static G4VisAttributes visGrey(true, G4Colour(0.839216, 0.839216, 0.839216));
 static G4VisAttributes invisGrey(false, G4Colour(0.839216, 0.839216, 0.839216));
+static G4VisAttributes visRed(true, G4Colour(0, 0, 1));
+
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -94,20 +96,38 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   G4NistManager *man = G4NistManager::Instance();
   G4Material *waterMaterial = man->FindOrBuildMaterial("G4_WATER");
   G4Material *S_Steel = G4NistManager::Instance()->FindOrBuildMaterial("G4_STAINLESS-STEEL");
+  G4Material *air = G4NistManager::Instance()->FindOrBuildMaterial("G4_AIR");
 
-  G4Box *solidWorld = new G4Box("world", 10 * mm, 10 * mm, 10 * mm);
+  G4double nucleusSize = 300*nm;
+  G4double margin = 0*nm;
+
+  G4Box *solidWorld = new G4Box("world", 100 * mm, 100 * mm, 100 * mm);
+
+  G4Box *solidWater = new G4Box("water", 10 * mm, 10 * mm, 10 * mm); // reduce x/y size of volume where particles are tracked
 
   G4Tubs *solidSeed = new G4Tubs("seed", 0., 0.15 * mm, 3 * mm, 0, 360 * degree);
-  G4Orb *solidCell = new G4Orb("cell", 5 * micrometer);
-  G4Orb *solidNucleus = new G4Orb("nucleus", 2.5 * micrometer);
+  // G4Box *solidCell = new G4Box("cell", nucleusSize/2+ margin, nucleusSize/2 + margin, nucleusSize/2+ margin);
+  // G4Box *solidNucleus = new G4Box("nucleus", nucleusSize/2, nucleusSize/2, nucleusSize/2);
 
   G4LogicalVolume *logicWorld = new G4LogicalVolume(solidWorld,
-                                                    waterMaterial,
+                                                    air,
                                                     "world");
 
   G4PVPlacement *physiWorld = new G4PVPlacement(0,
                                                 G4ThreeVector(),
                                                 "world",
+                                                logicWorld,
+                                                0,
+                                                false,
+                                                0);
+
+  G4LogicalVolume *logicWater = new G4LogicalVolume(solidWater,
+                                                    waterMaterial,
+                                                    "water");
+  G4PVPlacement *physiWater = new G4PVPlacement(0,
+                                                G4ThreeVector(),
+                                                logicWater,
+                                                "water",
                                                 logicWorld,
                                                 0,
                                                 false,
@@ -121,53 +141,53 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
                                                G4ThreeVector(),
                                                logicSeed,
                                                "seed",
-                                               logicWorld,
+                                               logicWater,
                                                0,
                                                false,
                                                0);
 
-  SetCells(Rmin, Rmax);
+  // Example of User Limits
+  //
+  // Below is an example of how to set tracking constraints in a given
+  // logical volume
+  //
+  // Sets a max step length in the tracker region, with G4StepLimiter
+
+  G4double maxStep = 0.01*nucleusSize;
+  auto fStepLimit = new G4UserLimits(maxStep);
+  // logicWorld->SetUserLimits(fStepLimit);
+  // logicWater->SetUserLimits(fStepLimit);
+  // logicSeed->SetUserLimits(fStepLimit);
+
+
+  SetCells(Rmin, Rmax, Nrings);
+  G4int numberRadialDivisions = NperRing;
 
   for (G4int r = 0; r < R.size(); ++r)
   {
-    G4int numCells{0};
-    for (G4int z = -100; z <= 100; z += 10)
-    {
-      for (float theta = 0; theta <= 2 * 3.14159 - 10.5 * micrometer / R[r]; theta += 10.5 * micrometer / R[r])
-      {
-        // G4LogicalVolume *logicCell = new G4LogicalVolume(solidCell,
-        //                                                  waterMaterial,
-        //                                                  "cell");
+        G4Tubs *solidCell = new G4Tubs("cell", R[r]-(nucleusSize/2+ margin), R[r]+(nucleusSize/2+ margin), 3 * mm, 0, 360 * degree);
 
-        // G4PVPlacement *physiCell = new G4PVPlacement(0,
-        //                                              G4ThreeVector(R[r] * cos(theta), R[r] * sin(theta), z * micrometer),
-        //                                              logicCell,
-        //                                              "cell",
-        //                                              logicWorld,
-        //                                              0,
-        //                                              r,
-        //                                              0);
+        G4LogicalVolume *logicCell = new G4LogicalVolume(solidCell,
+                                                         waterMaterial,
+                                                         "cell");
+        logicCell->SetUserLimits(fStepLimit);
+        logicCell->SetVisAttributes(&visRed);
 
-        G4LogicalVolume *logicNucleus = new G4LogicalVolume(solidNucleus,
-                                                            waterMaterial,
-                                                            "nucleus");
-
-        G4PVPlacement *physiNucleus = new G4PVPlacement(0,
-                                                        G4ThreeVector(R[r] * cos(theta), R[r] * sin(theta), z * micrometer),
-                                                        logicNucleus,
-                                                        "nucleus",
-                                                        logicWorld,
-                                                        0,
-                                                        r,
-                                                        0);
-        numCells++;
+        G4PVPlacement *physiCell = new G4PVPlacement(0,
+                                                     G4ThreeVector(),
+                                                     logicCell,
+                                                     "cell",
+                                                     logicWater,
+                                                     0,
+                                                     r,
+                                                     0);
       }
-    }
-    RunAction *myRunAction = (RunAction *)(G4RunManager::GetRunManager()->GetUserRunAction());
-    myRunAction -> setNumCells(numCells);
-  }
+    
+
   logicWorld->SetVisAttributes(&invisGrey);
+  logicWater->SetVisAttributes(&invisGrey);
   logicSeed->SetVisAttributes(&visGrey);
+
 
   return physiWorld;
 }
@@ -183,11 +203,25 @@ void DetectorConstruction::SetMax(G4double max)
   RunAction *myRunAction = (RunAction *)(G4RunManager::GetRunManager()->GetUserRunAction());
   myRunAction->setRmax(max);
 }
-void DetectorConstruction::SetCells(G4double min, G4double max)
+void DetectorConstruction::SetNrings(G4int N)
 {
-  for (G4int i = 0; i < R.size(); ++i)
+  Nrings = N;
+  RunAction *myRunAction = (RunAction *)(G4RunManager::GetRunManager()->GetUserRunAction());
+  myRunAction->setNrings(Nrings);
+}
+void DetectorConstruction::SetNperRing(G4int N)
+{
+  NperRing = N;
+  RunAction *myRunAction = (RunAction *)(G4RunManager::GetRunManager()->GetUserRunAction());
+  myRunAction->setNperRing(NperRing);
+}
+void DetectorConstruction::SetCells(G4double min, G4double max, G4int Nrings)
+{
+  R.resize(Nrings);
+
+  for (G4int i = 0; i < Nrings; ++i)
   {
-    R[i] = min + i * (max - min) / 9;
+    R[i] = min + i * (max - min) / (Nrings-1);
     G4cout << "R[" << i << "] = " << R[i] / um << G4endl;
   }
 }

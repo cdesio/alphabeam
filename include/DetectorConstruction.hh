@@ -42,14 +42,19 @@ public:
     ~DetectorConstruction() override;
     G4VPhysicalVolume *Construct() override;
 
-    void SetCells(G4double min, G4double max);
+    void SetCells(G4double min, G4double max, G4int Nrings);
     void SetMin(G4double min);
     void SetMax(G4double max);
+    void SetNrings(G4int N);
+    void SetNperRing(G4int n);
 
     DetectorMessenger* fDetectorMessenger;
+    std::vector<G4double> R;
 
 private:
-    std::vector<G4double> R;
     G4double Rmin{0};
     G4double Rmax{0};
+    G4int Nrings{0};
+    G4int NperRing{0};
+
 };

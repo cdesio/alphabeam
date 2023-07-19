@@ -44,15 +44,17 @@ public:
     void BeginOfRunAction(const G4Run*) override;
     void EndOfRunAction(const G4Run*) override;
     
-    void saveDose(G4double inEdep, G4double time, G4int cp);
     void setRmin(G4double min) {Rmin = min;}
     void setRmax(G4double max) {Rmax = max;}
-
+    void setNrings(G4double N) {Nrings = N;}
+    void setNperRing(G4double N) {NperRing = N;}
     void setNumCells(G4int numCells) {NumCells.push_back(numCells); }
 
 private:
     void Write(const G4Run*);
     G4double Rmin{0};
     G4double Rmax{0};
+    G4double Nrings{0};
+    G4double NperRing{0};
     std::vector<G4int> NumCells;
 };

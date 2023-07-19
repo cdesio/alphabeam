@@ -63,7 +63,7 @@ int main(int argc, char **argv)
 
   PhysicsList *pPhysList = new PhysicsList;
   pRunManager->SetUserInitialization(pPhysList);
-  pRunManager->SetUserInitialization(new ActionInitialization());
+  pRunManager->SetUserInitialization(new ActionInitialization(pDetector));
 
 
   G4UImanager *UImanager = G4UImanager::GetUIpointer();
