@@ -103,7 +103,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
 
   G4Box *solidWorld = new G4Box("world", 100 * mm, 100 * mm, 100 * mm);
 
-  G4Box *solidWater = new G4Box("water", 10 * mm, 10 * mm, 10 * mm); // reduce x/y size of volume where particles are tracked
+  G4Box *solidWater = new G4Box("water", 15 * mm, 15 * mm, 15 * mm); 
 
   G4Tubs *solidSeed = new G4Tubs("seed", 0., 0.15 * mm, 3 * mm, 0, 360 * degree);
   // G4Box *solidCell = new G4Box("cell", nucleusSize/2+ margin, nucleusSize/2 + margin, nucleusSize/2+ margin);
