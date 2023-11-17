@@ -1,4 +1,4 @@
-# Lu177 Simulation
+# alphaBeam simulation
 
 ## Origin
 Repo created from two repos:
