@@ -8,4 +8,4 @@
 /gun/direction 0 0 1
 
 /run/printProgress 10
-/run/beamOn 100
+/run/beamOn 10
