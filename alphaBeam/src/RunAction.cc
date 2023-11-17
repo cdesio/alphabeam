@@ -87,6 +87,16 @@ void RunAction::BeginOfRunAction(const G4Run *)
     analysisManager->FinishNtuple(0);
 
 
+    analysisManager->CreateNtuple("TrackingData", "TrackingData");
+    analysisManager->CreateNtupleIColumn(1, "EventID");
+    analysisManager->CreateNtupleDColumn(1, "Edep_MeV");
+    analysisManager->CreateNtupleIColumn(1, "particleID");
+    analysisManager->CreateNtupleIColumn(1, "copyNo");
+    analysisManager->CreateNtupleDColumn(1, "posX");
+    analysisManager->CreateNtupleDColumn(1, "posY");
+    analysisManager->CreateNtupleDColumn(1, "posZ");
+    analysisManager->CreateNtupleDColumn(1, "stepLength");
+    analysisManager->FinishNtuple(1);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
@@ -114,7 +124,7 @@ void RunAction::Write(const G4Run* run)
 
 
     analysisManager->FillNtupleDColumn(0,0, run->GetNumberOfEvent());
-    analysisManager->FillNtupleSColumn(0,3, kGitHash);
+    analysisManager->FillNtupleSColumn(0,1, kGitHash);
     analysisManager->AddNtupleRow(0);
 
     analysisManager->Write();
