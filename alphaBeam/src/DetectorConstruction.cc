@@ -138,7 +138,8 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   G4LogicalVolume *logicVoxel = new G4LogicalVolume(solidVoxel,
                                                          waterMaterial,
                                                          "voxel");
-
+  G4UserLimits* userLimits = new G4UserLimits();
+  userLimits->SetMaxAllowedStep(3 * nm);
   G4int noVoxels =0;
   G4double spacing = 0.5;
   for (G4int i=-10; i <10; i++){
