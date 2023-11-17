@@ -1,4 +1,4 @@
-# alphaBeam simulation
+# alphaBeam simulation  
 
 ## Origin
 Repo created from two repos:
@@ -9,7 +9,7 @@ Repo created from two repos:
 The decaySimulation simulates a point-like alpha source, shooting particles along the Z axis.
 Particles are saved as they cross a voxelised geometry.
 The produced output files are:
-- an output.root file, containing basic info, e.g. number of primaries
+- an output.root file, containing basic info, e.g. number of primaries, and tracking data: e.g. particle ID, energy, position, layer ID (copyNo)
 - an output.bin file, to be used as input for the DNA simulation (RBE), with the option -PS
 
 ## How to Run
