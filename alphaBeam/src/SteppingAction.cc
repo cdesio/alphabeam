@@ -123,7 +123,8 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
 
       G4String particleName = step->GetTrack()->GetParticleDefinition()->GetParticleName();
       G4int copyNo = step->GetPostStepPoint()->GetPhysicalVolume()->GetCopyNo();
-      
+      G4double steplength = step->GetStepLength();
+
       G4float particleID{0};
       if (G4StrUtil::contains(particleName,"e-"))
         particleID = 1;
@@ -153,6 +154,20 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
       output[11] = ((const G4Ions*)( step->GetTrack()->GetParticleDefinition()))->GetExcitationEnergy();
 
       PSfile.write((char *)&output, sizeof(output));
+
+      G4AnalysisManager *analysisManager = G4AnalysisManager::Instance();
+
+      analysisManager->FillNtupleIColumn(1, 0, eventID);
+      analysisManager->FillNtupleDColumn(1, 1, particleEnergy / MeV);
+      analysisManager->FillNtupleIColumn(1, 2, particleID);
+      analysisManager->FillNtupleIColumn(1, 3, copyNo);
+      analysisManager->FillNtupleDColumn(1, 4, worldPos.x() / nanometer);
+      analysisManager->FillNtupleDColumn(1, 5, worldPos.y() / nanometer);
+      analysisManager->FillNtupleDColumn(1, 6, worldPos.z() / nanometer);
+      analysisManager->FillNtupleDColumn(1, 7, steplength);
+      analysisManager->AddNtupleRow(1);
+
+    
     }
   }
 
@@ -180,7 +195,8 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
 
     G4String particleName = step->GetTrack()->GetParticleDefinition()->GetParticleName();
     G4int copyNo = step->GetPostStepPoint()->GetPhysicalVolume()->GetCopyNo();
-    
+    G4double steplength = step->GetStepLength();
+
     G4float particleID{0};
     if (G4StrUtil::contains(particleName,"e-"))
       particleID = 1;
@@ -210,6 +226,17 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
 
     PSfile.write((char *)&output, sizeof(output));
 
+    G4AnalysisManager *analysisManager = G4AnalysisManager::Instance();
+
+    analysisManager->FillNtupleIColumn(1, 0, eventID);
+    analysisManager->FillNtupleDColumn(1, 1, particleEnergy / MeV);
+    analysisManager->FillNtupleIColumn(1, 2, particleID);
+    analysisManager->FillNtupleIColumn(1, 3, copyNo);
+    analysisManager->FillNtupleDColumn(1, 4, worldPos.x() / nanometer);
+    analysisManager->FillNtupleDColumn(1, 5, worldPos.y() / nanometer);
+    analysisManager->FillNtupleDColumn(1, 6, worldPos.z() / nanometer);
+    analysisManager->FillNtupleDColumn(1, 7, steplength);
+    analysisManager->AddNtupleRow(1);
   }
 
 }
