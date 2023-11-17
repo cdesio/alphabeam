@@ -7,5 +7,5 @@
 /gun/energy 5.5 MeV
 /gun/direction 0 0 1
 
-/run/printProgress 10
+/run/printProgress 1
 /run/beamOn 10
