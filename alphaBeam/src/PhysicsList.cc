@@ -36,13 +36,13 @@
 
 #include "G4SystemOfUnits.hh"
 #include "G4UnitsTable.hh"
-
+#include "G4EmPenelopePhysics.hh"
 #include "G4EmStandardPhysics_option4.hh"
 // #include "G4EmExtraPhysics.hh"
 #include "G4EmParameters.hh"
 #include "G4DecayPhysics.hh"
 #include "G4RadioactiveDecayPhysics.hh"
-
+#include "G4StepLimiterPhysics.hh"
 // #include "G4HadronElasticPhysicsHP.hh"
 // #include "G4HadronPhysicsFTFP_BERT_HP.hh"
 // #include "G4HadronPhysicsQGSP_BIC_HP.hh"
@@ -77,7 +77,7 @@ PhysicsList::PhysicsList()
   //
 //   new G4UnitDefinition( "millielectronVolt", "meV", "Energy", 1.e-3*eV);   
   // EM physics
-  RegisterPhysics(new G4EmStandardPhysics_option4());
+  RegisterPhysics(new G4EmPenelopePhysics());
 
   G4EmParameters* param = G4EmParameters::Instance();
   param->SetAugerCascade(true);
@@ -90,7 +90,8 @@ PhysicsList::PhysicsList()
   // Radioactive decay
   RegisterPhysics(new G4RadioactiveDecayPhysics());
 
-  // RegisterPhysics(new G4StepLimiterPhysics());
+ G4ProductionCutsTable::GetProductionCutsTable()->SetEnergyRange(100 * eV, 1 * GeV);
+     RegisterPhysics(new G4StepLimiterPhysics());
             
   // Hadron Elastic scattering
   // RegisterPhysics( new G4HadronElasticPhysicsHP(verb) );
