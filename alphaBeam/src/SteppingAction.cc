@@ -74,7 +74,7 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
 
   if (step->GetTrack()->GetParticleDefinition()->GetParticleName() == "anti_nu_e") // not anti neutrinos
     return;
-
+  G4double dE = step->GetTotalEnergyDeposit();
   G4String particleName = step->GetTrack()->GetParticleDefinition()->GetParticleName();
 
   // if (step->GetPreStepPoint() != nullptr)
@@ -159,12 +159,13 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
 
       analysisManager->FillNtupleIColumn(1, 0, eventID);
       analysisManager->FillNtupleDColumn(1, 1, particleEnergy / MeV);
-      analysisManager->FillNtupleIColumn(1, 2, particleID);
-      analysisManager->FillNtupleIColumn(1, 3, copyNo);
-      analysisManager->FillNtupleDColumn(1, 4, worldPos.x() / nanometer);
-      analysisManager->FillNtupleDColumn(1, 5, worldPos.y() / nanometer);
-      analysisManager->FillNtupleDColumn(1, 6, worldPos.z() / nanometer);
-      analysisManager->FillNtupleDColumn(1, 7, steplength);
+      analysisManager->FillNtupleDColumn(1, 2, dE / MeV);
+      analysisManager->FillNtupleIColumn(1, 3, particleID);
+      analysisManager->FillNtupleIColumn(1, 4, copyNo);
+      analysisManager->FillNtupleDColumn(1, 5, worldPos.x() / nanometer);
+      analysisManager->FillNtupleDColumn(1, 6, worldPos.y() / nanometer);
+      analysisManager->FillNtupleDColumn(1, 7, worldPos.z() / nanometer);
+      analysisManager->FillNtupleDColumn(1, 8, steplength);
       analysisManager->AddNtupleRow(1);
 
     
@@ -228,14 +229,14 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
 
     G4AnalysisManager *analysisManager = G4AnalysisManager::Instance();
 
-    analysisManager->FillNtupleIColumn(1, 0, eventID);
     analysisManager->FillNtupleDColumn(1, 1, particleEnergy / MeV);
-    analysisManager->FillNtupleIColumn(1, 2, particleID);
-    analysisManager->FillNtupleIColumn(1, 3, copyNo);
-    analysisManager->FillNtupleDColumn(1, 4, worldPos.x() / nanometer);
-    analysisManager->FillNtupleDColumn(1, 5, worldPos.y() / nanometer);
-    analysisManager->FillNtupleDColumn(1, 6, worldPos.z() / nanometer);
-    analysisManager->FillNtupleDColumn(1, 7, steplength);
+    analysisManager->FillNtupleDColumn(1, 2, dE / MeV);
+    analysisManager->FillNtupleIColumn(1, 3, particleID);
+    analysisManager->FillNtupleIColumn(1, 4, copyNo);
+    analysisManager->FillNtupleDColumn(1, 5, worldPos.x() / nanometer);
+    analysisManager->FillNtupleDColumn(1, 6, worldPos.y() / nanometer);
+    analysisManager->FillNtupleDColumn(1, 7, worldPos.z() / nanometer);
+    analysisManager->FillNtupleDColumn(1, 8, steplength);
     analysisManager->AddNtupleRow(1);
   }
 

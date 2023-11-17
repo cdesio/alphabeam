@@ -89,7 +89,8 @@ void RunAction::BeginOfRunAction(const G4Run *)
 
     analysisManager->CreateNtuple("TrackingData", "TrackingData");
     analysisManager->CreateNtupleIColumn(1, "EventID");
-    analysisManager->CreateNtupleDColumn(1, "Edep_MeV");
+    analysisManager->CreateNtupleDColumn(1, "particleEnergy_MeV");
+    analysisManager->CreateNtupleDColumn(1, "eDep_MeV");
     analysisManager->CreateNtupleIColumn(1, "particleID");
     analysisManager->CreateNtupleIColumn(1, "copyNo");
     analysisManager->CreateNtupleDColumn(1, "posX");
