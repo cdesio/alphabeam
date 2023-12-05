@@ -42,6 +42,7 @@ class G4UIcommand;
 class G4UIcmdWithAString;
 class G4UIcmdWithADoubleAndUnit;
 class G4UIcmdWithoutParameter;
+class G4UIcmdWithAnInteger;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -52,13 +53,17 @@ class DetectorMessenger: public G4UImessenger
     DetectorMessenger(DetectorConstruction* );
    ~DetectorMessenger();
     
-    // virtual void SetNewValue(G4UIcommand*, G4String);
+    virtual void SetNewValue(G4UIcommand*, G4String);
     
   private:
   
     DetectorConstruction*      fDetector;
-    // G4UIcmdWithADoubleAndUnit* fPosMin;
-    // G4UIcmdWithADoubleAndUnit* fPosMax;
+
+    G4UIcmdWithADoubleAndUnit* spacing;
+    G4UIcmdWithADoubleAndUnit* start_Z;
+    G4UIcmdWithAnInteger* ndiv_X;
+    G4UIcmdWithAnInteger* ndiv_Y;
+    G4UIcmdWithAnInteger* ndiv_Z;
 
 };
 

@@ -41,8 +41,20 @@ public:
     DetectorConstruction();
     ~DetectorConstruction() override;
     G4VPhysicalVolume *Construct() override;
-
+    void set_spacing (G4double);
+    void set_startZ(G4double);
+    void set_ndiv_X (G4int);
+    void set_ndiv_Y(G4int);
+    void set_ndiv_Z(G4int);
     DetectorMessenger* fDetectorMessenger;
-
+    G4double get_spacing() { return spacing; }
+    G4double get_start_Z() { return start_Z; }
 private:
+
+    G4double spacing;
+    G4double start_Z;
+
+    G4int ndiv_X;
+    G4int ndiv_Y;
+    G4int ndiv_Z;
 };

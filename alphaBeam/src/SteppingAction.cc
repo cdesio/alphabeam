@@ -132,6 +132,8 @@ void SteppingAction::UserSteppingAction(const G4Step *step)
         particleID = 2;
       else if (G4StrUtil::contains(particleName,"alpha"))
         particleID = 3;
+      else if (G4StrUtil::contains(particleName,"proton"))
+        particleID = 4;
       else
       {
         G4cout << particleName << " outside  not saved" << G4endl;

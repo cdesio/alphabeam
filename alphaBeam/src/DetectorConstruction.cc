@@ -141,10 +141,11 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   G4UserLimits* userLimits = new G4UserLimits();
   userLimits->SetMaxAllowedStep(3 * nm);
   G4int noVoxels =0;
-  G4double spacing = 0.5;
-  for (G4int i=-10; i <10; i++){
-      for (G4int j = -5; j<5; j++){
-        for (G4int k=0; k<60; k++){
+  // G4double spacing = 0.5;
+  G4cout << "spacing: " << spacing << ", start_Z: " << start_Z << ", ndiv_Z: " << ndiv_Z << ", ndiv_X: " << ndiv_X << G4endl;
+  for (G4int i=0; i <ndiv_X; i++){
+      for (G4int j = 0; j<ndiv_Y; j++){
+        for (G4int k=0; k<ndiv_Z; k++){
             
 
             // G4RotationMatrix* rot = new G4RotationMatrix(-1*theta, 
@@ -152,7 +153,7 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
             //                                   0) ;
 
             G4PVPlacement *physiCell = new G4PVPlacement(0,
-                                                     G4ThreeVector(0.5*um + i*spacing*um, 0.5*um + j*spacing* um, 5* um + k*spacing * um),
+                                                     G4ThreeVector(-2.5*um + i*spacing, -2.5*um+ j*spacing, start_Z+ k*spacing),
                                                      logicVoxel,
                                                      "voxel",
                                                      logicWater,
@@ -172,4 +173,33 @@ G4VPhysicalVolume *DetectorConstruction::Construct()
   logicWater->SetVisAttributes(&invisGrey);
   
   return physiWorld;
+}
+
+
+void DetectorConstruction::set_ndiv_X(G4int value)
+{
+  ndiv_X = value;
+  G4RunManager::GetRunManager()->ReinitializeGeometry();
+}
+void DetectorConstruction::set_ndiv_Y(G4int value)
+{
+  ndiv_Y = value;
+  G4RunManager::GetRunManager()->ReinitializeGeometry();
+}
+void DetectorConstruction::set_ndiv_Z(G4int value)
+{
+  ndiv_Z = value;
+  G4RunManager::GetRunManager()->ReinitializeGeometry();
+}
+
+void DetectorConstruction::set_spacing(G4double value)
+{
+  spacing = value;
+  G4RunManager::GetRunManager()->ReinitializeGeometry();
+}
+
+void DetectorConstruction::set_startZ(G4double value)
+{
+  start_Z = value;
+  G4RunManager::GetRunManager()->ReinitializeGeometry();
 }
