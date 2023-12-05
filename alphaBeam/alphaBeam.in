@@ -3,9 +3,15 @@
 
 /run/initialize
 
+/det/set_ndiv_Z 100
+/det/set_ndiv_X 10
+/det/set_ndiv_Y 10
+/det/set_spacing 0.5 um
+/det/set_startZ 100 um
+
 /gun/particle alpha
-/gun/energy 5.5 MeV
+/gun/energy 100 MeV
 /gun/direction 0 0 1
 
-/run/printProgress 1
-/run/beamOn 10
+/run/printProgress 100
+/run/beamOn 1000
